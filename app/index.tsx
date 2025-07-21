@@ -11,8 +11,8 @@ export default function Index() {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const response = await axios.get<GameDTO[]>('http://10.0.1.229:8080/api/videogames/'); //Usar ip local para conectar con la api
-        setGames(response.data);
+        const response = await axios.get('http://10.0.1.229:8080/api/videogames/'); //Usar ip local para conectar con la api
+        setGames(response.data as GameDTO[]);
       } catch (err) {
         console.error(err);
         setError('Error al cargar los datos');
