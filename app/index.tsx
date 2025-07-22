@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { GameDTO } from './Components/gameDTO';
 
 export default function Index() {
@@ -11,7 +11,7 @@ export default function Index() {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const response = await axios.get('http://10.0.1.229:8080/api/videogames/'); //Usar ip local para conectar con la api
+        const response = await axios.get('http://10.0.1.229:8080/api/videogames/');
         setGames(response.data as GameDTO[]);
       } catch (err) {
         console.error(err);
@@ -40,25 +40,30 @@ export default function Index() {
     );
   }
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {games.map((game) => (
-        <View key={game.id} style={styles.card}>
-          <Text style={styles.title}>{game.name}</Text>
-          <Text style={styles.text}>{game.summary}</Text>
-          <Text style={styles.subtitle}>Géneros:</Text>
-          {game.genres.map((genre) => (
-            <Text key={genre.id} style={styles.text}>- {genre.name}</Text>
-          ))}
-          <Text style={styles.subtitle}>Plataformas:</Text>
-          {game.platforms.map((platform) => (
-            <Text key={platform.id} style={styles.text}>- {platform.name}</Text>
-          ))}
-          <Text style={styles.subtitle}>Rating de usuarios: {game.usersRating}</Text>
-          <Text style={styles.subtitle}>Rating de críticos: {game.criticsRating}</Text>
-        </View>
+  const renderItem = ({ item }: { item: GameDTO }) => (
+    <View style={styles.card}>
+      <Text style={styles.title}>{item.name}</Text>
+      <Text style={styles.text}>{item.summary}</Text>
+      <Text style={styles.subtitle}>Géneros:</Text>
+      {item.genres.map((genre) => (
+        <Text key={genre.id} style={styles.text}>- {genre.name}</Text>
       ))}
-    </ScrollView>
+      <Text style={styles.subtitle}>Plataformas:</Text>
+      {item.platforms.map((platform) => (
+        <Text key={platform.id} style={styles.text}>- {platform.name}</Text>
+      ))}
+      <Text style={styles.subtitle}>Rating de usuarios: {item.usersRating}</Text>
+      <Text style={styles.subtitle}>Rating de críticos: {item.criticsRating}</Text>
+    </View>
+  );
+
+  return (
+    <FlatList
+      contentContainerStyle={styles.container}
+      data={games}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={renderItem}
+    />
   );
 }
 
