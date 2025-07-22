@@ -39,7 +39,7 @@ export default function Index() {
       </View>
     );
   }
-
+/*
   const renderItem = ({ item }: { item: GameDTO }) => (
     <View style={styles.card}>
       <Text style={styles.title}>{item.name}</Text>
@@ -56,16 +56,36 @@ export default function Index() {
       <Text style={styles.subtitle}>Rating de críticos: {item.criticsRating}</Text>
     </View>
   );
-
+*/
+  const renderItem = ({ item }: { item: GameDTO }) => (
+    <View style={styles.card}>
+      <Text style={styles.title} numberOfLines={2}>{item.name}</Text>
+       <Text style={styles.subtitle}>Géneros:</Text>
+      {item.genres.map((genre) => (
+        <Text key={genre.id} style={styles.text}>- {genre.name}</Text>
+      ))}
+      <Text style={styles.subtitle}>Plataformas:</Text>
+      {item.platforms.map((platform) => (
+        <Text key={platform.id} style={styles.text}>- {platform.name}</Text>
+      ))}
+      <Text style={styles.subtitle}>Rating usuarios: {formatRating(item.usersRating)}</Text>
+      <Text style={styles.subtitle}>Rating prensa: {formatRating(item.criticsRating)}</Text>
+    </View>
+  );
   return (
     <FlatList
       contentContainerStyle={styles.container}
       data={games}
+      numColumns={2}
       keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
     />
   );
 }
+
+const formatRating = (rating: number) => {
+  return parseFloat(rating.toFixed(1)).toString();
+};
 
 const styles = StyleSheet.create({
   center: {
@@ -77,22 +97,25 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   card: {
+    width: '45%',
+    height: 220,
     backgroundColor: '#f5f5f5',
-    padding: 15,
-    marginBottom: 20,
+    padding: 10,
+    margin: 10,
     borderRadius: 8,
     elevation: 2,
+    justifyContent: 'space-between',
   },
   title: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   subtitle: {
-    fontSize: 16,
-    marginTop: 10,
+    fontSize: 14,
+    marginTop: 5,
     fontWeight: '600',
   },
   text: {
-    fontSize: 14,
+    fontSize: 12,
   },
 });
