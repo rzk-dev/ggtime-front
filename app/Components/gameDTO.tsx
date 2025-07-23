@@ -4,6 +4,11 @@ export interface GenreDTO {
   slug: string;
 }
 
+export interface CoverDTO{
+  id: number;
+  url: string;
+}
+
 export interface PlatformDTO {
   id: number;
   name: string;
@@ -15,9 +20,11 @@ export interface GameDTO {
   name: string;
   slug: string;
   releaseDate: number;
-  summary: string;
-  usersRating: number;
-  criticsRating: number;
-  genres: GenreDTO[];
+  summary?: string;
+  usersRating?: number;
+  criticsRating?: number;
+  genres?: GenreDTO[];
   platforms: PlatformDTO[];
+  cover?: CoverDTO;
+  ageRatings?: any[]
 }

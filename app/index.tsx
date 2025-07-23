@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import { GameDTO } from './Components/gameDTO';
 
 export default function Index() {
@@ -45,7 +45,7 @@ export default function Index() {
       <Text style={styles.title}>{item.name}</Text>
       <Text style={styles.text}>{item.summary}</Text>
       <Text style={styles.subtitle}>Géneros:</Text>
-      {item.genres.map((genre) => (
+      {item.genres && item.genres.map((genre) => (
         <Text key={genre.id} style={styles.text}>- {genre.name}</Text>
       ))}
       <Text style={styles.subtitle}>Plataformas:</Text>
@@ -58,32 +58,43 @@ export default function Index() {
   );
 */
   const renderItem = ({ item }: { item: GameDTO }) => (
-    <View style={styles.card}>
-      <Text style={styles.title} numberOfLines={2}>{item.name}</Text>
-       <Text style={styles.subtitle}>Géneros:</Text>
-      {item.genres.map((genre) => (
-        <Text key={genre.id} style={styles.text}>- {genre.name}</Text>
-      ))}
-      <Text style={styles.subtitle}>Plataformas:</Text>
-      {item.platforms.map((platform) => (
-        <Text key={platform.id} style={styles.text}>- {platform.name}</Text>
-      ))}
-      <Text style={styles.subtitle}>Rating usuarios: {formatRating(item.usersRating)}</Text>
-      <Text style={styles.subtitle}>Rating prensa: {formatRating(item.criticsRating)}</Text>
-    </View>
-  );
-  return (
-    <FlatList
-      contentContainerStyle={styles.container}
-      data={games}
-      numColumns={2}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={renderItem}
-    />
-  );
+  <View style={styles.card}>
+    {item.cover && (
+      <Image
+        source={{ uri: item.cover.url }}
+        style={{ width: '100%', height: 100, borderRadius: 8 }}
+      />
+    )}
+    <Text style={styles.title} numberOfLines={2}>
+      {item.name}
+    </Text>
+
+    {item.platforms && item.platforms.length > 0 && (
+      <>
+        <Text style={styles.subtitle}>Plataformas:</Text>
+        {item.platforms.map((platform) => (
+          <Text key={platform.id} style={styles.text}>
+            - {platform.name}
+          </Text>
+        ))}
+      </>
+    )}
+  </View>
+);
+
+return (
+  <FlatList
+    contentContainerStyle={styles.container}
+    data={games}
+    numColumns={2}
+    keyExtractor={(item) => item.id.toString()}
+    renderItem={renderItem}
+  />
+);
 }
 
-const formatRating = (rating: number) => {
+const formatRating = (rating: number | undefined) => {
+  if (typeof rating !== 'number') return 'N/A';
   return parseFloat(rating.toFixed(1)).toString();
 };
 
