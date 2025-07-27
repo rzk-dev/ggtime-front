@@ -32,25 +32,12 @@ export default function Index() {
   const renderItem = ({ item }: { item: Videogame }) => (
     <View style={styles.card}>
       <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.text}>{item.summary}</Text>
-      <Text style={styles.subtitle}>Géneros:</Text>
-      {item.genres.map((genre) => (
-        <Text key={genre.id} style={styles.text}>
-          - {genre.name}
-        </Text>
-      ))}
       <Text style={styles.subtitle}>Plataformas:</Text>
       {item.platforms.map((platform) => (
         <Text key={platform.id} style={styles.text}>
           - {platform.name}
         </Text>
       ))}
-      <Text style={styles.subtitle}>
-        Rating de usuarios: {item.usersRating}
-      </Text>
-      <Text style={styles.subtitle}>
-        Rating de críticos: {item.criticsRating}
-      </Text>
     </View>
   );
 

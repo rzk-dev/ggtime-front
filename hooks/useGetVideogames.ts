@@ -10,7 +10,8 @@ export function useGetVideogames() {
   useEffect(() => {
     const fetchVideogames = async () => {
       try {
-        const response = await axios.get('http://10.0.1.229:8080/api/videogames/');
+        // const response = await axios.get('http://10.0.1.229:8080/api/videogames/');
+        const response = await axios.get('http://192.168.1.46:8080/api/videogames/');
 
         setVideogames(response.data as Videogame[]);
       } catch (err) {

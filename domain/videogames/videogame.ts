@@ -1,14 +1,11 @@
-import { Genre } from "./genre";
+import { Cover } from "./cover";
 import { Platform } from "./platform";
 
 export type Videogame = {
   id: number;
   name: string;
   slug: string;
-  releaseDate: number;
-  summary: string;
-  usersRating: number;
-  criticsRating: number;
-  genres: Genre[];
+  ageRatings: string[];
+  cover: Cover
   platforms: Platform[];
 }
