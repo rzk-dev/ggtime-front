@@ -1,4 +1,4 @@
 export type Cover = {
-  Id: number,
-  Url: string
+  id: number,
+  url: string
 }

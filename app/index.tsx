@@ -32,23 +32,14 @@ export default function Index() {
 
   const renderItem = ({ item }: { item: Videogame }) => (
     <View style={styles.card}>
-      {/*
-      {item.cover.map((img) => (
-        <Image
-          style={styles.gameLogo}
-          source={{ uri: String(img.Url) }}
-        />
-      ))} 
-      */}
       <Image
-        style={styles.gameLogo}
-        source={{ uri: item.cover.Url }}
+        style={{width: 120, height: 120}}
+        source={{ uri: item.cover.url }}
       />
-      <Text style={styles.subtitle}>{item.cover.Url}:</Text>
-      <Text style={styles.title}>{item.name}</Text>
+      <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">{item.name}</Text>
       <Text style={styles.subtitle}>Plataformas:</Text>
       {item.platforms.map((platform) => (
-        <Text key={platform.id} style={styles.text}>
+        <Text key={platform.id} style={styles.text} numberOfLines={1} ellipsizeMode="tail">
           - {platform.name}
         </Text>
       ))}
@@ -61,6 +52,8 @@ export default function Index() {
       data={videogames}
       keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
+      numColumns={2}
+      columnWrapperStyle={{ justifyContent: "space-between" }}
     />
   );
 }
@@ -76,14 +69,19 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#f5f5f5",
-    padding: 15,
-    marginBottom: 20,
+    padding: 10,
+    marginBottom: 5,
     borderRadius: 8,
     elevation: 2,
+    width: "45%",
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
@@ -92,10 +90,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 14,
-  },
-  gameLogo: {
-    width: 120,
-    borderRadius: 8,
-    marginBottom: 10,
+    textAlign: "center",
   },
 });
