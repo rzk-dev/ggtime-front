@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
 } from "react-native";
 
 import { Videogame } from "@/domain/videogames/videogame";
@@ -31,6 +32,19 @@ export default function Index() {
 
   const renderItem = ({ item }: { item: Videogame }) => (
     <View style={styles.card}>
+      {/*
+      {item.cover.map((img) => (
+        <Image
+          style={styles.gameLogo}
+          source={{ uri: String(img.Url) }}
+        />
+      ))} 
+      */}
+      <Image
+        style={styles.gameLogo}
+        source={{ uri: item.cover.Url }}
+      />
+      <Text style={styles.subtitle}>{item.cover.Url}:</Text>
       <Text style={styles.title}>{item.name}</Text>
       <Text style={styles.subtitle}>Plataformas:</Text>
       {item.platforms.map((platform) => (
@@ -78,5 +92,10 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 14,
+  },
+  gameLogo: {
+    width: 120,
+    borderRadius: 8,
+    marginBottom: 10,
   },
 });

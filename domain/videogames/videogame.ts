@@ -6,6 +6,6 @@ export type Videogame = {
   name: string;
   slug: string;
   ageRatings: string[];
-  cover: Cover
+  cover: Cover;
   platforms: Platform[];
 }
