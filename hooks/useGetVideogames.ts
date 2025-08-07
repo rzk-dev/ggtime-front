@@ -17,7 +17,7 @@ export function useGetVideogames() {
         setVideogames(response.data as Videogame[]);
       } catch (err) {
         console.error(err);
-        setError("Error al cargar los datos");
+        setError("Error loading data");
       } finally {
         setLoading(false);
       }
