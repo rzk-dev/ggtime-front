@@ -8,7 +8,6 @@ import {
   SafeAreaView,
 } from "react-native";
 
-import { Videogame } from "@/domain/videogames/videogame";
 import { useGetVideogames } from "@/hooks/useGetVideogames";
 import { RenderVideogameItem } from "@/domain/videogames/gameCard";
 
