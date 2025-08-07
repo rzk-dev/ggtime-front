@@ -1,22 +1,23 @@
 import { Videogame } from "@/domain/videogames/videogame";
 import { useEffect, useState } from "react";
-import axios from 'axios'
+import axios from "axios";
 
 export function useGetVideogames() {
-  const [videogames, setVideogames] = useState<Videogame[]>([])
+  const [videogames, setVideogames] = useState<Videogame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchVideogames = async () => {
       try {
-        // const response = await axios.get('http://10.0.1.229:8080/api/videogames/');
-        const response = await axios.get('http://192.168.1.46:8080/api/videogames/');
+        const host = process.env.EXPO_PUBLIC_HOST;
+
+        const response = await axios.get(`http://${host}/api/videogames/`);
 
         setVideogames(response.data as Videogame[]);
       } catch (err) {
         console.error(err);
-        setError('Error al cargar los datos');
+        setError("Error al cargar los datos");
       } finally {
         setLoading(false);
       }
@@ -25,5 +26,5 @@ export function useGetVideogames() {
     fetchVideogames();
   }, []);
 
-  return { videogames, loading, error }
+  return { videogames, loading, error };
 }
