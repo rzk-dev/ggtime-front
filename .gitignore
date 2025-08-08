@@ -69,3 +69,7 @@ yarn-error.log
 
 # testing
 /coverage
+
+# LOCAL ENVIRONMENT VARIABLES
+.env.local.*
+.env.local
