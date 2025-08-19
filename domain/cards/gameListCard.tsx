@@ -34,7 +34,7 @@ export default function GameListCard({ videogame }: Props) {
         {uniqueIcons.map((icon, index) => (
           <Image
             key={index}
-            source={icon}
+            source={icon} // imagen local importada
             style={styles.platformIcon}
             resizeMode="contain"
           />

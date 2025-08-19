@@ -5,7 +5,7 @@ import GameListCard from "@/domain/cards/gameListCard";
 import { colors } from "@/constants/colors";
 
 export default function Index() {
-  const { videogames, loading, error } = useGetVideogames('95069');
+  const { videogames, loading, error } = useGetVideogames();
 
   if (loading) {
     return (
