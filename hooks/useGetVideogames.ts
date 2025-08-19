@@ -13,7 +13,6 @@ export function useGetVideogames(id: string) {
         const host = process.env.EXPO_PUBLIC_HOST;
 
         const response = await axios.get(`http://${host}/api/videogames/${id}`);
-        //const response = await axios.get(`http://${host}/api/videogames/95069`);
 
         setVideogames(response.data as Videogame[]);
       } catch (err) {
