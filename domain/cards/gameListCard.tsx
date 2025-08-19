@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { Videogame } from "@/domain/videogames/videogame";
 import { getPlatformIcon } from "@/constants/platformIcons";
-import { Colors } from "@/constants/colors";
+import { colors } from "@/constants/colors";
 
 type Props = {
   videogame: Videogame;
@@ -34,7 +34,7 @@ export default function GameListCard({ videogame }: Props) {
         {uniqueIcons.map((icon, index) => (
           <Image
             key={index}
-            source={icon} // imagen local importada
+            source={icon}
             style={styles.platformIcon}
             resizeMode="contain"
           />
@@ -46,7 +46,7 @@ export default function GameListCard({ videogame }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.dark.card,
+    backgroundColor: colors.dark.card,
     padding: 5,
     margin: 6,
     borderRadius: 8,
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     width: "100%",
     textAlign: "center",
     marginBottom: 4,
-    color: Colors.dark.text,
+    color: colors.dark.text,
   },
   iconsContainer: {
     flexDirection: "row",

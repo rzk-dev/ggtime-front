@@ -2,7 +2,7 @@ import { Videogame } from "@/domain/videogames/videogame";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export function useGetVideogames() {
+export function useGetVideogames(id: string) {
   const [videogames, setVideogames] = useState<Videogame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,7 +12,8 @@ export function useGetVideogames() {
       try {
         const host = process.env.EXPO_PUBLIC_HOST;
 
-        const response = await axios.post(`http://${host}/api/videogames/`);
+        const response = await axios.get(`http://${host}/api/videogames/${id}`);
+        //const response = await axios.get(`http://${host}/api/videogames/95069`);
 
         setVideogames(response.data as Videogame[]);
       } catch (err) {

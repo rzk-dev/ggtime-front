@@ -2,10 +2,10 @@ import React from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useGetVideogames } from "@/hooks/useGetVideogames";
 import GameListCard from "@/domain/cards/gameListCard";
-import { Colors } from "@/constants/colors";
+import { colors } from "@/constants/colors";
 
 export default function Index() {
-  const { videogames, loading, error } = useGetVideogames();
+  const { videogames, loading, error } = useGetVideogames("95069");
 
   if (loading) {
     return (
@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     justifyContent: "space-between",
-    backgroundColor: Colors.dark.background,
+    backgroundColor: colors.dark.background,
   },
 });
