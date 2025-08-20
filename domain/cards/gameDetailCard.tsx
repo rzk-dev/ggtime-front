@@ -1,49 +1,4 @@
-/*
-import React from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
-import { VideogameDetail } from "@/videogames/videogameDetail";
-
-type Props = {
-    videogameDetail: VideogameDetail;
-    onClose: () => void;
-};
-export default function GameDetailCard({ videogameDetail, onClose }: Props) {
-    return (
-        <View>
-            <Image
-                    source={{ uri: videogameDetail.cover.url }}
-                    style={styles.gamePortrait}
-                    resizeMode="cover"
-                  />
-            <Text>Name: {videogameDetail.name}</Text>
-            <Text>Story Line: {videogameDetail.storyline}</Text>
-            <Text>Release Date: {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}</Text>
-            <Text>Rating: {videogameDetail.totalRatingCount}</Text>
-            <Text>Platforms: {videogameDetail.platforms.map(p => p.name).join(", ")}</Text>
-            <Text>Genres: {videogameDetail.genres.join(", ")}</Text>
-            <Text>Age Ratings: {videogameDetail.ageRatings.join(", ")}</Text>
-            <Text>Languages: {videogameDetail.languageSupports.join(", ")}</Text>
-            <Text>Player Perspective: {videogameDetail.playerPerspectives}</Text>
-            <Text>Involved Companies: {videogameDetail.involvedCompanies.map(c => c.company.name).join(", ")}</Text>
-            <Text>Cover URL: {videogameDetail.cover.url}</Text>
-        </View>
-    );
-}
-
-const styles = StyleSheet.create({
-         gamePortrait: {
-        width: "100%",
-        height: 200,
-        borderRadius: 6,
-    },
-    title: {
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-}) */
-
-    // ChatGPT recommended code for GameDetailCard component:
-import React from "react";
+/*import React from "react";
 import {View, Text, Image, StyleSheet, Pressable, ScrollView,} from "react-native";
 import { VideogameDetail } from "@/domain/videogames/videogameDetail";
 import { colors } from "@/constants/Colors";
@@ -197,5 +152,79 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+});
+*/
+
+// Solución GTP
+import React from "react";
+import { View, Text, StyleSheet, ScrollView, Pressable, Image } from "react-native";
+import { VideogameDetail } from "@/domain/videogames/videogameDetail";
+import { colors } from "@/constants/Colors";
+
+type Props = {
+  videogameDetail: VideogameDetail;
+  onClose: () => void;
+};
+
+export default function GameDetailCard({ videogameDetail, onClose }: Props) {
+  return (
+    <ScrollView style={styles.container}>
+      <Pressable onPress={onClose} style={styles.closeButton}>
+        <Text style={styles.closeText}>Cerrar</Text>
+      </Pressable>
+      <Image
+        source={{ uri: videogameDetail.cover.url }}
+        style={styles.coverImage}
+        resizeMode="cover"
+      />
+      <Text style={styles.title}>{videogameDetail.name}</Text>
+      <Text style={styles.subtitle}>Summary: {videogameDetail.storyline || "N/A"}</Text>
+      <Text style={styles.subtitle}>Platforms: {videogameDetail.platforms.map(p => p.name).join(", ")}</Text>
+      <Text style={styles.subtitle}>Genres: {videogameDetail.genres.map(p => p.name).join(", ")}</Text>
+      {/* <Text style={styles.subtitle}>Company: {videogameDetail.involvedCompanies.map(c => c.id).join(", ")}</Text> */}
+      <Text style={styles.subtitle}>Release Date: {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}</Text>
+      <Text style={styles.storyline}>{videogameDetail.storyline}</Text>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    marginBottom: 10,
+    padding: 5,
+    backgroundColor: colors.dark.card,
+    borderRadius: 6,
+  },
+  closeText: {
+    color: colors.dark.text,
+    fontWeight: "bold",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: colors.dark.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: colors.dark.text,
+    marginBottom: 4,
+  },
+  storyline: {
+    fontSize: 14,
+    color: colors.dark.text,
+    marginTop: 10,
+  },
+  coverImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 12,
   },
 });
