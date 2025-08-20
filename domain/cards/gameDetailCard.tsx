@@ -56,7 +56,7 @@ type Props = {
 };
 
 export default function GameDetailCard({ videogameDetail, onClose }: Props) {
-  const { videogames, loading, error } = useGetById(videogameDetail.id);
+  const { videogame, loading, error } = useGetById(videogameDetail.id);
   if (loading) {
     return (
       <View style={styles.center}>

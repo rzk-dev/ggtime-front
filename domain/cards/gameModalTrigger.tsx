@@ -1,7 +1,19 @@
-import React, {useState} from "react";
-import {View, Text, Image, StyleSheet, Pressable, Modal, TouchableWithoutFeedback, Animated, Dimensions} from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Pressable,
+  Modal,
+  TouchableWithoutFeedback,
+  Animated,
+  Dimensions,
+  ActivityIndicator,
+  ScrollView,
+} from "react-native";
 import { Videogame } from "@/domain/videogames/videogame";
-import  { colors }  from "@/constants/Colors";
+import { colors } from "@/constants/Colors";
 import GameDetailCard from "@/domain/cards/gameDetailCard";
 import { getPlatformIcon } from "@/constants/platformIcons";
 import { useGetById } from "@/hooks/useGetById";
@@ -11,10 +23,15 @@ const screenHeight = Dimensions.get("window").height;
 type Props = {
   videogame: Videogame;
 };
+
 export default function GameModalTrigger({ videogame }: Props) {
   const [modalVisible, setModalVisible] = useState(false);
   const slideAnim = new Animated.Value(screenHeight);
-  const uniqueIcons = Array.from(new Set(videogame.platforms.map((p) => getPlatformIcon(p.name))));
+  const { videogame: videogameDetail, loading, error } = useGetById(videogame.id);
+
+  const uniqueIcons = Array.from(
+    new Set(videogame.platforms.map((p) => getPlatformIcon(p.name)))
+  );
 
   const openModal = () => {
     setModalVisible(true);
@@ -24,56 +41,74 @@ export default function GameModalTrigger({ videogame }: Props) {
       useNativeDriver: true,
     }).start();
   };
-    const closeModal = () => {
-        Animated.timing(slideAnim, {
-        toValue: screenHeight,
-        duration: 300,
-        useNativeDriver: true,
-        }).start(() => setModalVisible(false));
-    };
 
-    return (
+  const closeModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => setModalVisible(false));
+  };
+
+  return (
     <>
-        <Pressable onPress={openModal} style={styles.card}>
+      <Pressable onPress={openModal} style={styles.card}>
+        <Image
+          source={{ uri: videogame.cover.url }}
+          style={styles.coverImage}
+          resizeMode="cover"
+        />
+        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+          {videogame.name}
+        </Text>
+        <View style={styles.iconsContainer}>
+          {uniqueIcons.map((icon, index) => (
             <Image
-                source={{ uri: videogame.cover.url }}
-                style={styles.coverImage}
-                resizeMode="cover"
+              key={index}
+              source={icon}
+              style={styles.platformIcon}
+              resizeMode="contain"
             />
-            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-                {videogame.name}
-            </Text>
-            <View style={styles.iconsContainer}>
-                {uniqueIcons.map((icon, index) => (
-                    <Image
-                        key={index}
-                        source={icon}
-                        style={styles.platformIcon}
-                        resizeMode="contain"
-                    />
-                ))}
-            </View>
-        </Pressable>
+          ))}
+        </View>
+      </Pressable>
 
-    <Modal
-      visible={modalVisible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={closeModal}>
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeModal}
+      >
         <TouchableWithoutFeedback onPress={closeModal}>
-            <View style={styles.backdrop} />
+          <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
 
         <Animated.View
-          style={[styles.modalContainer,
+            style={[
+            styles.modalContainer,
             { transform: [{ translateY: slideAnim }] },
-          ]}
+            ]}
         >
-            <GameDetailCard videogameDetail={videogame} onClose={closeModal} />
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                {loading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={colors.dark.text} />
+                </View>
+                ) : error ? (
+                <View style={styles.loadingContainer}>
+                    <Text style={{ color: colors.dark.text }}>{error}</Text>
+                </View>
+                ) : videogameDetail ? (
+                <GameDetailCard
+                    videogameDetail={videogameDetail}
+                    onClose={closeModal}
+                />
+                ) : null}
+            </ScrollView>
         </Animated.View>
       </Modal>
     </>
-    );
+  );
 }
 
 const styles = StyleSheet.create({
@@ -126,4 +161,13 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     elevation: 10,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scrollContent: {
+  padding: 16,
+  paddingBottom: 32,
+},
 });
