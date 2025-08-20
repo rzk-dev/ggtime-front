@@ -2,14 +2,13 @@ import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { Videogame } from "@/domain/videogames/videogame";
 import { getPlatformIcon } from "@/constants/platformIcons";
-import { colors } from "@/constants/colors";
+import { colors } from "@/constants/Colors";
 
 type Props = {
   videogame: Videogame;
 };
 
 export default function GameListCard({ videogame }: Props) {
-  // Array de iconos únicos
   const uniqueIcons = Array.from(
     new Set(videogame.platforms.map((p) => getPlatformIcon(p.name)))
   );
@@ -34,7 +33,7 @@ export default function GameListCard({ videogame }: Props) {
         {uniqueIcons.map((icon, index) => (
           <Image
             key={index}
-            source={icon} // imagen local importada
+            source={icon}
             style={styles.platformIcon}
             resizeMode="contain"
           />

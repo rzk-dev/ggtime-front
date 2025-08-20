@@ -2,7 +2,8 @@ import React from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useGetVideogames } from "@/hooks/useGetVideogames";
 import GameListCard from "@/domain/cards/gameListCard";
-import { colors } from "@/constants/colors";
+import { colors } from "@/constants/Colors";
+import GameModalTrigger from "@/domain/cards/gameModalTrigger";
 
 export default function Index() {
   const { videogames, loading, error } = useGetVideogames();
@@ -30,7 +31,7 @@ export default function Index() {
       contentContainerStyle={styles.container}
       data={videogames}
       keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => <GameListCard videogame={item} />}
+      renderItem={({ item }) => <GameModalTrigger videogame ={item} />}
       numColumns={3}
     />
   );
