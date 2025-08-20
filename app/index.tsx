@@ -1,7 +1,6 @@
 import React from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useGetVideogames } from "@/hooks/useGetVideogames";
-import GameListCard from "@/domain/cards/gameListCard";
 import { colors } from "@/constants/Colors";
 import GameModalTrigger from "@/domain/cards/gameModalTrigger";
 

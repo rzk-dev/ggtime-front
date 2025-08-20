@@ -1,7 +1,7 @@
 export type Companies = {
     id: string;
     string: string;
-    companyContibution: Contribution;
+    companyContribution: Contribution;
 }
 
 type Contribution = {
