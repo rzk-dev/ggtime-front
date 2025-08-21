@@ -37,10 +37,8 @@ export default function GameModalTrigger({ videogame }: Props) {
   useEffect(() => {
     if (!modalVisible) return;
 
-    // Reiniciar animación
     slideAnim.setValue(screenHeight);
 
-    // Abrir modal animado
     Animated.timing(slideAnim, {
       toValue: 0,
       duration: 300,
@@ -145,12 +143,17 @@ const styles = StyleSheet.create({
   iconsContainer: {
     flexDirection: "row",
     justifyContent: "center",
+    marginTop: 4,
+    alignItems: "center",
+    maxWidth: "100%",
+
   },
   platformIcon: {
     width: 25,
     height: 25,
-    marginHorizontal: 4,
-    marginBottom: 4,
+    marginHorizontal: 2,
+    marginBottom: 2,
+    resizeMode: "contain",
   },
   backdrop: {
     flex: 1,

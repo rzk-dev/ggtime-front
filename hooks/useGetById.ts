@@ -12,7 +12,7 @@ export function useGetById(id: number) {
       try {
         const host = process.env.EXPO_PUBLIC_HOST;
         const response = await axios.get(`http://${host}/api/videogames/${id}`);
-        setVideogame(response.data as Videogame); // ahora es un solo objeto
+        setVideogame(response.data as Videogame);
       } catch (err) {
         console.error(err);
         setError("Error loading data");

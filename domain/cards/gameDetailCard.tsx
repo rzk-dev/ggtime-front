@@ -30,33 +30,44 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}>
+
       <Pressable onPress={onClose} style={styles.closeButton}>
-        <Text style={styles.closeText}>Cerrar</Text>
+        <Text style={styles.closeText}>Close</Text>
       </Pressable>
 
       <Image
         source={{ uri: videogameDetail.cover.url }}
         style={styles.coverImage}
-        resizeMode="cover"
+        resizeMode="contain"
       />
       <Text style={styles.title}>{videogameDetail.name}</Text>
-      <Text style={styles.subtitle}>
-        Summary: {videogameDetail.storyline || "N/A"}
+
+      <Text style={styles.subtitle}>Summary:</Text>
+      <Text style={styles.apiText}>
+        {videogameDetail.summary || "N/A"}
       </Text>
-      <Text style={styles.subtitle}>
-        Platforms: {videogameDetail.platforms.map((p) => p.name).join(", ")}
+
+      <Text style={styles.subtitle}>Platforms:</Text>
+      <Text style={styles.apiText}>
+          {videogameDetail.platforms.map((p) => p.name).join(", ")}
       </Text>
-      <Text style={styles.subtitle}>
-        Genres: {videogameDetail.genres.map((g) => g.name).join(", ")}
+
+      <Text style={styles.subtitle}>Genres:</Text>
+      <Text style={styles.apiText}>
+          {videogameDetail.genres.map((g) => g.name).join(", ")}
       </Text>
-      <Text style={styles.subtitle}>
-        Release Date: {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}
+        
+      <Text style={styles.subtitle}>Release Date:</Text>
+      <Text style={styles.apiText}>
+          {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}
       </Text>
       {renderCompanyList("publisher", "Publisher")}
       {renderCompanyList("supporter", "Supporter")}
       {renderCompanyList("porting", "Porting")}
-      
+
     </ScrollView>
   );
 }
@@ -67,11 +78,15 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: colors.dark.background,
   },
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 40,
+  },
   closeButton: {
     alignSelf: "flex-end",
     marginBottom: 10,
     padding: 5,
-    backgroundColor: colors.dark.card,
+    backgroundColor: colors.dark.tint,
     borderRadius: 6,
   },
   closeText: {
@@ -85,7 +100,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: "bold",
     color: colors.dark.text,
     marginBottom: 4,
   },
@@ -93,12 +109,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.dark.text,
     marginTop: 10,
+    lineHeight: 20,
   },
   coverImage: {
     width: "100%",
     height: 200,
     borderRadius: 8,
     marginBottom: 12,
+    
   },
   sectionTitle: {
     fontSize: 16,
@@ -114,4 +132,7 @@ const styles = StyleSheet.create({
   companySection: {
     marginBottom: 8,
   },
+  apiText: {
+    color: colors.dark.text,
+  }
 });

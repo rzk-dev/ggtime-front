@@ -14,7 +14,7 @@ export type VideogameDetail = {
   keywords: string[];
   playerPerspectives: string;
   involvedCompanies: Companies[];
-  storyline: string;
+  summary: string;
   totalRatingCount: number;
   languageSupports: string[];
   firstReleaseDate: number;

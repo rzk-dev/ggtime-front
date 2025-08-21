@@ -12,11 +12,24 @@ export function useGetVideogames() {
       try {
         const host = process.env.EXPO_PUBLIC_HOST;
 
-        const response = await axios.post(`http://${host}/api/videogames/`);
+        const response = await axios.post<Videogame[]>(
+          `http://${host}/api/videogames/`,
+          {
+            pagination: {
+              limit: 100,
+              offset: 0,
+            },
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-        setVideogames(response.data as Videogame[]);
+        setVideogames(response.data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching videogames:", err);
         setError("Error loading data");
       } finally {
         setLoading(false);
