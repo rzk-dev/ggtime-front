@@ -27,10 +27,8 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
 
   const cardWidth = Math.min(360, SCREEN_WIDTH * 0.9);
 
-  // Helper seguro para obtener nombre de compañía con fallback
   const getCompanyName = (c: any) => c?.company?.name ?? c?.string ?? "";
 
-  // Simplificar/agrupar idiomas (usa tu helper importado)
   const simplifiedLanguages = simplifyLanguages(videogameDetail.languageSupports || []);
 
   const renderCompanyList = (
@@ -58,12 +56,10 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
   return (
     <View style={styles.outerWrap}>
       <View style={[styles.card, { width: cardWidth }]}>
-        {/* Top: close button (small) */}
         <Pressable onPress={onClose} style={styles.close}>
           <Text style={styles.closeText}>✕</Text>
         </Pressable>
 
-        {/* Image */}
         {videogameDetail.cover?.url ? (
           <Image
             source={{ uri: videogameDetail.cover.url }}
@@ -72,7 +68,6 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
           />
         ) : null}
 
-        {/* Content (scrollable) */}
         <ScrollView
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
@@ -80,7 +75,6 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
         >
           <Text style={styles.title}>{videogameDetail.name}</Text>
 
-          {/* Compact metadata row(s) */}
           <View style={styles.metaRow}>
             <Text style={styles.metaLabel}>Publisher: </Text>
             <Text style={styles.metaValue}>
@@ -121,13 +115,11 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
 
           <View style={styles.divider} />
 
-          {/* Summary */}
           <Text style={styles.sectionTitle}>Summary</Text>
           <Text style={styles.summaryText}>
             {videogameDetail.summary || "No summary available."}
           </Text>
 
-          {/* Languages (agrupados y en líneas separadas) */}
           <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Languages</Text>
           <Text style={styles.languageData}>
             {simplifiedLanguages.length > 0
@@ -147,7 +139,6 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
 
 const styles = StyleSheet.create({
   outerWrap: {
-    // transparente, el Modal padre decide si hay backdrop o no
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
