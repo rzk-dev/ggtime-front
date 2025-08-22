@@ -1,16 +1,48 @@
-import React from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, View, SafeAreaView, StatusBar } from "react-native";
-import { useGetVideogames } from "@/hooks/useGetVideogames";
-import { colors } from "@/constants/Colors";
+import React, { useCallback } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
+import { colors } from "@/constants/colors";
 import GameModalTrigger from "@/domain/cards/gameModalTrigger";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { getAll } from "@/features/videogames/api";
+
+const PAGE_SIZE = 50;
 
 export default function Index() {
   const insets = useSafeAreaInsets();
-  const { videogames, loading, error } = useGetVideogames();
+  const fetchVideogames = useCallback(
+    ({ pageParam = 0 }) => getAll(PAGE_SIZE, pageParam),
+    [],
+  );
 
-  if (loading) {
+  const {
+    isLoading,
+    isError,
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["videogames"],
+    initialPageParam: 0,
+    queryFn: fetchVideogames,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length < PAGE_SIZE ? undefined : allPages.length * PAGE_SIZE,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const games = data?.pages.flat();
+  if (isLoading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -18,29 +50,48 @@ export default function Index() {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <View style={styles.center}>
-        <Text>{error}</Text>
+        <Text>{error?.toString()}</Text>
       </View>
     );
   }
-  
-
 
   return (
-    <SafeAreaView style={{flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.dark.background,}}>
-      <StatusBar barStyle="default" backgroundColor={colors.dark.background }/>
-      <Text style={{ color: colors.dark.text, fontSize: 20, textAlign: 'center', marginVertical: 10 }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        backgroundColor: colors.dark.background,
+      }}
+    >
+      <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+      <Text
+        style={{
+          color: colors.dark.text,
+          fontSize: 20,
+          textAlign: "center",
+          marginVertical: 10,
+        }}
+      >
         Videogames Repository
-      </Text> 
+      </Text>
       <FlatList
         contentContainerStyle={styles.container}
-        data={videogames}
+        data={games}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <GameModalTrigger videogame ={item} />}
+        renderItem={({ item }) => <GameModalTrigger videogame={item} />}
         numColumns={3}
-    />
+        onEndReached={() => {
+          if (hasNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null}
+      />
     </SafeAreaView>
   );
 }

@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  View, Text, Image, StyleSheet, Pressable, Modal, 
-  TouchableWithoutFeedback, Animated, Dimensions, ActivityIndicator 
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Pressable,
+  Modal,
+  TouchableWithoutFeedback,
+  Animated,
+  Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { Videogame } from "@/domain/videogames/videogame";
-import { colors } from "@/constants/Colors";
+import { colors } from "@/constants/colors";
 import GameDetailCard from "@/domain/cards/gameDetailCard";
 import { getPlatformIcon } from "@/constants/platformIcons";
 
@@ -22,7 +30,7 @@ export default function GameModalTrigger({ videogame }: Props) {
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   const uniqueIcons = Array.from(
-    new Set(videogame.platforms.map((p) => getPlatformIcon(p.name)))
+    new Set(videogame.platforms.map((p) => getPlatformIcon(p.name))),
   );
 
   const openModal = () => setModalVisible(true);
@@ -49,7 +57,9 @@ export default function GameModalTrigger({ videogame }: Props) {
       setLoadingDetails(true);
       try {
         const host = process.env.EXPO_PUBLIC_HOST;
-        const response = await fetch(`http://${host}/api/videogames/${videogame.id}`);
+        const response = await fetch(
+          `http://${host}/api/videogames/${videogame.id}`,
+        );
         const data = await response.json();
         setDetails(data);
       } catch (err) {
@@ -102,13 +112,21 @@ export default function GameModalTrigger({ videogame }: Props) {
           ]}
         >
           {loadingDetails ? (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <ActivityIndicator size="large" color="#fff" />
             </View>
           ) : details ? (
             <GameDetailCard videogameDetail={details} onClose={closeModal} />
           ) : (
-            <Text style={{ color: "#fff", padding: 20 }}>Error loading details</Text>
+            <Text style={{ color: "#fff", padding: 20 }}>
+              Error loading details
+            </Text>
           )}
         </Animated.View>
       </Modal>
@@ -146,7 +164,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     alignItems: "center",
     maxWidth: "100%",
-
   },
   platformIcon: {
     width: 25,

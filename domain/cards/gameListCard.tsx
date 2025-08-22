@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { Videogame } from "@/domain/videogames/videogame";
 import { getPlatformIcon } from "@/constants/platformIcons";
-import { colors } from "@/constants/Colors";
+import { colors } from "@/constants/colors";
 
 type Props = {
   videogame: Videogame;
@@ -10,7 +10,7 @@ type Props = {
 
 export default function GameListCard({ videogame }: Props) {
   const uniqueIcons = Array.from(
-    new Set(videogame.platforms.map((p) => getPlatformIcon(p.name)))
+    new Set(videogame.platforms.map((p) => getPlatformIcon(p.name))),
   );
 
   return (
@@ -21,11 +21,7 @@ export default function GameListCard({ videogame }: Props) {
         resizeMode="cover"
       />
 
-      <Text
-        style={styles.title}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-      >
+      <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
         {videogame.name}
       </Text>
 

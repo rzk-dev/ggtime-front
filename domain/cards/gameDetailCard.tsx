@@ -1,7 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Image,
+} from "react-native";
 import { VideogameDetail } from "@/domain/videogames/videogameDetail";
-import { colors } from "@/constants/Colors";
+import { colors } from "@/constants/colors";
 import { Companies } from "@/domain/videogames/involvedCompanies";
 import { simplifyLanguages } from "@/domain/videogames/languages";
 
@@ -11,10 +18,15 @@ type Props = {
 };
 
 export default function GameDetailCard({ videogameDetail, onClose }: Props) {
-  const simplifiedLanguages = simplifyLanguages(videogameDetail.languageSupports);
-  const renderCompanyList = (type: keyof Companies["companyContribution"], label: string) => {
+  const simplifiedLanguages = simplifyLanguages(
+    videogameDetail.languageSupports,
+  );
+  const renderCompanyList = (
+    type: keyof Companies["companyContribution"],
+    label: string,
+  ) => {
     const filtered = videogameDetail.involvedCompanies.filter(
-      (c) => c.companyContribution[type] === true
+      (c) => c.companyContribution[type] === true,
     );
 
     if (filtered.length === 0) return null;
@@ -34,8 +46,8 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.contentContainer}>
-
+      contentContainerStyle={styles.contentContainer}
+    >
       <Pressable onPress={onClose} style={styles.closeButton}>
         <Text style={styles.closeText}>Close</Text>
       </Pressable>
@@ -48,35 +60,33 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
       <Text style={styles.title}>{videogameDetail.name}</Text>
 
       <Text style={styles.subtitle}>Summary:</Text>
-      <Text style={styles.apiText}>
-        {videogameDetail.summary || "N/A"}
-      </Text>
+      <Text style={styles.apiText}>{videogameDetail.summary || "N/A"}</Text>
 
       <Text style={styles.subtitle}>Platforms:</Text>
       <Text style={styles.apiText}>
-          {videogameDetail.platforms.map((p) => p.name).join(", ")}
+        {videogameDetail.platforms.map((p) => p.name).join(", ")}
       </Text>
 
       <Text style={styles.subtitle}>Genres:</Text>
       <Text style={styles.apiText}>
-          {videogameDetail.genres.map((g) => g.name).join(", ")}
+        {videogameDetail.genres.map((g) => g.name).join(", ")}
       </Text>
-        
+
       <Text style={styles.subtitle}>Release Date:</Text>
       <Text style={styles.apiText}>
-          {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}
+        {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}
       </Text>
 
       <Text style={styles.subtitle}>Languages:</Text>
       <Text style={styles.apiText}>
-          {simplifiedLanguages.map(lang => `${lang.name} (${lang.types.join(", ")}`).join("; ")}
+        {simplifiedLanguages
+          .map((lang) => `${lang.name} (${lang.types.join(", ")}`)
+          .join("; ")}
       </Text>
-
 
       {renderCompanyList("publisher", "Publisher")}
       {renderCompanyList("supporter", "Supporter")}
       {renderCompanyList("porting", "Porting")}
-
     </ScrollView>
   );
 }
@@ -125,7 +135,6 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 8,
     marginBottom: 12,
-    
   },
   sectionTitle: {
     fontSize: 16,
@@ -145,17 +154,17 @@ const styles = StyleSheet.create({
     color: colors.dark.text,
   },
   languagesContainer: {
-  marginTop: 12,
-  paddingHorizontal: 10,
-},
-languagesTitle: {
-  fontSize: 16,
-  fontWeight: "bold",
-  marginBottom: 6,
-},
-languageItem: {
-  fontSize: 14,
-  marginBottom: 4,
-  color: "#555",
-},
+    marginTop: 12,
+    paddingHorizontal: 10,
+  },
+  languagesTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 6,
+  },
+  languageItem: {
+    fontSize: 14,
+    marginBottom: 4,
+    color: "#555",
+  },
 });
