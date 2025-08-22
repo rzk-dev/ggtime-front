@@ -59,7 +59,7 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
 
       <Text style={styles.subtitle}>Genres:</Text>
       <Text style={styles.apiText}>
-          {videogameDetail.genres.map((g) => g.name).join(", ")}
+          {videogameDetail.genres.map((g) => g.name).join(", ") || "N/A"}
       </Text>
         
       <Text style={styles.subtitle}>Release Date:</Text>
@@ -68,10 +68,9 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
       </Text>
 
       <Text style={styles.subtitle}>Languages:</Text>
-      <Text style={styles.apiText}>
-          {simplifiedLanguages.map(lang => `${lang.name} (${lang.types.join(", ")}`).join("; ")}
+      <Text style={styles.languageData}>
+          {simplifiedLanguages.map(lang => `${lang.name}: ${lang.types.join(", ")}`).join("\n") || "N/A"}
       </Text>
-
 
       {renderCompanyList("publisher", "Publisher")}
       {renderCompanyList("supporter", "Supporter")}
@@ -144,18 +143,11 @@ const styles = StyleSheet.create({
   apiText: {
     color: colors.dark.text,
   },
-  languagesContainer: {
-  marginTop: 12,
-  paddingHorizontal: 10,
-},
-languagesTitle: {
-  fontSize: 16,
-  fontWeight: "bold",
-  marginBottom: 6,
-},
-languageItem: {
-  fontSize: 14,
-  marginBottom: 4,
-  color: "#555",
-},
+  languageData: {
+    color: colors.dark.text,
+    marginBottom: 8,
+    fontSize: 14,
+    lineHeight: 20,
+    flexWrap: "wrap",
+  },
 });
