@@ -2,6 +2,7 @@ import { Cover } from "./cover";
 import { Companies } from "./involvedCompanies";
 import { Platform } from "./platform";
 import { Genre } from "./genres";
+import { Languages } from "./languages";
 
 export type VideogameDetail = {
   id: number;
@@ -16,6 +17,6 @@ export type VideogameDetail = {
   involvedCompanies: Companies[];
   summary: string;
   totalRatingCount: number;
-  languageSupports: string[];
+  languageSupports: Languages[];
   firstReleaseDate: number;
 }

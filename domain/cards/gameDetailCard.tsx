@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Image } from "react-nati
 import { VideogameDetail } from "@/domain/videogames/videogameDetail";
 import { colors } from "@/constants/Colors";
 import { Companies } from "@/domain/videogames/involvedCompanies";
+import { simplifyLanguages } from "@/domain/videogames/languages";
 
 type Props = {
   videogameDetail: VideogameDetail;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function GameDetailCard({ videogameDetail, onClose }: Props) {
+  const simplifiedLanguages = simplifyLanguages(videogameDetail.languageSupports);
   const renderCompanyList = (type: keyof Companies["companyContribution"], label: string) => {
     const filtered = videogameDetail.involvedCompanies.filter(
       (c) => c.companyContribution[type] === true
@@ -64,6 +66,13 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
       <Text style={styles.apiText}>
           {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}
       </Text>
+
+      <Text style={styles.subtitle}>Languages:</Text>
+      <Text style={styles.apiText}>
+          {simplifiedLanguages.map(lang => `${lang.name} (${lang.types.join(", ")}`).join("; ")}
+      </Text>
+
+
       {renderCompanyList("publisher", "Publisher")}
       {renderCompanyList("supporter", "Supporter")}
       {renderCompanyList("porting", "Porting")}
@@ -134,5 +143,19 @@ const styles = StyleSheet.create({
   },
   apiText: {
     color: colors.dark.text,
-  }
+  },
+  languagesContainer: {
+  marginTop: 12,
+  paddingHorizontal: 10,
+},
+languagesTitle: {
+  fontSize: 16,
+  fontWeight: "bold",
+  marginBottom: 6,
+},
+languageItem: {
+  fontSize: 14,
+  marginBottom: 4,
+  color: "#555",
+},
 });
