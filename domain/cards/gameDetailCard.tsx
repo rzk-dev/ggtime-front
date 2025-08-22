@@ -1,5 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable, Image } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Dimensions,
+} from "react-native";
 import { VideogameDetail } from "@/domain/videogames/videogameDetail";
 import { colors } from "@/constants/Colors";
 import { Companies } from "@/domain/videogames/involvedCompanies";
@@ -10,9 +18,25 @@ type Props = {
   onClose: () => void;
 };
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
 export default function GameDetailCard({ videogameDetail, onClose }: Props) {
-  const simplifiedLanguages = simplifyLanguages(videogameDetail.languageSupports);
-  const renderCompanyList = (type: keyof Companies["companyContribution"], label: string) => {
+  const releaseDate = videogameDetail.firstReleaseDate
+    ? new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()
+    : "N/A";
+
+  const cardWidth = Math.min(360, SCREEN_WIDTH * 0.9);
+
+  // Helper seguro para obtener nombre de compañía con fallback
+  const getCompanyName = (c: any) => c?.company?.name ?? c?.string ?? "";
+
+  // Simplificar/agrupar idiomas (usa tu helper importado)
+  const simplifiedLanguages = simplifyLanguages(videogameDetail.languageSupports || []);
+
+  const renderCompanyList = (
+    type: keyof Companies["companyContribution"],
+    label: string
+  ) => {
     const filtered = videogameDetail.involvedCompanies.filter(
       (c) => c.companyContribution[type] === true
     );
@@ -23,8 +47,8 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
       <View style={styles.companySection}>
         <Text style={styles.sectionTitle}>{label}</Text>
         {filtered.map((c) => (
-          <Text key={c.id} style={styles.text}>
-            {c.string}
+          <Text key={c.id ?? JSON.stringify(c)} style={styles.text}>
+            {getCompanyName(c)}
           </Text>
         ))}
       </View>
@@ -32,116 +56,187 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}>
+    <View style={styles.outerWrap}>
+      <View style={[styles.card, { width: cardWidth }]}>
+        {/* Top: close button (small) */}
+        <Pressable onPress={onClose} style={styles.close}>
+          <Text style={styles.closeText}>✕</Text>
+        </Pressable>
 
-      <Pressable onPress={onClose} style={styles.closeButton}>
-        <Text style={styles.closeText}>Close</Text>
-      </Pressable>
+        {/* Image */}
+        {videogameDetail.cover?.url ? (
+          <Image
+            source={{ uri: videogameDetail.cover.url }}
+            style={styles.cover}
+            resizeMode="cover"
+          />
+        ) : null}
 
-      <Image
-        source={{ uri: videogameDetail.cover.url }}
-        style={styles.coverImage}
-        resizeMode="contain"
-      />
-      <Text style={styles.title}>{videogameDetail.name}</Text>
+        {/* Content (scrollable) */}
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.title}>{videogameDetail.name}</Text>
 
-      <Text style={styles.subtitle}>Summary:</Text>
-      <Text style={styles.apiText}>
-        {videogameDetail.summary || "N/A"}
-      </Text>
+          {/* Compact metadata row(s) */}
+          <View style={styles.metaRow}>
+            <Text style={styles.metaLabel}>Publisher: </Text>
+            <Text style={styles.metaValue}>
+              {videogameDetail.involvedCompanies?.length
+                ? videogameDetail.involvedCompanies
+                    .map((c) => getCompanyName(c))
+                    .filter(Boolean)
+                    .join(", ")
+                : "N/A"}
+            </Text>
+          </View>
 
-      <Text style={styles.subtitle}>Platforms:</Text>
-      <Text style={styles.apiText}>
-          {videogameDetail.platforms.map((p) => p.name).join(", ")}
-      </Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaLabel}>Year: </Text>
+            <Text style={styles.metaValue}>
+              {videogameDetail.firstReleaseDate
+                ? new Date(videogameDetail.firstReleaseDate * 1000).getFullYear()
+                : "N/A"}
+            </Text>
 
-      <Text style={styles.subtitle}>Genres:</Text>
-      <Text style={styles.apiText}>
-          {videogameDetail.genres.map((g) => g.name).join(", ") || "N/A"}
-      </Text>
-        
-      <Text style={styles.subtitle}>Release Date:</Text>
-      <Text style={styles.apiText}>
-          {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}
-      </Text>
+            <Text style={[styles.metaLabel, { marginLeft: 12 }]}>Average playtime: </Text>
+            <Text style={styles.metaValue}>{"N/A"}</Text>
+          </View>
 
-      <Text style={styles.subtitle}>Languages:</Text>
-      <Text style={styles.languageData}>
-          {simplifiedLanguages.map(lang => `${lang.name}: ${lang.types.join(", ")}`).join("\n") || "N/A"}
-      </Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaLabel}>Genres: </Text>
+            <Text style={styles.metaValue}>
+              {videogameDetail.genres?.map((g) => (g as any).name || g).join(", ") || "N/A"}
+            </Text>
+          </View>
 
-      {renderCompanyList("publisher", "Publisher")}
-      {renderCompanyList("supporter", "Supporter")}
-      {renderCompanyList("porting", "Porting")}
+          <View style={styles.metaRow}>
+            <Text style={[styles.metaLabel]}>Platform: </Text>
+            <Text style={styles.metaValue}>
+              {videogameDetail.platforms?.map((p) => p.name).join(", ") || "N/A"}
+            </Text>
+          </View>
 
-    </ScrollView>
+          <View style={styles.divider} />
+
+          {/* Summary */}
+          <Text style={styles.sectionTitle}>Summary</Text>
+          <Text style={styles.summaryText}>
+            {videogameDetail.summary || "No summary available."}
+          </Text>
+
+          {/* Languages (agrupados y en líneas separadas) */}
+          <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Languages</Text>
+          <Text style={styles.languageData}>
+            {simplifiedLanguages.length > 0
+              ? simplifiedLanguages
+                  .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
+                  .join("\n")
+              : "N/A"}
+          </Text>
+
+          {/* bottom spacing */}
+          <View style={{ height: 12 }} />
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  outerWrap: {
+    // transparente, el Modal padre decide si hay backdrop o no
     flex: 1,
-    padding: 16,
-    backgroundColor: colors.dark.background,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    backgroundColor: "transparent",
   },
-  contentContainer: {
-    padding: 16,
-    paddingBottom: 40,
+  card: {
+    backgroundColor: colors.dark.card,
+    borderRadius: 14,
+    overflow: "hidden",
+    // shadow (iOS)
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    // elevation (Android)
+    elevation: 20,
+    maxHeight: SCREEN_HEIGHT * 0.85,
   },
-  closeButton: {
-    alignSelf: "flex-end",
-    marginBottom: 10,
-    padding: 5,
-    backgroundColor: colors.dark.tint,
-    borderRadius: 6,
+  close: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 20,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   closeText: {
     color: colors.dark.text,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  cover: {
+    width: "100%",
+    height: 220,
+    // top corners visually rounded
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+  },
+  content: {
+    backgroundColor: "transparent",
+  },
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 24,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: "800",
     color: colors.dark.text,
+    textAlign: "center",
     marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: colors.dark.text,
-    marginBottom: 4,
+  metaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    marginBottom: 6,
   },
-  storyline: {
-    fontSize: 14,
+  metaLabel: {
     color: colors.dark.text,
-    marginTop: 10,
-    lineHeight: 20,
+    fontSize: 12,
+    opacity: 0.85,
+    fontWeight: "700",
   },
-  coverImage: {
-    width: "100%",
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 12,
-    
+  metaValue: {
+    color: colors.dark.text,
+    fontSize: 12,
+    opacity: 0.9,
+    fontWeight: "400",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    marginVertical: 12,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginTop: 10,
     color: colors.dark.text,
-  },
-  text: {
     fontSize: 14,
-    color: colors.dark.text,
-    marginLeft: 8,
+    fontWeight: "700",
+    marginBottom: 6,
   },
-  companySection: {
-    marginBottom: 8,
-  },
-  apiText: {
+  summaryText: {
     color: colors.dark.text,
+    fontSize: 13,
+    lineHeight: 20,
+    opacity: 0.95,
   },
   languageData: {
     color: colors.dark.text,
@@ -149,5 +244,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     flexWrap: "wrap",
+  },
+  companySection: {
+    marginBottom: 8,
+  },
+  text: {
+    fontSize: 14,
+    color: colors.dark.text,
+    marginLeft: 8,
   },
 });
