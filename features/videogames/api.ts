@@ -23,7 +23,6 @@ export async function getAll(
   limit: number,
   offset: number,
 ): Promise<Videogame[]> {
-  console.log("Fetching Page", offset);
   const response = await fetch(videogamesAPI.getAll(limit, offset));
 
   if (!response.ok) {

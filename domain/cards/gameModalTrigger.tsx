@@ -11,27 +11,33 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
-import { Videogame } from "@/domain/videogames/videogame";
 import { colors } from "@/constants/colors";
 import GameDetailCard from "@/domain/cards/gameDetailCard";
 import { getPlatformIcon } from "@/constants/platformIcons";
+import { useQuery } from "@tanstack/react-query";
+import { getById } from "@/features/videogames/api";
 
 const screenHeight = Dimensions.get("window").height;
 
 type Props = {
-  videogame: Videogame;
+  id: number;
 };
 
-export default function GameModalTrigger({ videogame }: Props) {
+export default function GameModalTrigger({ id }: Props) {
   const [modalVisible, setModalVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
 
   const [details, setDetails] = useState<any>(null);
-  const [loadingDetails, setLoadingDetails] = useState(false);
 
-  const uniqueIcons = Array.from(
-    new Set(videogame.platforms.map((p) => getPlatformIcon(p.name))),
-  );
+  const { isLoading, data } = useQuery({
+    queryKey: ["videogames", modalVisible, id],
+    queryFn: () => getById(id),
+  });
+
+  const uniqueIcons =
+    !isLoading && data
+      ? Array.from(new Set(data.platforms.map((p) => getPlatformIcon(p.name))))
+      : [];
 
   const openModal = () => setModalVisible(true);
   const closeModal = () => {
@@ -53,35 +59,19 @@ export default function GameModalTrigger({ videogame }: Props) {
       useNativeDriver: true,
     }).start();
 
-    const fetchDetails = async () => {
-      setLoadingDetails(true);
-      try {
-        const host = process.env.EXPO_PUBLIC_HOST;
-        const response = await fetch(
-          `http://${host}/api/videogames/${videogame.id}`,
-        );
-        const data = await response.json();
-        setDetails(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingDetails(false);
-      }
-    };
-
-    fetchDetails();
+    setDetails(data);
   }, [modalVisible]);
 
   return (
     <>
       <Pressable onPress={openModal} style={styles.card}>
         <Image
-          source={{ uri: videogame.cover.url }}
+          source={{ uri: data?.cover.url }}
           style={styles.coverImage}
           resizeMode="cover"
         />
         <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
-          {videogame.name}
+          {data?.name}
         </Text>
         <View style={styles.iconsContainer}>
           {uniqueIcons.map((icon, index) => (
@@ -111,7 +101,7 @@ export default function GameModalTrigger({ videogame }: Props) {
             { transform: [{ translateY: slideAnim }] },
           ]}
         >
-          {loadingDetails ? (
+          {isLoading ? (
             <View
               style={{
                 flex: 1,
