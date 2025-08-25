@@ -8,13 +8,14 @@ import {
   SafeAreaView,
   StatusBar,
   Pressable,
+  Modal,
 } from "react-native";
 import { colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
-import GameListCard from "@/features/videogames/gameListCard";
-import GameDetailCard from "@/features/videogames/details/gameDetailCard";
+import GameListCards from "@/features/videogames/GameListCards";
+import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 
 const PAGE_SIZE = 50;
 
@@ -84,7 +85,7 @@ export default function Index() {
               setDetailVisible(true);
             }}
           >
-            <GameListCard videogame={item} />
+            <GameListCards videogame={item} />
           </Pressable>
         )}
         numColumns={3}
@@ -99,12 +100,12 @@ export default function Index() {
         }
       />
 
-      {detailVisible && selectedItem && (
-        <GameDetailCard
-          id={selectedItem}
+      <Modal visible={detailVisible} transparent animationType="fade">
+        <GameDetailsCard
+          id={selectedItem ?? 0}
           onClose={() => setDetailVisible(false)}
         />
-      )}
+      </Modal>
     </SafeAreaView>
   );
 }

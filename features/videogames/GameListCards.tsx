@@ -1,0 +1,97 @@
+import React from "react";
+import { View, Text, Image, StyleSheet } from "react-native";
+
+import { colors } from "@/constants/colors";
+import { getPlatformIcon } from "@/constants/platformIcons";
+import { Videogame } from "@/domain/videogames/videogame";
+
+type Props = {
+  videogame: Videogame;
+};
+
+export default function GameListCards({ videogame }: Props) {
+  const uniqueIcons = Array.from(
+    new Set(videogame.platforms.map((p) => getPlatformIcon(p.name))),
+  );
+
+  return (
+    <>
+      <View style={styles.card}>
+        <Image
+          source={{ uri: videogame.cover.url }}
+          style={styles.coverImage}
+          resizeMode="cover"
+        />
+        <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+          {videogame.name}
+        </Text>
+        <View style={styles.iconsContainer}>
+          {uniqueIcons.map((icon, index) => (
+            <Image
+              key={index}
+              source={icon}
+              style={styles.platformIcon}
+              resizeMode="contain"
+            />
+          ))}
+        </View>
+      </View>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.dark.card,
+    padding: 5,
+    margin: 6,
+    borderRadius: 8,
+    elevation: 2,
+    flex: 1,
+    alignItems: "center",
+  },
+  coverImage: {
+    width: "100%",
+    height: 100,
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+    width: "100%",
+    textAlign: "center",
+    marginBottom: 4,
+    color: colors.dark.text,
+  },
+  iconsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 4,
+    alignItems: "center",
+    maxWidth: "100%",
+  },
+  platformIcon: {
+    width: 25,
+    height: 25,
+    marginHorizontal: 2,
+    marginBottom: 2,
+    resizeMode: "contain",
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "80%",
+    backgroundColor: colors.dark.background,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    overflow: "hidden",
+    elevation: 10,
+  },
+});
