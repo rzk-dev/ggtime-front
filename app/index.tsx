@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,30 +7,25 @@ import {
   View,
   SafeAreaView,
   StatusBar,
+  Pressable,
 } from "react-native";
 import { colors } from "@/constants/colors";
-import GameModalTrigger from "@/domain/cards/gameModalTrigger";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
-import GameListCard from "@/domain/cards/gameListCard";
+import GameListCard from "@/features/videogames/gameListCard";
+import GameDetailCard from "@/features/videogames/details/gameDetailCard";
 
 const PAGE_SIZE = 50;
 
 export default function Index() {
+  const [detailVisible, setDetailVisible] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<number>();
+
   const insets = useSafeAreaInsets();
   const fetchVideogames = ({ pageParam = 0 }) => getAll(PAGE_SIZE, pageParam);
 
-  const {
-    isLoading,
-    isError,
-    data,
-    error,
-    isFetching,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
+  const videogamesQuery = useInfiniteQuery({
     queryKey: ["videogames"],
     initialPageParam: 0,
     queryFn: fetchVideogames,
@@ -40,9 +35,9 @@ export default function Index() {
     refetchOnWindowFocus: false,
   });
 
-  const games = data?.pages.flat();
+  const games = videogamesQuery.data?.pages.flat();
 
-  if (isLoading) {
+  if (videogamesQuery.isLoading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -50,10 +45,10 @@ export default function Index() {
     );
   }
 
-  if (isError) {
+  if (videogamesQuery.isError) {
     return (
       <View style={styles.center}>
-        <Text>{error?.toString()}</Text>
+        <Text>{videogamesQuery.error?.toString()}</Text>
       </View>
     );
   }
@@ -82,12 +77,34 @@ export default function Index() {
         contentContainerStyle={styles.container}
         data={games}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <GameListCard videogame={item} />}
+        renderItem={({ item }) => (
+          <Pressable
+            onPress={() => {
+              setSelectedItem(item.id);
+              setDetailVisible(true);
+            }}
+          >
+            <GameListCard videogame={item} />
+          </Pressable>
+        )}
         numColumns={3}
-        onEndReached={() => !isFetching && hasNextPage && fetchNextPage()}
+        onEndReached={() =>
+          !videogamesQuery.isFetching &&
+          videogamesQuery.hasNextPage &&
+          videogamesQuery.fetchNextPage()
+        }
         onEndReachedThreshold={0.5}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null}
+        ListFooterComponent={
+          videogamesQuery.isFetchingNextPage ? <ActivityIndicator /> : null
+        }
       />
+
+      {detailVisible && selectedItem && (
+        <GameDetailCard
+          id={selectedItem}
+          onClose={() => setDetailVisible(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }

@@ -7,27 +7,38 @@ import {
   Pressable,
   Image,
 } from "react-native";
-import { VideogameDetail } from "@/domain/videogames/videogameDetail";
 import { colors } from "@/constants/colors";
 import { Companies } from "@/domain/videogames/involvedCompanies";
 import { simplifyLanguages } from "@/domain/videogames/languages";
+import { useQuery } from "@tanstack/react-query";
+import { getById } from "../api";
 
 type Props = {
-  videogameDetail: VideogameDetail;
+  id: number;
   onClose: () => void;
 };
 
-export default function GameDetailCard({ videogameDetail, onClose }: Props) {
-  const simplifiedLanguages = simplifyLanguages(
-    videogameDetail.languageSupports,
-  );
+export default function GameDetailCard({ id, onClose }: Props) {
+  const { data, isError, error } = useQuery({
+    queryKey: ["videogames", id],
+    queryFn: () => getById(id),
+  });
+
+  if (isError) {
+    console.log("Error loading details: ", error);
+    return;
+  }
+
+  const simplifiedLanguages = simplifyLanguages(data?.languageSupports ?? []);
+
   const renderCompanyList = (
     type: keyof Companies["companyContribution"],
     label: string,
   ) => {
-    const filtered = videogameDetail.involvedCompanies.filter(
-      (c) => c.companyContribution[type] === true,
-    );
+    const filtered =
+      data?.involvedCompanies.filter(
+        (c) => c.companyContribution[type] === true,
+      ) ?? [];
 
     if (filtered.length === 0) return null;
 
@@ -53,28 +64,28 @@ export default function GameDetailCard({ videogameDetail, onClose }: Props) {
       </Pressable>
 
       <Image
-        source={{ uri: videogameDetail.cover.url }}
+        source={{ uri: data?.cover.url }}
         style={styles.coverImage}
         resizeMode="contain"
       />
-      <Text style={styles.title}>{videogameDetail.name}</Text>
+      <Text style={styles.title}>{data?.name}</Text>
 
       <Text style={styles.subtitle}>Summary:</Text>
-      <Text style={styles.apiText}>{videogameDetail.summary || "N/A"}</Text>
+      <Text style={styles.apiText}>{data?.summary || "N/A"}</Text>
 
       <Text style={styles.subtitle}>Platforms:</Text>
       <Text style={styles.apiText}>
-        {videogameDetail.platforms.map((p) => p.name).join(", ")}
+        {data?.platforms.map((p) => p.name).join(", ")}
       </Text>
 
       <Text style={styles.subtitle}>Genres:</Text>
       <Text style={styles.apiText}>
-        {videogameDetail.genres.map((g) => g.name).join(", ")}
+        {data?.genres.map((g) => g.name).join(", ")}
       </Text>
 
       <Text style={styles.subtitle}>Release Date:</Text>
       <Text style={styles.apiText}>
-        {new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()}
+        {new Date(data?.firstReleaseDate ?? 0 * 1000).toLocaleDateString()}
       </Text>
 
       <Text style={styles.subtitle}>Languages:</Text>

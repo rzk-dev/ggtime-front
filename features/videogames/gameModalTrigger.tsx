@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { colors } from "@/constants/colors";
-import GameDetailCard from "@/domain/cards/gameDetailCard";
+import GameDetailCard from "@/features/videogames/details/gameDetailCard";
 import { getPlatformIcon } from "@/constants/platformIcons";
 import { useQuery } from "@tanstack/react-query";
 import { getById } from "@/features/videogames/api";
@@ -111,9 +111,8 @@ export default function GameModalTrigger({ id }: Props) {
             >
               <ActivityIndicator size="large" color="#fff" />
             </View>
-          ) : details ? (
-            <GameDetailCard videogameDetail={details} onClose={closeModal} />
-          ) : (
+          ) : details ? null : (
+            //<GameDetailCard videogameDetail={details} onClose={closeModal} />
             <Text style={{ color: "#fff", padding: 20 }}>
               Error loading details
             </Text>
