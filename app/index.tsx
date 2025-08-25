@@ -2,7 +2,7 @@ import React from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View, SafeAreaView, StatusBar } from "react-native";
 import { useGetVideogames } from "@/hooks/useGetVideogames";
 import { colors } from "@/constants/Colors";
-import GameListCards from "@/domain/cards/gameModalTrigger";
+import GameListCards from "@/domain/cards/GameListCards";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from "react-native-reanimated";
 
