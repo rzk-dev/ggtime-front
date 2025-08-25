@@ -25,8 +25,6 @@ export default function GameDetailsCard({ videogameDetail, onClose }: Props) {
     ? new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()
     : "N/A";
 
-  const cardWidth = Math.min(360, SCREEN_WIDTH * 0.9);
-
   const getCompanyName = (c: any) => c?.company?.name ?? c?.string ?? "";
 
   const simplifiedLanguages = simplifyLanguages(videogameDetail.languageSupports || []);
@@ -55,11 +53,10 @@ export default function GameDetailsCard({ videogameDetail, onClose }: Props) {
 
   return (
     <View style={styles.outerWrap}>
-      <View style={[styles.card, { width: cardWidth }]}>
-        <Pressable onPress={onClose} style={styles.close}>
+      <Pressable onPress={onClose} style={styles.close}>
           <Text style={styles.closeText}>✕</Text>
         </Pressable>
-
+      <View style={[styles.card, { width: SCREEN_WIDTH * 1 }]}>
         {videogameDetail.cover?.url ? (
           <Image
             source={{ uri: videogameDetail.cover.url }}
@@ -160,23 +157,21 @@ const styles = StyleSheet.create({
   },
   close: {
     position: "absolute",
-    top: 10,
-    right: 10,
-    zIndex: 20,
+    top: 5,
+    right: 5,
+    zIndex: 5,
+    padding: 8,
+    borderRadius: 20,
     backgroundColor: "rgba(0,0,0,0.35)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginTop: 10,
   },
   closeText: {
     color: colors.dark.text,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
   },
   cover: {
     width: "100%",
-    height: 220,
+    height: "50%",
     // top corners visually rounded
     borderTopLeftRadius: 14,
     borderTopRightRadius: 14,
