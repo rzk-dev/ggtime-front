@@ -20,7 +20,7 @@ type Props = {
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-export default function GameDetailCard({ videogameDetail, onClose }: Props) {
+export default function GameDetailsCard({ videogameDetail, onClose }: Props) {
   const releaseDate = videogameDetail.firstReleaseDate
     ? new Date(videogameDetail.firstReleaseDate * 1000).toLocaleDateString()
     : "N/A";

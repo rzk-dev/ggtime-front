@@ -2,7 +2,7 @@ import React from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View, SafeAreaView, StatusBar } from "react-native";
 import { useGetVideogames } from "@/hooks/useGetVideogames";
 import { colors } from "@/constants/Colors";
-import GameModalTrigger from "@/domain/cards/gameModalTrigger";
+import GameListCards from "@/domain/cards/gameModalTrigger";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from "react-native-reanimated";
 
@@ -38,7 +38,7 @@ export default function Index() {
         contentContainerStyle={styles.container}
         data={videogames}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <GameModalTrigger videogame ={item} />}
+        renderItem={({ item }) => <GameListCards videogame ={item} />}
         numColumns={3}
     />
     </SafeAreaView>

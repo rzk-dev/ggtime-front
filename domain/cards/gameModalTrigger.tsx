@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { Videogame } from "@/domain/videogames/videogame";
 import { colors } from "@/constants/Colors";
-import GameDetailCard from "@/domain/cards/gameDetailCard";
+import GameDetailsCard from "@/domain/cards/gameDetailCard";
 import { getPlatformIcon } from "@/constants/platformIcons";
 
 const screenHeight = Dimensions.get("window").height;
@@ -14,7 +14,7 @@ type Props = {
   videogame: Videogame;
 };
 
-export default function GameModalTrigger({ videogame }: Props) {
+export default function GameListCards({ videogame }: Props) {
   const [modalVisible, setModalVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
 
@@ -106,7 +106,7 @@ export default function GameModalTrigger({ videogame }: Props) {
               <ActivityIndicator size="large" color="#fff" />
             </View>
           ) : details ? (
-            <GameDetailCard videogameDetail={details} onClose={closeModal} />
+            <GameDetailsCard videogameDetail={details} onClose={closeModal} />
           ) : (
             <Text style={{ color: "#fff", padding: 20 }}>Error loading details</Text>
           )}
