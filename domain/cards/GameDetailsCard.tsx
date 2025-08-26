@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from "react-native";
 import { VideogameDetail } from "@/domain/videogames/videogameDetail";
-import { colors } from "@/constants/Colors";
+import { colors } from "@/constants/colors";
 import { Companies } from "@/domain/videogames/involvedCompanies";
 import { simplifyLanguages } from "@/domain/videogames/languages";
 

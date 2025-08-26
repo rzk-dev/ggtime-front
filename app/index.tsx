@@ -1,10 +1,10 @@
 import React from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View, SafeAreaView, StatusBar } from "react-native";
 import { useGetVideogames } from "@/hooks/useGetVideogames";
-import { colors } from "@/constants/Colors";
+import { colors } from "@/constants/colors";
 import GameListCards from "@/domain/cards/GameListCards";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated from "react-native-reanimated";
+import AppHeader from "@/features/AppHeader";
 
 export default function Index() {
   const insets = useSafeAreaInsets();
@@ -31,9 +31,10 @@ export default function Index() {
   return (
     <SafeAreaView style={{flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.dark.background,}}>
       <StatusBar barStyle="default" backgroundColor={colors.dark.background }/>
-      <Text style={{ color: colors.dark.text, fontSize: 20, textAlign: 'center', marginVertical: 10 }}>
-        Videogames Repository
-      </Text> 
+      <AppHeader
+        title="Games Repository"
+        onUserPress={() => console.log("Perfil")}
+      />
       <FlatList
         contentContainerStyle={styles.container}
         data={videogames}

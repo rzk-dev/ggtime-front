@@ -4,7 +4,7 @@ import {
   TouchableWithoutFeedback, Animated, Dimensions, ActivityIndicator 
 } from "react-native";
 import { Videogame } from "@/domain/videogames/videogame";
-import { colors } from "@/constants/Colors";
+import { colors } from "@/constants/colors";
 import GameDetailsCard from "@/domain/cards/GameDetailsCard";
 import { getPlatformIcon } from "@/constants/platformIcons";
 
