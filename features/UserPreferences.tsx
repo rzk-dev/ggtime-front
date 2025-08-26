@@ -13,8 +13,11 @@ type Props = {
   }) => void;
 };
 
-const AVAILABLE_PLATFORMS = ["PC", "PlayStation", "Xbox", "Switch", "Mobile"];
-const AVAILABLE_GENRES = ["Action", "RPG", "Shooter", "Strategy", "Indie"];
+const AVAILABLE_PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Retro/Arcade"];
+const AVAILABLE_GENRES = ["Pinball","Adventure","Indie","Arcade","Visual Novel","Card & Board","MOBA","Point-and-click",
+    "Fighting","Shooter","Music","Platform","Puzzle","Racing","RTS","RPG","Simulator",
+    "Sport","Strategy","Turn-based","Tactical","Hack and slash","Beat 'em up","Quiz/Trivia"];
+
 
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -45,6 +48,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
       <View style={styles.panel}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>User Preferences</Text>
+          <View style={styles.divider} />
 
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
@@ -65,6 +69,8 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
               </View>
             ))}
           </View>
+
+          <View style={styles.divider} />
 
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
@@ -193,5 +199,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "700",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    marginVertical: 5,
   },
 });
