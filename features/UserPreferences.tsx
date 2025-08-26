@@ -13,7 +13,10 @@ type Props = {
   }) => void;
 };
 
-const AVAILABLE_PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Retro/Arcade"];
+const AVAILABLE_PLATFORMS = ["PC", "Mac", "PlayStation", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5", 
+    "PlayStation Vita", "PlayStation Portable", "Xbox", "Xbox 360", "Xbox One", "Xbox Series X/S", "Nintendo Switch", 
+    "Nintendo 3DS", "Wii", "Wii U",  "Android",  "IOS", "Retro/Arcade"];
+    
 const AVAILABLE_GENRES = ["Pinball","Adventure","Indie","Arcade","Visual Novel","Card & Board","MOBA","Point-and-click",
     "Fighting","Shooter","Music","Platform","Puzzle","Racing","RTS","RPG","Simulator",
     "Sport","Strategy","Turn-based","Tactical","Hack and slash","Beat 'em up","Quiz/Trivia"];
