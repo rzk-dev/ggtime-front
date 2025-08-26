@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -17,6 +17,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
+import AppHeader from "@/features/AppHeader";
 
 const PAGE_SIZE = 50;
 
@@ -59,20 +60,13 @@ export default function Index() {
     <SafeAreaView
       style={{
         flex: 1,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
         backgroundColor: colors.dark.background,
       }}
     >
       <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
-      <Text
-        style={{
-          color: colors.dark.text,
-          fontSize: 20,
-          textAlign: "center",
-          marginVertical: 10,
-        }}
-      >
-        Videogames Repository
-      </Text>
+      <AppHeader title="" onUserPress={() => console.log("Perfil")} />
       <FlatList
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}

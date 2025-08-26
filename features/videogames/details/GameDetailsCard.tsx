@@ -9,6 +9,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
+
 import { colors } from "@/constants/colors";
 import { Companies } from "@/domain/videogames/involvedCompanies";
 import { simplifyLanguages } from "@/domain/videogames/languages";
