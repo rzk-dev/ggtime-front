@@ -32,7 +32,7 @@ export default function Index() {
     <SafeAreaView style={{flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.dark.background,}}>
       <StatusBar barStyle="default" backgroundColor={colors.dark.background }/>
       <AppHeader
-        title="Games Repository"
+        title=""
         onUserPress={() => console.log("Perfil")}
       />
       <FlatList

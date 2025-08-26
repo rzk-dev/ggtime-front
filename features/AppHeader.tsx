@@ -10,10 +10,8 @@ interface AppHeaderProps {
 export default function AppHeader({ title, onUserPress }: AppHeaderProps) {
   return (
     <View style={styles.container}>
-      {/* Título centrado */}
-      <Text style={styles.title}>{title || "GGTime"}</Text>
+      <Text style={styles.title}>{title}</Text>
 
-      {/* Botones a la derecha */}
       <View style={styles.buttons}>
         <HeaderUserIcon onPress={onUserPress} />
       </View>
