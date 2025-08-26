@@ -7,6 +7,7 @@ import {
   ScrollView,
   Pressable,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { colors } from "@/constants/colors";
 import { Companies } from "@/domain/videogames/involvedCompanies";
@@ -19,15 +20,30 @@ type Props = {
   onClose: () => void;
 };
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const SCREEN_HEIGHT = Dimensions.get("window").height;
 
 export default function GameDetailsCard({ id, onClose }: Props) {
   const getVideogameDetails = () => getById(id);
 
-  const { isLoading, isError, error, data } = useQuery({
+  const { isLoading, data } = useQuery({
     queryKey: ["videogames", id],
     queryFn: getVideogameDetails,
   });
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "rgba(25,25,25,0.5)",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="white" />
+      </View>
+    );
+  }
 
   const releaseDate = data?.firstReleaseDate
     ? new Date(data?.firstReleaseDate * 1000).toLocaleDateString()
@@ -44,8 +60,6 @@ export default function GameDetailsCard({ id, onClose }: Props) {
     const filtered = data?.involvedCompanies.filter(
       (c) => c.companyContribution[type] === true,
     );
-
-    if (filtered?.length === 0) return null;
 
     return (
       <View style={styles.companySection}>
@@ -85,9 +99,9 @@ export default function GameDetailsCard({ id, onClose }: Props) {
             <Text style={styles.metaValue}>
               {data?.involvedCompanies?.length
                 ? data?.involvedCompanies
-                  .map((c) => getCompanyName(c))
-                  .filter(Boolean)
-                  .join(", ")
+                    .map((c) => getCompanyName(c))
+                    .filter(Boolean)
+                    .join(", ")
                 : "N/A"}
             </Text>
           </View>
@@ -130,8 +144,8 @@ export default function GameDetailsCard({ id, onClose }: Props) {
           <Text style={styles.languageData}>
             {simplifiedLanguages.length > 0
               ? simplifiedLanguages
-                .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
-                .join("\n")
+                  .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
+                  .join("\n")
               : "N/A"}
           </Text>
         </ScrollView>

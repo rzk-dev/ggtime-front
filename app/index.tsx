@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -9,6 +9,9 @@ import {
   StatusBar,
   Pressable,
   Modal,
+  TouchableWithoutFeedback,
+  Animated,
+  Dimensions,
 } from "react-native";
 import { colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
