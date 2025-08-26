@@ -9,6 +9,7 @@ import {
   StatusBar,
   Pressable,
   Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -101,6 +102,9 @@ export default function Index() {
       />
 
       <Modal visible={detailVisible} animationType="fade" transparent>
+        <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
+          <View style={styles.backdrop} />
+        </TouchableWithoutFeedback>
         <GameDetailsCard
           id={selectedItem ?? 0}
           onClose={() => setDetailVisible(false)}
@@ -118,5 +122,13 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: colors.dark.background,
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
 });
