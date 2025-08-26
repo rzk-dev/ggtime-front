@@ -73,6 +73,7 @@ export default function Index() {
         Videogames Repository
       </Text>
       <FlatList
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
         data={games}
@@ -116,8 +117,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   container: {
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: colors.dark.background,
   },
 });
