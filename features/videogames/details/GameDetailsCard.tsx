@@ -85,9 +85,9 @@ export default function GameDetailsCard({ id, onClose }: Props) {
             <Text style={styles.metaValue}>
               {data?.involvedCompanies?.length
                 ? data?.involvedCompanies
-                    .map((c) => getCompanyName(c))
-                    .filter(Boolean)
-                    .join(", ")
+                  .map((c) => getCompanyName(c))
+                  .filter(Boolean)
+                  .join(", ")
                 : "N/A"}
             </Text>
           </View>
@@ -130,8 +130,8 @@ export default function GameDetailsCard({ id, onClose }: Props) {
           <Text style={styles.languageData}>
             {simplifiedLanguages.length > 0
               ? simplifiedLanguages
-                  .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
-                  .join("\n")
+                .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
+                .join("\n")
               : "N/A"}
           </Text>
         </ScrollView>
@@ -142,8 +142,9 @@ export default function GameDetailsCard({ id, onClose }: Props) {
 
 const styles = StyleSheet.create({
   outerWrap: {
-    padding: 24,
+    flex: 1,
     justifyContent: "center",
+    padding: 24,
     backgroundColor: "transparent",
   },
   card: {
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   close: {
-    padding: 10,
+    padding: 8,
     alignSelf: "flex-end",
   },
   closeText: {
@@ -170,8 +171,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   cover: {
-    width: "100%",
-    height: "70%",
+    padding: 14,
+    width: 300,
+    aspectRatio: 1,
+    resizeMode: "contain",
     // top corners visually rounded
     borderTopLeftRadius: 14,
     borderTopRightRadius: 14,

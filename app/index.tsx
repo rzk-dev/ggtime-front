@@ -58,8 +58,6 @@ export default function Index() {
     <SafeAreaView
       style={{
         flex: 1,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
         backgroundColor: colors.dark.background,
       }}
     >
@@ -75,6 +73,7 @@ export default function Index() {
         Videogames Repository
       </Text>
       <FlatList
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
         data={games}
         keyExtractor={(item) => item.id.toString()}
@@ -100,7 +99,7 @@ export default function Index() {
         }
       />
 
-      <Modal visible={detailVisible} transparent animationType="fade">
+      <Modal visible={detailVisible} animationType="fade" transparent>
         <GameDetailsCard
           id={selectedItem ?? 0}
           onClose={() => setDetailVisible(false)}
@@ -117,8 +116,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   container: {
-    padding: 5,
-    justifyContent: "space-between",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.dark.background,
   },
 });

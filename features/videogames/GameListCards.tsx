@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
 import { colors } from "@/constants/colors";
 import { getPlatformIcon } from "@/constants/platformIcons";
@@ -15,83 +15,60 @@ export default function GameListCards({ videogame }: Props) {
   );
 
   return (
-    <>
-      <View style={styles.card}>
-        <Image
-          source={{ uri: videogame.cover.url }}
-          style={styles.coverImage}
-          resizeMode="cover"
-        />
+    <View style={styles.card}>
+      <Image
+        source={{ uri: videogame.cover.url }}
+        style={styles.coverImage}
+        resizeMode="cover"
+      />
+      <View style={styles.titleContainer}>
         <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
           {videogame.name}
         </Text>
-        <View style={styles.iconsContainer}>
-          {uniqueIcons.map((icon, index) => (
-            <Image
-              key={index}
-              source={icon}
-              style={styles.platformIcon}
-              resizeMode="contain"
-            />
-          ))}
-        </View>
       </View>
-    </>
+      <View style={styles.iconsContainer}>
+        {uniqueIcons.map((icon, index) => (
+          <Image
+            key={index}
+            source={icon}
+            style={styles.platformIcon}
+            resizeMode="contain"
+          />
+        ))}
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.dark.card,
-    padding: 5,
-    margin: 6,
-    borderRadius: 8,
-    elevation: 2,
-    flex: 1,
-    alignItems: "center",
   },
   coverImage: {
     width: "100%",
     height: 100,
-    borderRadius: 6,
-    marginBottom: 8,
   },
+  titleContainer: {},
   title: {
-    fontSize: 16,
+    flexShrink: 1,
+    padding: 10,
     fontWeight: "bold",
-    width: "100%",
     textAlign: "center",
-    marginBottom: 4,
     color: colors.dark.text,
   },
   iconsContainer: {
+    flex: 1,
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 4,
     alignItems: "center",
-    maxWidth: "100%",
   },
   platformIcon: {
     width: 25,
     height: 25,
-    marginHorizontal: 2,
-    marginBottom: 2,
     resizeMode: "contain",
   },
   backdrop: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "80%",
-    backgroundColor: colors.dark.background,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    overflow: "hidden",
-    elevation: 10,
   },
 });
