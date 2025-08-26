@@ -11,6 +11,7 @@ type Props = {
 
 export default function GameListCards({ videogame }: Props) {
   const screenWidth = Dimensions.get("window").width;
+  const screenHeight = Dimensions.get("window").height;
   const columnsNumber = 3;
 
   const uniqueIcons = Array.from(
@@ -18,7 +19,15 @@ export default function GameListCards({ videogame }: Props) {
   );
 
   return (
-    <View style={[{ width: screenWidth / columnsNumber - 10 }, styles.card]}>
+    <View
+      style={[
+        {
+          width: screenWidth / columnsNumber - 10,
+          height: screenHeight * 0.25,
+        },
+        styles.card,
+      ]}
+    >
       <Image
         source={{ uri: videogame.cover.url }}
         style={styles.coverImage}
@@ -46,7 +55,6 @@ export default function GameListCards({ videogame }: Props) {
 const styles = StyleSheet.create({
   card: {
     margin: 5,
-    height: 200,
     backgroundColor: colors.dark.card,
   },
   coverImage: {
