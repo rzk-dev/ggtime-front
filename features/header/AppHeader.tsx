@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { colors } from "@/constants/colors";
-import HeaderUserIcon from "./HeaderUserIcon";
+import HeaderUserIcon from "../user/HeaderUserIcon";
 interface AppHeaderProps {
   title?: string;
   onUserPress?: () => void;

@@ -17,7 +17,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
-import AppHeader from "@/features/AppHeader";
+import AppHeader from "@/features/header/AppHeader";
 
 const PAGE_SIZE = 50;
 
