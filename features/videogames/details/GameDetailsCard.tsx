@@ -8,6 +8,8 @@ import {
   Pressable,
   Dimensions,
   ActivityIndicator,
+  Platform,
+  ImageBackground
 } from "react-native";
 
 import { colors } from "@/constants/colors";
@@ -77,16 +79,36 @@ export default function GameDetailsCard({ id, onClose }: Props) {
   return (
     <View style={styles.outerWrap}>
       <View style={[styles.card, { height: SCREEN_HEIGHT * 0.75 }]}>
-        <Pressable onPress={onClose} style={styles.close}>
-          <Text style={styles.closeText}>Close</Text>
-        </Pressable>
-        {data?.cover?.url ? (
-          <Image
-            source={{ uri: data?.cover.url }}
-            style={styles.cover}
-            resizeMode="cover"
-          />
-        ) : null}
+        {/*
+        <View style={styles.coverContainer}>
+          <View style={styles.topBar}>
+            <Pressable onPress={onClose} style={styles.close}>
+              <Text style={styles.closeText}>Close</Text>
+            </Pressable>
+          </View>
+
+          {data?.cover?.url ? (
+            <Image
+              source={{ uri: data?.cover.url }}
+              style={styles.cover}
+              resizeMode="cover"
+            />
+          ) : null}
+        </View>
+        */}
+        <View style={styles.coverContainer}>
+          {data?.cover?.url ? (
+            <ImageBackground
+              source={{ uri: data?.cover.url }}
+              style={styles.cover}
+              resizeMode="cover"
+            >
+              <Pressable onPress={onClose} style={styles.close}>
+                <Text style={styles.closeText}>Close</Text>
+              </Pressable>
+            </ImageBackground>
+          ) : null}
+        </View>
 
         <ScrollView
           style={styles.content}
@@ -115,7 +137,7 @@ export default function GameDetailsCard({ id, onClose }: Props) {
                 : "N/A"}
             </Text>
 
-            <Text style={[styles.metaLabel]}>Average playtime: </Text>
+            <Text style={{...styles.metaLabel, marginLeft: 10}}>Average playtime: </Text>
             <Text style={styles.metaValue}>{"N/A"}</Text>
           </View>
 
@@ -141,6 +163,8 @@ export default function GameDetailsCard({ id, onClose }: Props) {
             {data?.summary || "No summary available."}
           </Text>
 
+          <View style={styles.divider} />
+
           <Text style={[styles.sectionTitle]}>Languages</Text>
           <Text style={styles.languageData}>
             {simplifiedLanguages.length > 0
@@ -165,37 +189,52 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.dark.card,
     borderRadius: 14,
-    overflow: "hidden",
-    padding: 16,
-    // shadow (iOS)
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
+    ...Platform.select({
+      ios: {
+        overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.35,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 20,
+        overflow: "hidden",
+      },
+      default: {
+        // other platforms
+      },
+    }),
+  },
+  coverContainer: {
+  borderTopLeftRadius: 14,
+  borderTopRightRadius: 14,
+  overflow: "hidden",
+  },
 
-    // elevation (Android)
-    elevation: 20,
-  },
-  close: {
-    padding: 8,
-    alignSelf: "flex-end",
-  },
-  closeText: {
-    color: colors.dark.text,
-    fontSize: 14,
-    fontWeight: "500",
-  },
   cover: {
-    padding: 14,
-    width: 300,
+    width: "100%",
     aspectRatio: 1,
-    resizeMode: "contain",
-    // top corners visually rounded
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
+  },
+
+  close: {
+    backgroundColor: "rgba(0,0,0,0.4)",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    margin: 8,
+    borderRadius: 10,
+  },
+
+  closeText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
   },
   content: {
     backgroundColor: "transparent",
+    paddingHorizontal: 14,
   },
   contentContainer: {
     paddingBottom: 24,
@@ -205,7 +244,8 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: colors.dark.text,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 5,
+    marginTop: 5,
   },
   metaRow: {
     flexDirection: "row",
