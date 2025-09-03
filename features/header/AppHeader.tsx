@@ -10,7 +10,7 @@ interface AppHeaderProps {
 export default function AppHeader({ title, onUserPress }: AppHeaderProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title}>@Username{title}</Text>
 
       <View style={styles.buttons}>
         <HeaderUserIcon onPress={onUserPress} />

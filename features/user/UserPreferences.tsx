@@ -47,9 +47,18 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   return (
     <View style={styles.overlay}>
       <View style={styles.panel}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Text style={styles.title}>User Preferences</Text>
-          <View style={styles.divider} />
+
+          <Pressable onPress={onClose} style={styles.close}>
+          <Text style={styles.closeText}>Close</Text>
+          </Pressable>
+        
+        </View>
+        <View style={styles.divider} />
+
+        <ScrollView contentContainerStyle={styles.scrollContent}>
 
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
@@ -139,6 +148,19 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 16,
+  },
+  close: {
+    alignSelf: "flex-start",
+    padding: 8,
+    marginBottom: 8,
+    backgroundColor: "rgba(0,0,0,0.15)",
+    borderRadius: 15,
+    
+  },
+  closeText: {
+    color: colors.dark.text,
+    fontSize: 14,
+    fontWeight: "500",
   },
   title: {
     fontSize: 18,
