@@ -113,7 +113,7 @@ export default function GameDetailsCard({ id, onClose }: Props) {
         <ScrollView
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
         >
           <Text style={styles.title}>{data?.name}</Text>
 
@@ -207,9 +207,9 @@ const styles = StyleSheet.create({
     }),
   },
   coverContainer: {
-  borderTopLeftRadius: 14,
-  borderTopRightRadius: 14,
-  overflow: "hidden",
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    overflow: "hidden",
   },
 
   cover: {
