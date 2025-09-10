@@ -18,6 +18,7 @@ import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";
+import LoginScreen from "@/features/screens/LoginScreen";
 
 const PAGE_SIZE = 50;
 
@@ -65,6 +66,8 @@ export default function Index() {
         backgroundColor: colors.dark.background,
       }}
     >
+      <LoginScreen />
+      {/*}
       <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
       <AppHeader title="" onUserPress={() => console.log("Perfil")} />
       <FlatList
@@ -103,7 +106,7 @@ export default function Index() {
           id={selectedItem ?? 0}
           onClose={() => setDetailVisible(false)}
         />
-      </Modal>
+      </Modal> */}
     </SafeAreaView>
   );
 }
