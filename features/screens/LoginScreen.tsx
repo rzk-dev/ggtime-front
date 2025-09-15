@@ -1,6 +1,8 @@
 import { colors } from "@/constants/colors";
 import React from "react";
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+
 
 export default function LoginScreen() {
     return (
@@ -11,6 +13,14 @@ export default function LoginScreen() {
             />
             <Text style={styles.title}>[TEST] Login Screen</Text>
             <View>
+                <GoogleSigninButton
+                    size={GoogleSigninButton.Size.Wide}
+                    color={GoogleSigninButton.Color.Dark}
+                    onPress={() => {
+                        // initiate sign in
+                    }}
+                    disabled={false}
+                    />;
                 <Pressable style={styles.loginbuton}>
                     <Text style={styles.buttontext}>Login</Text>
                 </Pressable>
