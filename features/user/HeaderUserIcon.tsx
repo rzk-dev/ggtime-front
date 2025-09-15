@@ -22,11 +22,9 @@ export default function HeaderUserIcon({ onPress }: Props) {
     <>
       <Pressable
         onPress={handlePress}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      >
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
         <Image source={defaultAvatar} style={styles.avatar} />
       </Pressable>
-
       <Modal
         visible={showPreferences}
         transparent
@@ -53,10 +51,8 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.dark.background,
+    width: 35,
+    height: 35,
+    backgroundColor: colors.dark.background,
   },
 });
