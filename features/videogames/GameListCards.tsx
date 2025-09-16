@@ -56,9 +56,13 @@ const styles = StyleSheet.create({
   card: {
     margin: 5,
     backgroundColor: colors.dark.card,
+    paddingBottom: 10,
+    borderRadius: 5,
   },
   coverImage: {
     height: 100,
+    borderTopRightRadius: 5,
+    borderTopLeftRadius: 5,
   },
   titleContainer: {},
   title: {
@@ -73,6 +77,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 5,
   },
   platformIcon: {
     width: 25,
