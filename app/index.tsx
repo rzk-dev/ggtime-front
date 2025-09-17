@@ -18,10 +18,21 @@ import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";
+import { NavigationContainer } from "@react-navigation/native";
+import { RootNavigator } from "./routes/routes";
 
 const PAGE_SIZE = 50;
 
 export default function Index() {
+  return (
+      <RootNavigator />
+  );
+}
+
+
+
+
+  {/*
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
 
@@ -126,3 +137,4 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
 });
+*/}

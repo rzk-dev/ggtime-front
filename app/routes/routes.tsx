@@ -1,5 +1,5 @@
 import { createStackNavigator } from '@react-navigation/stack';
-//import LoginScreen from '../login';
+import LoginScreen from '../login/loginScreen';
 import HomeScreen from '../home/homeScreen';
 
 export type RootStackParamList = {
@@ -10,11 +10,11 @@ const RootStack = createStackNavigator<RootStackParamList>();
 export function RootNavigator() {
   return (
     <RootStack.Navigator initialRouteName="Login">
-      {/*<RootStack.Screen
+      <RootStack.Screen
         name="Login"
         component={LoginScreen}
         options={{ headerShown: false }}
-      />*/}
+      />
       <RootStack.Screen
         name="Home"
         component={HomeScreen}
