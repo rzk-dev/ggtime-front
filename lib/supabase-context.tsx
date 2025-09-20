@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "./supabase";
 import { Session, User } from "@supabase/supabase-js";
-import { router } from "expo-router";
 
 export type SupabaseContextType = {
   supabase: typeof supabase;
   session: Session | null;
+  isAuthenticated: boolean;
   user: User | null;
   signout: () => Promise<void>;
 };
@@ -20,6 +20,7 @@ export const SupabaseProvider = ({
   children: React.ReactNode;
 }) => {
   const [session, setSession] = useState<Session | null>(null);
+  const [authenticated, setAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -36,15 +37,16 @@ export const SupabaseProvider = ({
   }, []);
 
   useEffect(() => {
-    if (session === null) {
-      router.replace("/login"); // replace avoids going back
+    if (session !== null) {
+      setAuthenticated(true);
     }
-  }, [session]);
+  }, [session, authenticated]);
 
   return (
     <SupabaseContext.Provider
       value={{
         supabase,
+        isAuthenticated: authenticated,
         session,
         user: session?.user ?? null,
         signout: async () => {
