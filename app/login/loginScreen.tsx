@@ -8,10 +8,10 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
-export default function LoginScreen() {
+export default function LoginScreenTEST() {
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // Aquí validas el login y luego navegas
     navigation.navigate('Home');
   };
