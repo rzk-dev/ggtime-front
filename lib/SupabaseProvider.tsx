@@ -20,7 +20,6 @@ export const SupabaseProvider = ({
   children: React.ReactNode;
 }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [authenticated, setAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -36,18 +35,12 @@ export const SupabaseProvider = ({
     };
   }, []);
 
-  useEffect(() => {
-    if (session !== null) {
-      setAuthenticated(true);
-    }
-  }, [session, authenticated]);
-
   return (
     <SupabaseContext.Provider
       value={{
         supabase,
-        isAuthenticated: authenticated,
-        session,
+        isAuthenticated: !!session,
+        session: session,
         user: session?.user ?? null,
         signout: async () => {
           await supabase.auth.signOut();

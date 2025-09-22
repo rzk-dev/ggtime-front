@@ -1,12 +1,15 @@
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { View, Text, Alert, Button, TextInput, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleLogin = async () => {
     setLoading(true);
@@ -18,8 +21,31 @@ export default function LoginScreen() {
 
     if (error) {
       Alert.alert(error.message);
-      setLoading(false);
+    } else {
+      router.replace("/");
     }
+    setLoading(false);
+  };
+
+  const handleRegister = async () => {
+    setLoading(true);
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({ email: email, password: password });
+
+    if (error) {
+      Alert.alert(error.message);
+    }
+    setLoading(false);
+
+    router.replace("/");
+
+    Toast.show({
+      type: "success",
+      text1: "Account created!",
+      text2: session?.user.email,
+    });
   };
 
   return (
@@ -45,6 +71,8 @@ export default function LoginScreen() {
         />
 
         <Button title="Sign In" disabled={loading} onPress={handleLogin} />
+
+        <Text onPress={handleRegister}>Create a new account</Text>
       </View>
     </SafeAreaView>
   );
