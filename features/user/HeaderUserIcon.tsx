@@ -22,7 +22,8 @@ export default function HeaderUserIcon({ onPress }: Props) {
     <>
       <Pressable
         onPress={handlePress}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      >
         <Image source={defaultAvatar} style={styles.avatar} />
       </Pressable>
       <Modal

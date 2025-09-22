@@ -2,15 +2,20 @@ import React from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { colors } from "@/constants/colors";
 import HeaderUserIcon from "../user/HeaderUserIcon";
+import { useSupabase } from "@/lib/SupabaseProvider";
 interface AppHeaderProps {
   title?: string;
   onUserPress?: () => void;
 }
 
 export default function AppHeader({ title, onUserPress }: AppHeaderProps) {
+  const { user } = useSupabase();
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>@Username{title}</Text>
+      <Text style={styles.title}>
+        {user?.email ?? "Unknown"}
+        {title}
+      </Text>
 
       <View style={styles.buttons}>
         <HeaderUserIcon onPress={onUserPress} />
@@ -27,9 +32,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: colors.dark.card,
     paddingHorizontal: 12,
-    paddingTop: 14, // separa del notch en iPhone
+    paddingTop: 14,
     paddingBottom: 10,
-    elevation: 5, // sombra Android
+    elevation: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,

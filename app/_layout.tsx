@@ -1,13 +1,33 @@
 import { queryClient } from "@/lib/queryClient";
+import Toast from "react-native-toast-message";
+import { SupabaseProvider, useSupabase } from "@/lib/SupabaseProvider";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Redirect, Stack, usePathname } from "expo-router";
+import React from "react";
+
+function AppNavigator() {
+  const { isAuthenticated } = useSupabase();
+  const pathname = usePathname();
+
+  if (!isAuthenticated && pathname !== "/login") {
+    return <Redirect href="/login" />;
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="login/index" />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-      </Stack>
+      <SupabaseProvider>
+        <AppNavigator />
+        <Toast />
+      </SupabaseProvider>
     </QueryClientProvider>
   );
 }
