@@ -11,10 +11,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { colors } from "@/constants/colors";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
@@ -27,6 +24,7 @@ export default function HomeScreen() {
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
+  const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
 
   const fetchVideogames = ({ pageParam = 0 }) => getAll(PAGE_SIZE, pageParam);
@@ -42,6 +40,14 @@ export default function HomeScreen() {
   });
 
   const games = videogamesQuery.data?.pages.flat();
+
+  const handleToggleFavorite = (game: any) => {
+    if (favorites.some((f) => f.id === game.id)) {
+      setFavorites(favorites.filter((f) => f.id !== game.id));
+    } else {
+      setFavorites([...favorites, game]);
+    }
+  };
 
   if (videogamesQuery.isLoading) {
     return (
@@ -71,7 +77,7 @@ export default function HomeScreen() {
       <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
       <AppHeader title="" onUserPress={() => console.log("Perfil")} />
 
-      {/* 👇 Barra de pestañas */}
+      {/* pestañas */}
       <View
         style={{
           flexDirection: "row",
@@ -103,7 +109,7 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      {/* 👇 Cuerpo dinámico según pestaña */}
+      {/* cuerpo */}
       {activeTab === "search" ? (
         <FlatList
           style={{ flex: 1 }}
@@ -133,13 +139,27 @@ export default function HomeScreen() {
           }
         />
       ) : (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text style={{ color: colors.dark.text }}>
-            Aquí iría el contenido de "My Games"
-          </Text>
-        </View>
+        <FlatList
+          style={{ flex: 1 }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+          data={favorites}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => {
+                setSelectedItem(item.id);
+                setDetailVisible(true);
+              }}
+            >
+              <GameListCards videogame={item} />
+            </Pressable>
+          )}
+          numColumns={3}
+        />
       )}
 
+      {/* modal */}
       <Modal visible={detailVisible} animationType="fade" transparent>
         <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
           <View style={styles.backdrop} />
@@ -147,102 +167,13 @@ export default function HomeScreen() {
         <GameDetailsCard
           id={selectedItem ?? 0}
           onClose={() => setDetailVisible(false)}
+          favorites={favorites}
+          onToggleFavorite={handleToggleFavorite}
         />
       </Modal>
     </SafeAreaView>
   );
 }
-
-
-{/*
-const PAGE_SIZE = 50;
-
-export default function HomeScreen() {
-    const [detailVisible, setDetailVisible] = useState<boolean>(false);
-    const [selectedItem, setSelectedItem] = useState<number>();
-    const insets = useSafeAreaInsets();
-    const fetchVideogames = ({ pageParam = 0 }) => getAll(PAGE_SIZE, pageParam);
-
-  const videogamesQuery = useInfiniteQuery({
-    queryKey: ["videogames"],
-    initialPageParam: 0,
-    queryFn: fetchVideogames,
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage.length < PAGE_SIZE ? undefined : allPages.length * PAGE_SIZE,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
-
-  const games = videogamesQuery.data?.pages.flat();
-
-  if (videogamesQuery.isLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
-  if (videogamesQuery.isError) {
-    return (
-      <View style={styles.center}>
-        <Text>{videogamesQuery.error?.toString()}</Text>
-      </View>
-    );
-  }
-
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
-        backgroundColor: colors.dark.background,
-      }}
-    >
-      <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
-      <AppHeader title="" onUserPress={() => console.log("Perfil")} />
-      <FlatList
-        style={{ flex: 1 }}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.container}
-        data={games}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => {
-              setSelectedItem(item.id);
-              setDetailVisible(true);
-            }}
-          >
-            <GameListCards videogame={item} />
-          </Pressable>
-        )}
-        numColumns={3}
-        onEndReached={() =>
-          !videogamesQuery.isFetching &&
-          videogamesQuery.hasNextPage &&
-          videogamesQuery.fetchNextPage()
-        }
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          videogamesQuery.isFetchingNextPage ? <ActivityIndicator /> : null
-        }
-      />
-
-      <Modal visible={detailVisible} animationType="fade" transparent>
-        <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
-          <View style={styles.backdrop} />
-        </TouchableWithoutFeedback>
-        <GameDetailsCard
-          id={selectedItem ?? 0}
-          onClose={() => setDetailVisible(false)}
-        />
-      </Modal>
-    </SafeAreaView>
-  );
-}
-  */}
 
 const styles = StyleSheet.create({
   center: {
@@ -262,4 +193,3 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
 });
-

@@ -2,16 +2,15 @@ import React from "react";
 import {
   View,
   Text,
-  Image,
+  ImageBackground,
   StyleSheet,
   ScrollView,
   Pressable,
   Dimensions,
   ActivityIndicator,
   Platform,
-  ImageBackground
 } from "react-native";
-
+import { FontAwesome } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
 import { Companies } from "@/domain/videogames/involvedCompanies";
 import { simplifyLanguages } from "@/domain/videogames/languages";
@@ -21,11 +20,18 @@ import { getById } from "../api";
 type Props = {
   id: number;
   onClose: () => void;
+  favorites: any[];
+  onToggleFavorite: (game: any) => void;
 };
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
-export default function GameDetailsCard({ id, onClose }: Props) {
+export default function GameDetailsCard({
+  id,
+  onClose,
+  favorites,
+  onToggleFavorite,
+}: Props) {
   const getVideogameDetails = () => getById(id);
 
   const { isLoading, data } = useQuery({
@@ -48,54 +54,13 @@ export default function GameDetailsCard({ id, onClose }: Props) {
     );
   }
 
-  const releaseDate = data?.firstReleaseDate
-    ? new Date(data?.firstReleaseDate * 1000).toLocaleDateString()
-    : "N/A";
-
   const getCompanyName = (c: any) => c?.company?.name ?? c?.string ?? "";
-
   const simplifiedLanguages = simplifyLanguages(data?.languageSupports || []);
-
-  const renderCompanyList = (
-    type: keyof Companies["companyContribution"],
-    label: string,
-  ) => {
-    const filtered = data?.involvedCompanies.filter(
-      (c) => c.companyContribution[type] === true,
-    );
-
-    return (
-      <View style={styles.companySection}>
-        <Text style={styles.sectionTitle}>{label}</Text>
-        {filtered?.map((c) => (
-          <Text key={c.id ?? JSON.stringify(c)} style={styles.text}>
-            {getCompanyName(c)}
-          </Text>
-        ))}
-      </View>
-    );
-  };
+  const isFavorite = favorites.some((f) => f.id === data?.id);
 
   return (
     <View style={styles.outerWrap}>
       <View style={[styles.card, { height: SCREEN_HEIGHT * 0.75 }]}>
-        {/*
-        <View style={styles.coverContainer}>
-          <View style={styles.topBar}>
-            <Pressable onPress={onClose} style={styles.close}>
-              <Text style={styles.closeText}>Close</Text>
-            </Pressable>
-          </View>
-
-          {data?.cover?.url ? (
-            <Image
-              source={{ uri: data?.cover.url }}
-              style={styles.cover}
-              resizeMode="cover"
-            />
-          ) : null}
-        </View>
-        */}
         <View style={styles.coverContainer}>
           {data?.cover?.url ? (
             <ImageBackground
@@ -103,8 +68,21 @@ export default function GameDetailsCard({ id, onClose }: Props) {
               style={styles.cover}
               resizeMode="cover"
             >
+              {/* Botón Close arriba derecha */}
               <Pressable onPress={onClose} style={styles.close}>
                 <Text style={styles.closeText}>Close</Text>
+              </Pressable>
+
+              {/* Botón corazón abajo derecha */}
+              <Pressable
+                onPress={() => onToggleFavorite(data)}
+                style={styles.favoriteButton}
+              >
+                <FontAwesome
+                  name={isFavorite ? "heart" : "heart-o"}
+                  size={22}
+                  color="#fff"
+                />
               </Pressable>
             </ImageBackground>
           ) : null}
@@ -137,7 +115,9 @@ export default function GameDetailsCard({ id, onClose }: Props) {
                 : "N/A"}
             </Text>
 
-            <Text style={{...styles.metaLabel, marginLeft: 10}}>Average playtime: </Text>
+            <Text style={{ ...styles.metaLabel, marginLeft: 10 }}>
+              Average playtime:{" "}
+            </Text>
             <Text style={styles.metaValue}>{"N/A"}</Text>
           </View>
 
@@ -201,9 +181,6 @@ const styles = StyleSheet.create({
         elevation: 20,
         overflow: "hidden",
       },
-      default: {
-        // other platforms
-      },
     }),
   },
   coverContainer: {
@@ -211,14 +188,12 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 14,
     overflow: "hidden",
   },
-
   cover: {
     width: "100%",
     aspectRatio: 1,
     justifyContent: "flex-start",
     alignItems: "flex-end",
   },
-
   close: {
     backgroundColor: "rgba(0,0,0,0.4)",
     paddingVertical: 4,
@@ -226,11 +201,19 @@ const styles = StyleSheet.create({
     margin: 8,
     borderRadius: 10,
   },
-
   closeText: {
     color: "#fff",
     fontSize: 14,
     fontWeight: "600",
+  },
+  favoriteButton: {
+    backgroundColor: "rgba(0,0,0,0.4)",
+    padding: 8,
+    margin: 8,
+    borderRadius: 20,
+    position: "absolute",
+    bottom: 0,
+    right: 0,
   },
   content: {
     backgroundColor: "transparent",
