@@ -13,9 +13,9 @@ export default function AppHeader({ title, onUserPress }: AppHeaderProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        {user?.email ?? "Unknown"}
-        {title}
+        {user?.email ? user.email.split('@')[0] : "Unknown"}{title}
       </Text>
+
 
       <View style={styles.buttons}>
         <HeaderUserIcon onPress={onUserPress} />

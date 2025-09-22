@@ -24,6 +24,140 @@ import AppHeader from "@/features/header/AppHeader";
 const PAGE_SIZE = 50;
 
 export default function HomeScreen() {
+  const [detailVisible, setDetailVisible] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<number>();
+  const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
+  const insets = useSafeAreaInsets();
+
+  const fetchVideogames = ({ pageParam = 0 }) => getAll(PAGE_SIZE, pageParam);
+
+  const videogamesQuery = useInfiniteQuery({
+    queryKey: ["videogames"],
+    initialPageParam: 0,
+    queryFn: fetchVideogames,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length < PAGE_SIZE ? undefined : allPages.length * PAGE_SIZE,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const games = videogamesQuery.data?.pages.flat();
+
+  if (videogamesQuery.isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (videogamesQuery.isError) {
+    return (
+      <View style={styles.center}>
+        <Text>{videogamesQuery.error?.toString()}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        backgroundColor: colors.dark.background,
+      }}
+    >
+      <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+      <AppHeader title="" onUserPress={() => console.log("Perfil")} />
+
+      {/* 👇 Barra de pestañas */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-around",
+          backgroundColor: colors.dark.card,
+          paddingVertical: 10,
+        }}
+      >
+        <Pressable onPress={() => setActiveTab("search")}>
+          <Text
+            style={{
+              color: activeTab === "search" ? colors.dark.text : "#888",
+              fontWeight: activeTab === "search" ? "bold" : "normal",
+            }}
+          >
+            All Games
+          </Text>
+        </Pressable>
+
+        <Pressable onPress={() => setActiveTab("mygames")}>
+          <Text
+            style={{
+              color: activeTab === "mygames" ? colors.dark.text : "#888",
+              fontWeight: activeTab === "mygames" ? "bold" : "normal",
+            }}
+          >
+            My Games
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* 👇 Cuerpo dinámico según pestaña */}
+      {activeTab === "search" ? (
+        <FlatList
+          style={{ flex: 1 }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+          data={games}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => {
+                setSelectedItem(item.id);
+                setDetailVisible(true);
+              }}
+            >
+              <GameListCards videogame={item} />
+            </Pressable>
+          )}
+          numColumns={3}
+          onEndReached={() =>
+            !videogamesQuery.isFetching &&
+            videogamesQuery.hasNextPage &&
+            videogamesQuery.fetchNextPage()
+          }
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            videogamesQuery.isFetchingNextPage ? <ActivityIndicator /> : null
+          }
+        />
+      ) : (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text style={{ color: colors.dark.text }}>
+            Aquí iría el contenido de "My Games"
+          </Text>
+        </View>
+      )}
+
+      <Modal visible={detailVisible} animationType="fade" transparent>
+        <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
+          <View style={styles.backdrop} />
+        </TouchableWithoutFeedback>
+        <GameDetailsCard
+          id={selectedItem ?? 0}
+          onClose={() => setDetailVisible(false)}
+        />
+      </Modal>
+    </SafeAreaView>
+  );
+}
+
+
+{/*
+const PAGE_SIZE = 50;
+
+export default function HomeScreen() {
     const [detailVisible, setDetailVisible] = useState<boolean>(false);
     const [selectedItem, setSelectedItem] = useState<number>();
     const insets = useSafeAreaInsets();
@@ -108,6 +242,7 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
+  */}
 
 const styles = StyleSheet.create({
   center: {
@@ -127,3 +262,4 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
 });
+
