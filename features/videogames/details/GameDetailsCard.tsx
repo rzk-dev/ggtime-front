@@ -68,12 +68,10 @@ export default function GameDetailsCard({
               style={styles.cover}
               resizeMode="cover"
             >
-              {/* Botón Close arriba derecha */}
               <Pressable onPress={onClose} style={styles.close}>
                 <Text style={styles.closeText}>Close</Text>
               </Pressable>
 
-              {/* Botón corazón abajo derecha */}
               <Pressable
                 onPress={() => onToggleFavorite(data)}
                 style={styles.favoriteButton}
