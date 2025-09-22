@@ -71,17 +71,21 @@ export default function LoginScreen() {
         />
 
         <Button title="Sign In" disabled={loading} onPress={handleLogin} />
-
-        <Text onPress={handleRegister}>Create a new account</Text>
+        <Text style={styles.centered}>OR</Text>
+        <Button title="Create a new account" onPress={handleRegister} />
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  centered: {
+    textAlign: "center",
+    padding: 10,
+  },
   container: {
-    flex: 1, // fill the screen
-    justifyContent: "center", // center vertically
+    flex: 1,
+    justifyContent: "center",
     padding: 20,
     backgroundColor: "#fff",
   },

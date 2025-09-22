@@ -20,14 +20,12 @@ import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";
-import { useSupabase } from "@/lib/SupabaseProvider";
 
 const PAGE_SIZE = 50;
 
 export default function Index() {
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
-  const { user } = useSupabase();
   const insets = useSafeAreaInsets();
   const fetchVideogames = ({ pageParam = 0 }) => getAll(PAGE_SIZE, pageParam);
 
