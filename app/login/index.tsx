@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import React, { useState } from "react";
-import { View, Text, Alert, Button, TextInput, StyleSheet } from "react-native";
+import { View, Text, Alert, Button, TextInput, StyleSheet, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from '../routes/routes';
@@ -32,22 +33,29 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>GGTime</Text>
-      <TextInput style={styles.textfield}
-        onChangeText={setEmail}
-        value={email}
-        keyboardType="email-address"
-        placeholder="email"
-      />
-      <TextInput style={styles.textfield}
-        onChangeText={setPassword}
-        value={password}
-        keyboardType="visible-password"
-        placeholder="password"
-      />
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container} style={styles.form}>
+        <Text style={styles.title}>GGTime</Text>
 
-      <View>
+        <TextInput style={styles.textfield}
+          style={styles.input}
+          placeholder="Email"
+          onChangeText={setEmail}
+          value={email}
+          keyboardType="email-address"
+        placeholder="email"
+          autoCapitalize="none"
+        />
+
+        <TextInput style={styles.textfield}
+          style={styles.input}
+          placeholder="Password"
+          onChangeText={setPassword}
+          value={password}
+          secureTextEntry
+        placeholder="password"
+        />
+
         <Button title="Sign In" disabled={loading} onPress={handleLogin} />
       </View>
 
@@ -63,9 +71,34 @@ export default function LoginScreen() {
         </FontAwesome.Button>
       </View>*/}
 
-    </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, // fill the screen
+    justifyContent: "center", // center vertically
+    padding: 20,
+    backgroundColor: "#fff",
+  },
+  form: {
+    width: "100%",
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 12,
+    marginBottom: 16,
+    borderRadius: 8,
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
