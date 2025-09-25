@@ -15,7 +15,7 @@ function AppNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
+      <Stack.Screen name="home/index" />
       <Stack.Screen name="login/index" />
     </Stack>
   );

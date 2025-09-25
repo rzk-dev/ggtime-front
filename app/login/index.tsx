@@ -22,7 +22,7 @@ export default function LoginScreen() {
     if (error) {
       Alert.alert(error.message);
     } else {
-      router.replace("/");
+      router.replace("/home");
     }
     setLoading(false);
   };
