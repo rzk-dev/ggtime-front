@@ -1,5 +1,6 @@
 import { Videogame } from "@/domain/videogames/videogame";
 import { VideogameDetail } from "@/domain/videogames/videogameDetail";
+import { useSupabase } from "@/lib/SupabaseProvider";
 
 const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
 
@@ -9,8 +10,15 @@ const videogamesAPI = {
     `${baseURL}/api/videogames?limit=${limit}&offset=${offset}`,
 };
 
-export async function getById(id: number): Promise<VideogameDetail> {
-  const response = await fetch(videogamesAPI.getById(id));
+export async function getById(
+  id: number,
+  auth_token: string,
+): Promise<VideogameDetail> {
+  const response = await fetch(videogamesAPI.getById(id), {
+    headers: {
+      Authorization: `Bearer ${auth_token}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch game details");
@@ -22,8 +30,13 @@ export async function getById(id: number): Promise<VideogameDetail> {
 export async function getAll(
   limit: number,
   offset: number,
+  auth_token: string,
 ): Promise<Videogame[]> {
-  const response = await fetch(videogamesAPI.getAll(limit, offset));
+  const response = await fetch(videogamesAPI.getAll(limit, offset), {
+    headers: {
+      Authorization: `Bearer ${auth_token}`,
+    },
+  });
 
   if (!response.ok) {
     const errorText = await response.text();

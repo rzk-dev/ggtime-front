@@ -10,18 +10,13 @@ interface AppHeaderProps {
 
 export default function AppHeader({ title, onUserPress }: AppHeaderProps) {
   const { user } = useSupabase();
+  const email = user?.email ? user.email.split("@")[0] : "Unknown";
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-const email = user?.email ? user.email.split('@')[0] : "Unknown"
-
-return (<>
-... Components
-{enail} {title}
-... More components
-</>)
+        {email} {title}
       </Text>
-
 
       <View style={styles.buttons}>
         <HeaderUserIcon onPress={onUserPress} />

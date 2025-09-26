@@ -11,23 +11,29 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { colors } from "@/constants/colors";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";
+import { useSupabase } from "@/lib/SupabaseProvider";
 
 const PAGE_SIZE = 50;
 
 export default function HomeScreen() {
+  const { session } = useSupabase();
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
 
-  const fetchVideogames = ({ pageParam = 0 }) => getAll(PAGE_SIZE, pageParam);
+  const fetchVideogames = ({ pageParam = 0 }) =>
+    getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
 
   const videogamesQuery = useInfiniteQuery({
     queryKey: ["videogames"],

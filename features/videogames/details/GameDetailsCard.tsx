@@ -16,6 +16,7 @@ import { Companies } from "@/domain/videogames/involvedCompanies";
 import { simplifyLanguages } from "@/domain/videogames/languages";
 import { useQuery } from "@tanstack/react-query";
 import { getById } from "../api";
+import { useSupabase } from "@/lib/SupabaseProvider";
 
 type Props = {
   id: number;
@@ -32,7 +33,8 @@ export default function GameDetailsCard({
   favorites,
   onToggleFavorite,
 }: Props) {
-  const getVideogameDetails = () => getById(id);
+  const { session } = useSupabase();
+  const getVideogameDetails = () => getById(id, session?.access_token ?? "");
 
   const { isLoading, data } = useQuery({
     queryKey: ["videogames", id],
