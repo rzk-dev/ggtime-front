@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/constants/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 type Props = {
   visible: boolean;
@@ -26,6 +28,15 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
 
   if (!visible) return null;
+
+  const storeData = async (userPreferences:object) => {
+  try {
+    const jsonValue = JSON.stringify(userPreferences);
+    await AsyncStorage.setItem('my-key', jsonValue);
+  } catch (e) {
+    // saving error
+  }
+};
 
   const toggleSelection = (
     value: string,
