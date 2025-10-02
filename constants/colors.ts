@@ -1,7 +1,7 @@
 // TODO: Add app colors below:
 
 //const tintColorLight = '#0a7ea4';
-const tintColorDark = '#d72e2e';
+const tintColorDark = '#a72525ff';
 
 export const colors = {
   /*light: {
@@ -19,6 +19,6 @@ export const colors = {
     tint: tintColorDark,
     tabIconDefault: '#B0B0B0',
     tabIconSelected: tintColorDark,
-    addButton: '#57f39f', //#d72e2e
+    addButton: '#08c561ff', //#d72e2e
   },
 };
