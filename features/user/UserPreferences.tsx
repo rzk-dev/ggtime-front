@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/constants/colors";
 
@@ -14,11 +14,9 @@ type Props = {
 };
 
 const AVAILABLE_PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Retro/Arcade"];
-
 const AVAILABLE_GENRES = ["Pinball","Adventure","Indie","Arcade","Visual Novel","Card & Board","MOBA","Point-and-click",
     "Fighting","Shooter","Music","Platform","Puzzle","Racing","RTS","RPG","Simulator",
     "Sport","Strategy","Turn-based","Tactical","Hack and slash","Beat 'em up","Quiz/Trivia"];
-
 
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -52,9 +50,8 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
           <Text style={styles.title}>User Preferences</Text>
 
           <Pressable onPress={onClose} style={styles.close}>
-          <Text style={styles.closeText}>Close</Text>
+            <Text style={styles.closeText}>Close</Text>
           </Pressable>
-        
         </View>
         <View style={styles.divider} />
 
@@ -63,7 +60,13 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
             {AVAILABLE_PLATFORMS.map((platform) => (
-              <View style={styles.checkboxRow} key={platform}>
+              <Pressable
+                key={platform}
+                style={styles.checkboxRow}
+                onPress={() =>
+                  toggleSelection(platform, selectedPlatforms, setSelectedPlatforms)
+                }
+              >
                 <Checkbox
                   value={selectedPlatforms.includes(platform)}
                   onValueChange={() =>
@@ -71,12 +74,12 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
                   }
                   color={
                     selectedPlatforms.includes(platform)
-                      ? colors.dark.addButton
-                      : colors.dark.text
+                      ? colors.dark.accent
+                      : colors.dark.textPrimary
                   }
                 />
                 <Text style={styles.checkboxLabel}>{platform}</Text>
-              </View>
+              </Pressable>
             ))}
           </View>
 
@@ -85,7 +88,13 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
             {AVAILABLE_GENRES.map((genre) => (
-              <View style={styles.checkboxRow} key={genre}>
+              <Pressable
+                key={genre}
+                style={styles.checkboxRow}
+                onPress={() =>
+                  toggleSelection(genre, selectedGenres, setSelectedGenres)
+                }
+              >
                 <Checkbox
                   value={selectedGenres.includes(genre)}
                   onValueChange={() =>
@@ -93,12 +102,12 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
                   }
                   color={
                     selectedGenres.includes(genre)
-                      ? colors.dark.addButton
-                      : colors.dark.text
+                      ? colors.dark.accent
+                      : colors.dark.textPrimary
                   }
                 />
                 <Text style={styles.checkboxLabel}>{genre}</Text>
-              </View>
+              </Pressable>
             ))}
           </View>
 
@@ -109,7 +118,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
             onChangeText={setWeeklyPlayTime}
             keyboardType="numeric"
             placeholder="e.g. 10"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.dark.textSecondary}
           />
 
           <View style={styles.buttonRow}>
@@ -153,26 +162,25 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     padding: 8,
     marginBottom: 8,
-    backgroundColor: "rgba(0,0,0,0.15)",
+    backgroundColor: "rgba(255,255,255,0.05)",
     borderRadius: 15,
-    
   },
   closeText: {
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     fontSize: 14,
     fontWeight: "500",
   },
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     marginBottom: 12,
     textAlign: "center",
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     marginTop: 16,
     marginBottom: 8,
     textAlign: "left",
@@ -192,15 +200,16 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     marginLeft: 8,
     fontSize: 13,
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.dark.surface,
     borderRadius: 8,
     padding: 8,
     fontSize: 14,
     marginTop: 6,
     marginBottom: 12,
+    color: colors.dark.textPrimary,
   },
   buttonRow: {
     flexDirection: "row",
@@ -214,13 +223,13 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   cancelButton: {
-    backgroundColor: "#666",
+    backgroundColor: colors.dark.border,
   },
   applyButton: {
-    backgroundColor: colors.dark.addButton,
+    backgroundColor: colors.dark.accent,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.dark.textPrimary,
     fontWeight: "700",
   },
   divider: {

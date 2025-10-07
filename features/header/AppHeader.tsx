@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
   },
   buttons: {
     flexDirection: "row",

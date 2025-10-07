@@ -10,27 +10,25 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
-import { colors } from "@/constants/colors";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";
 import { useSupabase } from "@/lib/SupabaseProvider";
+import { colors } from "@/constants/colors";
 
 const PAGE_SIZE = 50;
 
 export default function HomeScreen() {
   const { session } = useSupabase();
+  const theme = colors.dark;
+
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
-  const insets = useSafeAreaInsets();
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
@@ -57,83 +55,92 @@ export default function HomeScreen() {
 
   if (videogamesQuery.isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View style={[styles.center, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.accent} />
       </View>
     );
   }
 
   if (videogamesQuery.isError) {
     return (
-      <View style={styles.center}>
-        <Text>{videogamesQuery.error?.toString()}</Text>
+      <View style={[styles.center, { backgroundColor: theme.background }]}>
+        <Text style={{ color: theme.textPrimary }}>
+          {videogamesQuery.error?.toString()}
+        </Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
-        backgroundColor: colors.dark.background,
-      }}
-    >
-      <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.background} />
       <AppHeader title="" onUserPress={() => console.log("Perfil")} />
 
-      {/* pestañas */}
+      {/* Barra de pestañas */}
       <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          backgroundColor: colors.dark.card,
-          paddingVertical: 10,
-        }}
+        style={[
+          styles.tabBar,
+          { backgroundColor: theme.card, borderColor: theme.border },
+        ]}
       >
-        <Pressable onPress={() => setActiveTab("search")}>
+        <Pressable
+          onPress={() => setActiveTab("search")}
+          style={({ pressed }) => [styles.tab, pressed && { opacity: 0.8 }]}
+        >
           <Text
             style={{
-              color: activeTab === "search" ? colors.dark.text : "#888",
-              fontWeight: activeTab === "search" ? "bold" : "normal",
+              color: activeTab === "search" ? theme.textPrimary : theme.textSecondary,
+              fontWeight: activeTab === "search" ? "700" : "500",
             }}
           >
             All Games
           </Text>
+          {activeTab === "search" && (
+            <View style={[styles.tabIndicator, { backgroundColor: theme.accent }]} />
+          )}
         </Pressable>
 
-        <Pressable onPress={() => setActiveTab("mygames")}>
+        <Pressable
+          onPress={() => setActiveTab("mygames")}
+          style={({ pressed }) => [styles.tab, pressed && { opacity: 0.8 }]}
+        >
           <Text
             style={{
-              color: activeTab === "mygames" ? colors.dark.text : "#888",
-              fontWeight: activeTab === "mygames" ? "bold" : "normal",
+              color: activeTab === "mygames" ? theme.textPrimary : theme.textSecondary,
+              fontWeight: activeTab === "mygames" ? "700" : "500",
             }}
           >
             My Games
           </Text>
+          {activeTab === "mygames" && (
+            <View style={[styles.tabIndicator, { backgroundColor: theme.accent }]} />
+          )}
         </Pressable>
       </View>
 
-      {/* cuerpo */}
+      {/* Lista de juegos */}
       {activeTab === "search" ? (
         <FlatList
-          style={{ flex: 1 }}
+          style={{ flex: 1, backgroundColor: theme.surface }}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.container}
           data={games}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setSelectedItem(item.id);
-                setDetailVisible(true);
-              }}
-            >
-              <GameListCards videogame={item} />
-            </Pressable>
+            <View style={styles.itemWrapper}>
+              <Pressable
+                onPress={() => {
+                  setSelectedItem(item.id);
+                  setDetailVisible(true);
+                }}
+                style={({ pressed }) => pressed && { opacity: 0.85 }}
+              >
+                <GameListCards videogame={item} />
+              </Pressable>
+            </View>
           )}
           numColumns={3}
+          columnWrapperStyle={styles.columnWrapper}
           onEndReached={() =>
             !videogamesQuery.isFetching &&
             videogamesQuery.hasNextPage &&
@@ -141,34 +148,47 @@ export default function HomeScreen() {
           }
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            videogamesQuery.isFetchingNextPage ? <ActivityIndicator /> : null
+            videogamesQuery.isFetchingNextPage ? (
+              <View style={styles.footer}>
+                <ActivityIndicator size="small" color={theme.accent} />
+              </View>
+            ) : null
           }
         />
       ) : (
         <FlatList
-          style={{ flex: 1 }}
+          style={{ flex: 1, backgroundColor: theme.surface }}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.container}
           data={favorites}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setSelectedItem(item.id);
-                setDetailVisible(true);
-              }}
-            >
-              <GameListCards videogame={item} />
-            </Pressable>
+            <View style={styles.itemWrapper}>
+              <Pressable
+                onPress={() => {
+                  setSelectedItem(item.id);
+                  setDetailVisible(true);
+                }}
+                style={({ pressed }) => pressed && { opacity: 0.85 }}
+              >
+                <GameListCards videogame={item} />
+              </Pressable>
+            </View>
           )}
           numColumns={3}
+          columnWrapperStyle={styles.columnWrapper}
+          ListEmptyComponent={() => (
+            <View style={styles.empty}>
+              <Text style={{ color: theme.textSecondary }}>No favorites yet.</Text>
+            </View>
+          )}
         />
       )}
 
-      {/* modal */}
+      {/* Modal */}
       <Modal visible={detailVisible} animationType="fade" transparent>
         <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
-          <View style={styles.backdrop} />
+          <View style={[styles.backdrop, { backgroundColor: "rgba(0,0,0,0.5)" }]} />
         </TouchableWithoutFeedback>
         <GameDetailsCard
           id={selectedItem ?? 0}
@@ -182,13 +202,49 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+  tabBar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  tab: {
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    minWidth: 100,
+  },
+  tabIndicator: {
+    marginTop: 8,
+    height: 3,
+    width: 36,
+    borderRadius: 2,
+  },
   container: {
-    backgroundColor: colors.dark.background,
+    paddingVertical: 10,
+  },
+  itemWrapper: {
+    flex: 1,
+    maxWidth: "33%",
+    paddingHorizontal: 6,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+    paddingHorizontal: 5,
+  },
+  footer: {
+    paddingVertical: 16,
+    alignItems: "center",
   },
   backdrop: {
     position: "absolute",
@@ -196,6 +252,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  empty: {
+    padding: 24,
+    alignItems: "center",
   },
 });

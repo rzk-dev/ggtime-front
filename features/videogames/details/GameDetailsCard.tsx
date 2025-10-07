@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "800",
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     textAlign: "center",
     marginBottom: 5,
     marginTop: 5,
@@ -236,13 +236,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   metaLabel: {
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     fontSize: 12,
     opacity: 0.85,
     fontWeight: "700",
   },
   metaValue: {
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     fontSize: 12,
     opacity: 0.9,
     fontWeight: "400",
@@ -253,19 +253,19 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   sectionTitle: {
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     fontSize: 14,
     fontWeight: "700",
     marginBottom: 6,
   },
   summaryText: {
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     fontSize: 13,
     lineHeight: 20,
     opacity: 0.95,
   },
   languageData: {
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     marginBottom: 8,
     fontSize: 14,
     lineHeight: 20,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 14,
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
     marginLeft: 8,
   },
 });

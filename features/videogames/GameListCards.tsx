@@ -11,23 +11,16 @@ type Props = {
 
 export default function GameListCards({ videogame }: Props) {
   const screenWidth = Dimensions.get("window").width;
-  const screenHeight = Dimensions.get("window").height;
   const columnsNumber = 3;
+  const cardWidth = screenWidth / columnsNumber - 16;
+  const cardHeight = 200;
 
   const uniqueIcons = Array.from(
     new Set(videogame.platforms.map((p) => getPlatformIcon(p.name))),
   );
 
   return (
-    <View
-      style={[
-        {
-          width: screenWidth / columnsNumber - 10,
-          height: screenHeight * 0.25,
-        },
-        styles.card,
-      ]}
-    >
+    <View style={[styles.card, { width: cardWidth, height: cardHeight }]}>
       <Image
         source={{ uri: videogame.cover.url }}
         style={styles.coverImage}
@@ -54,38 +47,39 @@ export default function GameListCards({ videogame }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    margin: 5,
     backgroundColor: colors.dark.card,
-    paddingBottom: 10,
-    borderRadius: 5,
+    borderRadius: 12,
+    alignItems: "center",
+    overflow: "hidden",
+    justifyContent: "flex-start",
   },
   coverImage: {
-    height: 100,
-    borderTopRightRadius: 5,
-    borderTopLeftRadius: 5,
+    width: "100%",
+    height: "60%",
   },
-  titleContainer: {},
+  titleContainer: {
+    width: "100%",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    minHeight: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   title: {
-    flexShrink: 1,
-    padding: 10,
     fontWeight: "bold",
     textAlign: "center",
-    color: colors.dark.text,
+    color: colors.dark.textPrimary,
   },
   iconsContainer: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
+    paddingBottom: 8,
+    marginTop: "auto",
   },
   platformIcon: {
-    width: 25,
-    height: 25,
-    resizeMode: "contain",
-  },
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    width: 24,
+    height: 24,
   },
 });
