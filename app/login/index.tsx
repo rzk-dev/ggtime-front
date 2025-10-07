@@ -1,3 +1,4 @@
+import { colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -87,10 +88,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: colors.dark.background,
   },
   form: {
     width: "100%",
+    backgroundColor: colors.dark.background,
+
   },
   title: {
     fontSize: 32,
