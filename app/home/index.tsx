@@ -11,8 +11,8 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { getAll } from "@/features/videogames/api";
+import { QueryClient, QueryClientProvider, useInfiniteQuery } from "@tanstack/react-query";
+import { getAll, getUserPreferences } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";
@@ -29,6 +29,7 @@ export default function HomeScreen() {
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
+  const queryClient = new QueryClient();
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
@@ -76,7 +77,6 @@ export default function HomeScreen() {
       <StatusBar barStyle="light-content" backgroundColor={theme.background} />
       <AppHeader title="" onUserPress={() => console.log("Perfil")} />
 
-      {/* Barra de pestañas */}
       <View
         style={[
           styles.tabBar,
@@ -118,7 +118,6 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      {/* Lista de juegos */}
       {activeTab === "search" ? (
         <FlatList
           style={{ flex: 1, backgroundColor: theme.surface }}
@@ -185,7 +184,6 @@ export default function HomeScreen() {
         />
       )}
 
-      {/* Modal */}
       <Modal visible={detailVisible} animationType="fade" transparent>
         <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
           <View style={[styles.backdrop, { backgroundColor: "rgba(0,0,0,0.5)" }]} />
@@ -258,3 +256,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
