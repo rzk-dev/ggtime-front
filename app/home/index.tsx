@@ -11,7 +11,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { QueryClient, QueryClientProvider, useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
@@ -29,7 +29,6 @@ export default function HomeScreen() {
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
-  const queryClient = new QueryClient();
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
