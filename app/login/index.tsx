@@ -1,7 +1,10 @@
 import { colors } from "@/constants/colors";
+import { getUserPreferences } from "@/features/user/api";
 import { supabase } from "@/lib/supabase";
+import { usePreferencesStore } from "@/hooks/usePreferencesStore";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,18 +19,43 @@ import Toast from "react-native-toast-message";
 
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [session, setSession] = useState<any>(null);
   const router = useRouter();
+
+  const { hydrate } = usePreferencesStore();
+
+  const userPref = async () => {
+    if (!session?.access_token) throw new Error("No auth token");
+    return getUserPreferences(session.access_token);
+  };
+
+  const { data } = useQuery({
+    queryKey: ["user-preferences"],
+    queryFn: userPref,
+    enabled: !!session?.access_token,
+  });
+
+  useEffect(() => {
+    if (data) {
+      hydrate({
+        platforms: data.platforms ?? [],
+        genres: data.genres ?? [],
+        gamingHours: data.gamingHours ?? 0,
+      });
+    }
+  }, [data]);
 
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         Alert.alert(error.message);
       } else {
+        setSession(data.session);
         router.replace("/home");
       }
     } catch (err: any) {

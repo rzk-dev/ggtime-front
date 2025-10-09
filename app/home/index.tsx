@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider, useInfiniteQuery } from "@tanstack/react-query";
-import { getAll, getUserPreferences } from "@/features/videogames/api";
+import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";

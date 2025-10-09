@@ -1,7 +1,5 @@
-import { Preferences } from "@/domain/user/preferences";
 import { Videogame } from "@/domain/videogames/videogame";
 import { VideogameDetail } from "@/domain/videogames/videogameDetail";
-import { useSupabase } from "@/lib/SupabaseProvider";
 
 const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
 
@@ -42,66 +40,6 @@ export async function getAll(
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(errorText);
-  }
-
-  return response.json();
-}
-
-export async function getUserPreferences(
-  auth_token: string,
-): Promise<Preferences[]> {
-  const response = await fetch(`${baseURL}/api/user`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${auth_token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
-
-  return response.json();
-}
-
-export async function updateUserPreferences(
-  auth_token: string,
-  preferences: Preferences,
-): Promise<Preferences> {
-  const response = await fetch(`${baseURL}/api/user`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${auth_token}`,
-    },
-    body: JSON.stringify(preferences),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Failed to update user preferences");
-  }
-
-  return response.json();
-}
-
-export async function createUserPreferences(
-  auth_token: string,
-  preferences: Preferences,
-): Promise<Preferences> {
-  const response = await fetch(`${baseURL}/api/user`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${auth_token}`,
-    },
-    body: JSON.stringify(preferences),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Failed to update user preferences");
   }
 
   return response.json();
