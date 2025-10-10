@@ -194,6 +194,20 @@ export default function HomeScreen() {
           onToggleFavorite={handleToggleFavorite}
         />
       </Modal>
+            <View
+        style={[
+          styles.bottomBar,
+        ]}
+      >
+        <Pressable
+          style={styles.recommendButtonStyle}
+          onPress={() => console.log("Recommend Pressed")}
+        >
+          <Text style={{ color: colors.dark.background, fontWeight: "bold" }}>
+            RECOMMEND GAME
+          </Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
@@ -253,6 +267,25 @@ const styles = StyleSheet.create({
   empty: {
     padding: 24,
     alignItems: "center",
+  },
+    bottomBar: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 12,
+  },
+
+  recommendButtonStyle: {
+    flex: 0,
+    alignSelf: "center",
+    backgroundColor: colors.dark.accent,
+    paddingVertical: 15,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
 });
 

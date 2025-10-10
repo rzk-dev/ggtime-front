@@ -3,7 +3,7 @@ import { Preferences } from "@/domain/user/preferences";
 const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
 
 export async function getUserPreferences(auth_token: string): Promise<Preferences> {
-  const res = await fetch(`http://${baseURL}/api/user`, {
+  const res = await fetch(`${baseURL}/api/user`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${auth_token}`,
@@ -28,7 +28,7 @@ export async function updateUserPreferences(
     platforms: string[];
   }
 ): Promise<Preferences> {
-  const res = await fetch(`http://${baseURL}/api/user`, {
+  const res = await fetch(`${baseURL}/api/user`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${auth_token}`,
@@ -36,6 +36,7 @@ export async function updateUserPreferences(
     },
     body: JSON.stringify(preferences),
   });
+  console.log(preferences.toString());
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -53,7 +54,7 @@ export async function createUserPreferences(
     platforms: string[];
   }
 ): Promise<Preferences> {
-  const res = await fetch(`http://${baseURL}/api/user`, {
+  const res = await fetch(`${baseURL}/api/user`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${auth_token}`,
@@ -61,10 +62,11 @@ export async function createUserPreferences(
     },
     body: JSON.stringify(preferences),
   });
+  console.log(preferences.toString());
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(text || `Failed to update preferences (${res.status})`);
+    throw new Error(text || `Failed to create preferences (${res.status})`);
   }
 
   return res.json();
