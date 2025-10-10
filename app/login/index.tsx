@@ -1,10 +1,7 @@
 import { colors } from "@/constants/colors";
-import { getUserPreferences } from "@/features/user/api";
 import { supabase } from "@/lib/supabase";
-import { usePreferencesStore } from "@/hooks/usePreferencesStore";
-import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -17,41 +14,20 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
-
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [session, setSession] = useState<any>(null);
+  const [_, setSession] = useState<any>(null);
   const router = useRouter();
-
-  const { hydrate } = usePreferencesStore();
-
-  const userPref = async () => {
-    if (!session?.access_token) throw new Error("No auth token");
-    return getUserPreferences(session.access_token);
-  };
-
-  const { data } = useQuery({
-    queryKey: ["user-preferences"],
-    queryFn: userPref,
-    enabled: !!session?.access_token,
-  });
-
-  useEffect(() => {
-    if (data) {
-      hydrate({
-        platforms: data.platforms ?? [],
-        genres: data.genres ?? [],
-        gamingHours: data.gamingHours ?? 0,
-      });
-    }
-  }, [data]);
 
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       if (error) {
         Alert.alert(error.message);
       } else {
@@ -91,12 +67,23 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.dark.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.dark.background }]}
+    >
       <View style={[styles.form, { backgroundColor: colors.dark.card }]}>
-        <Text style={[styles.title, { color: colors.dark.textPrimary }]}>GGTime</Text>
+        <Text style={[styles.title, { color: colors.dark.textPrimary }]}>
+          GGTime
+        </Text>
 
         <TextInput
-          style={[styles.input, { backgroundColor: colors.dark.surface, borderColor: colors.dark.border, color: colors.dark.textPrimary }]}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.dark.surface,
+              borderColor: colors.dark.border,
+              color: colors.dark.textPrimary,
+            },
+          ]}
           placeholder="Email"
           placeholderTextColor={colors.dark.textSecondary}
           onChangeText={setEmail}
@@ -107,7 +94,14 @@ export default function LoginScreen() {
         />
 
         <TextInput
-          style={[styles.input, { backgroundColor: colors.dark.surface, borderColor: colors.dark.border, color: colors.dark.textPrimary }]}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.dark.surface,
+              borderColor: colors.dark.border,
+              color: colors.dark.textPrimary,
+            },
+          ]}
           placeholder="Password"
           placeholderTextColor={colors.dark.textSecondary}
           onChangeText={setPassword}
@@ -116,25 +110,45 @@ export default function LoginScreen() {
         />
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled, { backgroundColor: colors.dark.accent }]}
+          style={[
+            styles.button,
+            loading && styles.buttonDisabled,
+            { backgroundColor: colors.dark.accent },
+          ]}
           disabled={loading}
           onPress={handleLogin}
         >
           {loading ? (
             <ActivityIndicator color={colors.dark.textPrimary} />
           ) : (
-            <Text style={[styles.buttonText, { color: colors.dark.textPrimary }]}>Sign In</Text>
+            <Text
+              style={[styles.buttonText, { color: colors.dark.textPrimary }]}
+            >
+              Sign In
+            </Text>
           )}
         </TouchableOpacity>
 
-        <Text style={[styles.centered, { color: colors.dark.textSecondary }]}>OR</Text>
+        <Text style={[styles.centered, { color: colors.dark.textSecondary }]}>
+          OR
+        </Text>
 
         <TouchableOpacity
-          style={[styles.button, styles.secondaryButton, { borderColor: colors.dark.accent }]}
+          style={[
+            styles.button,
+            styles.secondaryButton,
+            { borderColor: colors.dark.accent },
+          ]}
           onPress={handleRegister}
           disabled={loading}
         >
-          <Text style={[styles.buttonText, styles.secondaryButtonText, { color: colors.dark.accent }]}>
+          <Text
+            style={[
+              styles.buttonText,
+              styles.secondaryButtonText,
+              { color: colors.dark.accent },
+            ]}
+          >
             Create a new account
           </Text>
         </TouchableOpacity>

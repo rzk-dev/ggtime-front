@@ -1,66 +1,31 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type PreferencesState = {
+type State = {
   platforms: string[];
   genres: string[];
   gamingHours: number;
 };
 
-type PreferencesActions = {
-  setPlatforms: (p: string[]) => void;
-  togglePlatform: (p: string) => void;
-  setGenres: (g: string[]) => void;
-  toggleGenre: (g: string) => void;
-  setGamingHours: (h: number) => void;
+type Action = {
+  setPlatforms: (platforms: string[]) => void;
+  setGenres: (genres: string[]) => void;
+  setGamingHours: (hours: number) => void;
   reset: () => void;
-  hydrate: (payload: Partial<PreferencesState>) => void;
 };
 
-type PrefStore = PreferencesState & PreferencesActions;
+type UserPreferencesStore = State & Action;
 
-const initialState: PreferencesState = {
+const initialState: State = {
   platforms: [],
   genres: [],
   gamingHours: 0,
 };
-
-export const usePreferencesStore = create<PrefStore>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
-
-      setPlatforms: (p: string[]) => set({ platforms: p }),
-
-      togglePlatform: (p: string) =>
-        set((state) => ({
-          platforms: state.platforms.includes(p)
-            ? state.platforms.filter((x) => x !== p)
-            : [...state.platforms, p],
-        })),
-
-      setGenres: (g: string[]) => set({ genres: g }),
-
-      toggleGenre: (g: string) =>
-        set((state) => ({
-          genres: state.genres.includes(g) ? state.genres.filter((x) => x !== g) : [...state.genres, g],
-        })),
-
-      setGamingHours: (h: number) => set({ gamingHours: h }),
-
-      reset: () => set({ ...initialState }),
-
-      hydrate: (payload: Partial<PreferencesState>) =>
-        set((state) => ({
-          platforms: payload.platforms ?? state.platforms,
-          genres: payload.genres ?? state.genres,
-          gamingHours: payload.gamingHours ?? state.gamingHours,
-        })),
-    }),
-    {
-      name: "preferences-storage",
-      storage: createJSONStorage(() => AsyncStorage),
-    }
-  )
-);
+export const userPreferencesStore = create<UserPreferencesStore>((set) => ({
+  platforms: [],
+  genres: [],
+  gamingHours: 0,
+  setPlatforms: (platforms) => set(() => ({ platforms: platforms })),
+  setGenres: (genres) => set(() => ({ genres: genres })),
+  setGamingHours: (hours) => set(() => ({ gamingHours: hours })),
+  reset: () => set(() => initialState),
+}));

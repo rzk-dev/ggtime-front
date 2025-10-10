@@ -2,7 +2,9 @@ import { Preferences } from "@/domain/user/preferences";
 
 const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
 
-export async function getUserPreferences(auth_token: string): Promise<Preferences> {
+export async function getUserPreferences(
+  auth_token: string,
+): Promise<Preferences> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "GET",
     headers: {
@@ -19,14 +21,13 @@ export async function getUserPreferences(auth_token: string): Promise<Preference
   return res.json();
 }
 
-
 export async function updateUserPreferences(
   auth_token: string,
   preferences: {
     gamingHours: number;
     genres: string[];
     platforms: string[];
-  }
+  },
 ): Promise<Preferences> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "PUT",
@@ -36,7 +37,6 @@ export async function updateUserPreferences(
     },
     body: JSON.stringify(preferences),
   });
-  console.log(preferences.toString());
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -52,7 +52,7 @@ export async function createUserPreferences(
     gamingHours: number;
     genres: string[];
     platforms: string[];
-  }
+  },
 ): Promise<Preferences> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "POST",
@@ -62,7 +62,6 @@ export async function createUserPreferences(
     },
     body: JSON.stringify(preferences),
   });
-  console.log(preferences.toString());
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");

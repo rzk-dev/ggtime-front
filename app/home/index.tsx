@@ -11,13 +11,14 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getAll } from "@/features/videogames/api";
 import GameListCards from "@/features/videogames/GameListCards";
 import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";
 import { useSupabase } from "@/lib/SupabaseProvider";
 import { colors } from "@/constants/colors";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 const PAGE_SIZE = 50;
 
@@ -29,6 +30,15 @@ export default function HomeScreen() {
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
+
+  const { isLoading, isError } = useUserPreferences();
+  if (isError) {
+    console.log("UseUserPreferencesError");
+  }
+
+  if (isLoading) {
+    console.log("UseUserPreferencesLoading");
+  }
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
@@ -72,7 +82,9 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
       <StatusBar barStyle="light-content" backgroundColor={theme.background} />
       <AppHeader title="" onUserPress={() => console.log("Perfil")} />
 
@@ -88,14 +100,19 @@ export default function HomeScreen() {
         >
           <Text
             style={{
-              color: activeTab === "search" ? theme.textPrimary : theme.textSecondary,
+              color:
+                activeTab === "search"
+                  ? theme.textPrimary
+                  : theme.textSecondary,
               fontWeight: activeTab === "search" ? "700" : "500",
             }}
           >
             All Games
           </Text>
           {activeTab === "search" && (
-            <View style={[styles.tabIndicator, { backgroundColor: theme.accent }]} />
+            <View
+              style={[styles.tabIndicator, { backgroundColor: theme.accent }]}
+            />
           )}
         </Pressable>
 
@@ -105,14 +122,19 @@ export default function HomeScreen() {
         >
           <Text
             style={{
-              color: activeTab === "mygames" ? theme.textPrimary : theme.textSecondary,
+              color:
+                activeTab === "mygames"
+                  ? theme.textPrimary
+                  : theme.textSecondary,
               fontWeight: activeTab === "mygames" ? "700" : "500",
             }}
           >
             My Games
           </Text>
           {activeTab === "mygames" && (
-            <View style={[styles.tabIndicator, { backgroundColor: theme.accent }]} />
+            <View
+              style={[styles.tabIndicator, { backgroundColor: theme.accent }]}
+            />
           )}
         </Pressable>
       </View>
@@ -177,7 +199,9 @@ export default function HomeScreen() {
           columnWrapperStyle={styles.columnWrapper}
           ListEmptyComponent={() => (
             <View style={styles.empty}>
-              <Text style={{ color: theme.textSecondary }}>No favorites yet.</Text>
+              <Text style={{ color: theme.textSecondary }}>
+                No favorites yet.
+              </Text>
             </View>
           )}
         />
@@ -185,7 +209,9 @@ export default function HomeScreen() {
 
       <Modal visible={detailVisible} animationType="fade" transparent>
         <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
-          <View style={[styles.backdrop, { backgroundColor: "rgba(0,0,0,0.5)" }]} />
+          <View
+            style={[styles.backdrop, { backgroundColor: "rgba(0,0,0,0.5)" }]}
+          />
         </TouchableWithoutFeedback>
         <GameDetailsCard
           id={selectedItem ?? 0}
@@ -194,11 +220,7 @@ export default function HomeScreen() {
           onToggleFavorite={handleToggleFavorite}
         />
       </Modal>
-            <View
-        style={[
-          styles.bottomBar,
-        ]}
-      >
+      <View style={[styles.bottomBar]}>
         <Pressable
           style={styles.recommendButtonStyle}
           onPress={() => console.log("Recommend Pressed")}
@@ -268,7 +290,7 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: "center",
   },
-    bottomBar: {
+  bottomBar: {
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 12,
@@ -288,4 +310,3 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-

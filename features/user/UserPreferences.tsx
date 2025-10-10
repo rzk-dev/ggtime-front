@@ -1,11 +1,20 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  TextInput,
+} from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/constants/colors";
-import { usePreferencesStore } from "@/hooks/usePreferencesStore";
-import { createUserPreferences, updateUserPreferences } from "@/features/user/api";
+import {
+  createUserPreferences,
+  updateUserPreferences,
+} from "@/features/user/api";
 import { useSupabase } from "@/lib/SupabaseProvider";
-
+import { userPreferencesStore } from "@/hooks/usePreferencesStore";
 
 type Props = {
   visible: boolean;
@@ -17,10 +26,40 @@ type Props = {
   }) => void;
 };
 
-const AVAILABLE_PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Retro/Arcade"];
-const AVAILABLE_GENRES = ["Pinball","Adventure","Indie","Arcade","Visual Novel","Card & Board","MOBA","Point-and-click",
-  "Fighting","Shooter","Music","Platform","Puzzle","Racing","RTS","RPG","Simulator",
-  "Sport","Strategy","Turn-based","Tactical","Hack and slash","Beat 'em up","Quiz/Trivia"];
+const AVAILABLE_PLATFORMS = [
+  "PC",
+  "PlayStation",
+  "Xbox",
+  "Nintendo",
+  "Mobile",
+  "Retro/Arcade",
+];
+const AVAILABLE_GENRES = [
+  "Pinball",
+  "Adventure",
+  "Indie",
+  "Arcade",
+  "Visual Novel",
+  "Card & Board",
+  "MOBA",
+  "Point-and-click",
+  "Fighting",
+  "Shooter",
+  "Music",
+  "Platform",
+  "Puzzle",
+  "Racing",
+  "RTS",
+  "RPG",
+  "Simulator",
+  "Sport",
+  "Strategy",
+  "Turn-based",
+  "Tactical",
+  "Hack and slash",
+  "Beat 'em up",
+  "Quiz/Trivia",
+];
 
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -28,14 +67,21 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
   const { session } = useSupabase();
 
-  const { platforms, genres, gamingHours, setPlatforms, setGenres, setGamingHours } = usePreferencesStore();
+  const {
+    platforms,
+    genres,
+    gamingHours,
+    setGenres,
+    setPlatforms,
+    setGamingHours,
+  } = userPreferencesStore();
 
   if (!visible) return null;
 
   const toggleSelection = (
     value: string,
     list: string[],
-    setter: React.Dispatch<React.SetStateAction<string[]>>
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
   ) => {
     if (list.includes(value)) {
       setter(list.filter((item) => item !== value));
@@ -76,7 +122,13 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   return (
     <View style={styles.overlay}>
       <View style={styles.panel}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Text style={styles.title}>User Preferences</Text>
           <Pressable onPress={onClose} style={styles.close}>
             <Text style={styles.closeText}>Close</Text>
@@ -91,11 +143,23 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
               <Pressable
                 key={platform}
                 style={styles.checkboxRow}
-                onPress={() => toggleSelection(platform, selectedPlatforms, setSelectedPlatforms)}
+                onPress={() =>
+                  toggleSelection(
+                    platform,
+                    selectedPlatforms,
+                    setSelectedPlatforms,
+                  )
+                }
               >
                 <Checkbox
                   value={selectedPlatforms.includes(platform)}
-                  onValueChange={() => toggleSelection(platform, selectedPlatforms, setSelectedPlatforms)}
+                  onValueChange={() =>
+                    toggleSelection(
+                      platform,
+                      selectedPlatforms,
+                      setSelectedPlatforms,
+                    )
+                  }
                   color={
                     selectedPlatforms.includes(platform)
                       ? colors.dark.accent
@@ -115,11 +179,15 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
               <Pressable
                 key={genre}
                 style={styles.checkboxRow}
-                onPress={() => toggleSelection(genre, selectedGenres, setSelectedGenres)}
+                onPress={() =>
+                  toggleSelection(genre, selectedGenres, setSelectedGenres)
+                }
               >
                 <Checkbox
                   value={selectedGenres.includes(genre)}
-                  onValueChange={() => toggleSelection(genre, selectedGenres, setSelectedGenres)}
+                  onValueChange={() =>
+                    toggleSelection(genre, selectedGenres, setSelectedGenres)
+                  }
                   color={
                     selectedGenres.includes(genre)
                       ? colors.dark.accent
@@ -142,10 +210,16 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
           />
 
           <View style={styles.buttonRow}>
-            <Pressable onPress={onClose} style={[styles.button, styles.cancelButton]}>
+            <Pressable
+              onPress={onClose}
+              style={[styles.button, styles.cancelButton]}
+            >
               <Text style={styles.buttonText}>Cancel</Text>
             </Pressable>
-            <Pressable onPress={handleApply} style={[styles.button, styles.applyButton]}>
+            <Pressable
+              onPress={handleApply}
+              style={[styles.button, styles.applyButton]}
+            >
               <Text style={styles.buttonText}>Apply</Text>
             </Pressable>
           </View>
