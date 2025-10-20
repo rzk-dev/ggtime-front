@@ -91,7 +91,6 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   };
 
   const handleApply = async () => {
-    console.log(session?.access_token ?? "".toString());
     try {
       const preferencesExist =
         platforms.length > 0 || genres.length > 0 || gamingHours > 0;
