@@ -2,9 +2,8 @@ import { Preferences } from "@/domain/user/preferences";
 
 const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
 
-export async function getUserPreferences(
-  auth_token: string,
-): Promise<Preferences> {
+export async function getUserPreferences(auth_token: string): Promise<Preferences> {
+  console.log("Calling /api/user with token:", auth_token.slice(0, 10) + "...");
   const res = await fetch(`${baseURL}/api/user`, {
     method: "GET",
     headers: {
@@ -13,13 +12,17 @@ export async function getUserPreferences(
     },
   });
 
+  console.log("Response status:", res.status);
+
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    console.error("Error response body:", text);
     throw new Error(text || `Failed to fetch preferences (${res.status})`);
   }
 
   return res.json();
 }
+
 
 export async function updateUserPreferences(
   auth_token: string,

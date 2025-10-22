@@ -5,6 +5,7 @@ import { userPreferencesStore } from "./usePreferencesStore";
 import { useEffect } from "react";
 
 export function useUserPreferences() {
+  console.log("useUserPreferences hook called");
   const { session } = useSupabase();
   const token = session?.access_token ?? "";
 
@@ -15,11 +16,18 @@ export function useUserPreferences() {
   const {
     isLoading,
     isError,
+    error,
     data: preferences,
   } = useQuery({
     queryKey: ["user-preferences", token],
-    queryFn: async () => getUserPreferences(token),
+    queryFn: async () => {
+      console.log("Fetching user preferences with token:", token);
+      const data = await getUserPreferences(token);
+      console.log("Fetched preferences:", data);
+      return data;
+    },
     enabled: !!token,
+    retry: false,
   });
 
   useEffect(() => {
@@ -29,6 +37,8 @@ export function useUserPreferences() {
       setGamingHours(preferences.gamingHours ?? 0);
     }
   }, [preferences, setPlatforms, setGenres, setGamingHours]);
+
+  if (isError) console.error("useUserPreferences error:", error);
 
   return { isLoading, isError };
 }
