@@ -51,7 +51,6 @@ export default function HomeScreen() {
 
   const fetchPreferences = async () => {
   try {
-
     const genresData = await getGenres(session?.access_token ?? "");
     setGenres(genresData);
     console.log("Fetched genres:", genresData);

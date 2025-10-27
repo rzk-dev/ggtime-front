@@ -23,3 +23,11 @@ export function clearGenresCache() {
   genresCache = null;
   console.log("CACHE CLEAN ---> GENRES");
 }
+
+/* Cache use example */
+{/* 
+    import { fetchGenres, getCachedGenres } from "@/features/genres/genresStore";
+
+    const genres = await fetchGenres(session?.access_token ?? "");
+    console.log("Available genres:", genres);
+*/}
