@@ -22,6 +22,8 @@ import { getGenres } from "@/features/genres/api";
 import { Genre } from "@/domain/videogames/genres";
 import { Platform } from "@/domain/videogames/platform";
 import { getPlatforms } from "@/features/platforms/api";
+import { fetchGenres, getCachedGenres } from "@/features/genres/genresStore";
+import { fetchPlatforms } from "@/features/platforms/platformsStore";
 
 const PAGE_SIZE = 50;
 
@@ -33,8 +35,8 @@ export default function HomeScreen() {
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  //const [genres, setGenres] = useState<Genre[]>([]);
+  //const [platforms, setPlatforms] = useState<Platform[]>([]);
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
@@ -49,24 +51,9 @@ export default function HomeScreen() {
     refetchOnWindowFocus: false,
   });
 
-  const fetchPreferences = async () => {
-  try {
-    const genresData = await getGenres(session?.access_token ?? "");
-    setGenres(genresData);
-    console.log("Fetched genres:", genresData);
-
-    const platformsData = await getPlatforms(session?.access_token ?? "");
-    setPlatforms(platformsData);
-    console.log("Fetched platforms:", platformsData);
-
-  } catch (error) {
-    console.error("Error fetching:", error);
-  }
-};
-
-useEffect(() => {
-  fetchPreferences();
-}, []);
+  const platform = fetchPlatforms(session?.access_token ?? "");
+  
+  const genres = fetchGenres(session?.access_token ?? "");
 
   const games = videogamesQuery.data?.pages.flat();
 
