@@ -32,8 +32,14 @@ export function useUserPreferences() {
 
   useEffect(() => {
     if (preferences) {
-      setPlatforms(preferences.platforms ?? []);
-      setGenres(preferences.genres ?? []);
+      const platformStrings = (preferences.platforms ?? []).map((p: any) =>
+        typeof p === "string" ? p : p.id ?? p.name ?? String(p)
+      );
+      setPlatforms(platformStrings);
+      const genreStrings = (preferences.genres ?? []).map((g: any) =>
+        typeof g === "string" ? g : g.id ?? g.name ?? String(g)
+      );
+      setGenres(genreStrings);
       setGamingHours(preferences.gamingHours ?? 0);
     }
   }, [preferences, setPlatforms, setGenres, setGamingHours]);

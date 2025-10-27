@@ -1,9 +1,8 @@
-import { Preferences } from "@/domain/user/preferences";
+import { User } from "@/domain/user/user";
 
 const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
 
-export async function getUserPreferences(auth_token: string): Promise<Preferences> {
-  console.log("Calling /api/user with token:", auth_token.slice(0, 10) + "...");
+export async function getUserPreferences(auth_token: string): Promise<User> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "GET",
     headers: {
@@ -11,9 +10,7 @@ export async function getUserPreferences(auth_token: string): Promise<Preference
       "Content-Type": "application/json",
     },
   });
-
-  console.log("Response status:", res.status);
-
+  
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     console.error("Error response body:", text);
@@ -31,7 +28,7 @@ export async function updateUserPreferences(
     genres: string[];
     platforms: string[];
   },
-): Promise<Preferences> {
+): Promise<User> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "PUT",
     headers: {
@@ -56,7 +53,7 @@ export async function createUserPreferences(
     genres: string[];
     platforms: string[];
   },
-): Promise<Preferences> {
+): Promise<User> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "POST",
     headers: {

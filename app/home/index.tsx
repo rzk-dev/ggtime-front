@@ -18,8 +18,10 @@ import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/features/header/AppHeader";
 import { useSupabase } from "@/lib/SupabaseProvider";
 import { colors } from "@/constants/colors";
-import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { userPreferencesStore } from "@/hooks/usePreferencesStore";
+import { getGenres } from "@/features/genres/api";
+import { Genre } from "@/domain/videogames/genres";
+import { Platform } from "@/domain/videogames/platform";
+import { getPlatforms } from "@/features/platforms/api";
 
 const PAGE_SIZE = 50;
 
@@ -31,25 +33,8 @@ export default function HomeScreen() {
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
-
-  const { isLoading, isError } = useUserPreferences();
-
-  const platforms = userPreferencesStore((state) => state.platforms);
-  const genres = userPreferencesStore((state) => state.genres);
-  const gamingHours = userPreferencesStore((state) => state.gamingHours);
-
-  useEffect(() => {
-    console.log("UserPreferences hook state:", { isLoading, isError });
-
-    if (!isLoading && !isError) {
-      console.log("User Preferences:");
-      console.log("Platforms:", platforms);
-      console.log("Genres:", genres);
-      console.log("Gaming Hours:", gamingHours);
-    }
-  }, [isLoading, isError, platforms, genres, gamingHours]);
-
-
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
@@ -63,6 +48,26 @@ export default function HomeScreen() {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  const fetchPreferences = async () => {
+  try {
+
+    const genresData = await getGenres(session?.access_token ?? "");
+    setGenres(genresData);
+    console.log("Fetched genres:", genresData);
+
+    const platformsData = await getPlatforms(session?.access_token ?? "");
+    setPlatforms(platformsData);
+    console.log("Fetched platforms:", platformsData);
+
+  } catch (error) {
+    console.error("Error fetching:", error);
+  }
+};
+
+useEffect(() => {
+  fetchPreferences();
+}, []);
 
   const games = videogamesQuery.data?.pages.flat();
 
