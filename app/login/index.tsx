@@ -33,6 +33,7 @@ export default function LoginScreen() {
       } else {
         setSession(data.session);
         router.replace("/home");
+        setLoading(false);
       }
     } catch (err: any) {
       Alert.alert(err?.message ?? "Unknown error");

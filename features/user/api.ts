@@ -2,6 +2,21 @@ import { User } from "@/domain/user/user";
 
 const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
 
+// ─── Shared types ─────────────────────────────────────────────────────────────
+
+export type Genre = { id: number; name: string; slug: string };
+export type Platform = { id: number; name: string; slug: string };
+export type Language = { id: number; locale: string; name: string };
+
+export type UserPreferencesPayload = {
+  gamingHours: number;
+  genres: Genre[];
+  platforms: Platform[];
+  languages: Language[];
+};
+
+// ─── API calls ────────────────────────────────────────────────────────────────
+
 export async function getUserPreferences(auth_token: string): Promise<User> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "GET",
@@ -10,7 +25,7 @@ export async function getUserPreferences(auth_token: string): Promise<User> {
       "Content-Type": "application/json",
     },
   });
-  
+
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     console.error("Error response body:", text);
@@ -20,14 +35,9 @@ export async function getUserPreferences(auth_token: string): Promise<User> {
   return res.json();
 }
 
-
 export async function updateUserPreferences(
   auth_token: string,
-  preferences: {
-    gamingHours: number;
-    genres: string[];
-    platforms: string[];
-  },
+  preferences: UserPreferencesPayload,
 ): Promise<User> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "PUT",
@@ -43,16 +53,14 @@ export async function updateUserPreferences(
     throw new Error(text || `Failed to update preferences (${res.status})`);
   }
 
+  console.log("Updated preferences:", preferences);
+
   return res.json();
 }
 
 export async function createUserPreferences(
   auth_token: string,
-  preferences: {
-    gamingHours: number;
-    genres: string[];
-    platforms: string[];
-  },
+  preferences: UserPreferencesPayload,
 ): Promise<User> {
   const res = await fetch(`${baseURL}/api/user`, {
     method: "POST",

@@ -24,6 +24,7 @@ import { Platform } from "@/domain/videogames/platform";
 import { getPlatforms } from "@/features/platforms/api";
 import { fetchGenres, getCachedGenres } from "@/features/genres/genresStore";
 import { fetchPlatforms } from "@/features/platforms/platformsStore";
+import { fetchLanguages } from "@/features/languajes/languagesStore";
 
 const PAGE_SIZE = 50;
 
@@ -52,8 +53,8 @@ export default function HomeScreen() {
   });
 
   const platform = fetchPlatforms(session?.access_token ?? "");
-  
   const genres = fetchGenres(session?.access_token ?? "");
+  const languages = fetchLanguages(session?.access_token ?? "");
 
   const games = videogamesQuery.data?.pages.flat();
 
