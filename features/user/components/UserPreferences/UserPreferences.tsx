@@ -8,13 +8,13 @@ import {
   TextInput,
   Image,
 } from "react-native";
-import Checkbox from "expo-checkbox";
 import { colors } from "@/constants/colors";
 import { AVAILABLE_GENRES, LANGUAGE_GROUPS, PLATFORM_CATEGORIES } from "./constants";
 import { useUserPreferences } from "./useUserPreferences";
 import type { OnApplyPayload } from "./types";
 
-// --- Props -------------------------------------------------------------------
+// ─── Props ────────────────────────────────────────────────────────────────────
+
 type Props = {
   visible: boolean;
   onClose: () => void;
@@ -79,21 +79,18 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           {/* ── Genres ── */}
           <Text style={styles.sectionTitle}>Genres</Text>
-          <View style={styles.checkboxContainer}>
+          <View style={styles.platformRow}>
             {AVAILABLE_GENRES.map((genre) => {
-              const checked = selectedGenres.some((g) => g.id === genre.id);
+              const isSelected = selectedGenres.some((g) => g.id === genre.id);
               return (
                 <Pressable
                   key={genre.id}
-                  style={styles.checkboxRow}
+                  style={[styles.langCard, isSelected && styles.platformCardSelected]}
                   onPress={() => toggleGenre(genre)}
                 >
-                  <Checkbox
-                    value={checked}
-                    onValueChange={() => toggleGenre(genre)}
-                    color={checked ? colors.dark.accent : colors.dark.textPrimary}
-                  />
-                  <Text style={styles.checkboxLabel}>{genre.name}</Text>
+                  <Text style={[styles.platformLabel, isSelected && styles.platformLabelSelected]}>
+                    {genre.name}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -258,24 +255,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: colors.dark.textSecondary,
     marginTop: 2,
-  },
-  // Checkboxes
-  checkboxContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 12,
-  },
-  checkboxRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "45%",
-    marginVertical: 4,
-    marginRight: "5%",
-  },
-  checkboxLabel: {
-    marginLeft: 8,
-    fontSize: 13,
-    color: colors.dark.textPrimary,
   },
   // Input
   input: {

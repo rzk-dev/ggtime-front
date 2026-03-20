@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useSupabase } from "@/lib/SupabaseProvider";
 import { userPreferencesStore } from "@/hooks/usePreferencesStore";
 import {
@@ -7,7 +8,7 @@ import {
   updateUserPreferences,
 } from "@/features/user/api";
 import { PLATFORM_CATEGORIES, LANGUAGE_GROUPS } from "./constants";
-import type { Genre, Platform, UserPreferencesPayload } from "@/features/user/api";
+import type { Genre, Platform } from "@/features/user/api";
 import type { OnApplyPayload } from "./types";
 
 export function useUserPreferences(
@@ -18,37 +19,42 @@ export function useUserPreferences(
   const [selectedGenres, setSelectedGenres]                         = useState<Genre[]>([]);
   const [selectedLanguageGroups, setSelectedLanguageGroups]         = useState<string[]>([]);
   const [weeklyPlayTime, setWeeklyPlayTime]                         = useState("");
-  const [preferencesExist, setPreferencesExist]                     = useState(false);
-  const [isLoading, setIsLoading]                                   = useState(true);
 
   const { session } = useSupabase();
   const { setPlatforms, setGenres, setGamingHours, setLanguages } = userPreferencesStore();
 
-  // ── Fetch existing preferences on mount ───────────────────────────────────
+  // ── GET existing preferences ───────────────────────────────────────────────
 
-  useEffect(() => {
-    if (!session?.access_token) return;
+  const { data: existingPreferences, isPending: isLoading } = useQuery({
+    queryKey: ["userPreferences", session?.access_token],
+    queryFn: () => getUserPreferences(session!.access_token),
+    enabled: !!session?.access_token,
+    retry: false,
+  });
 
-    (async () => {
-      try {
-        const data = await getUserPreferences(session.access_token);
+  const preferencesExist =
+    !!existingPreferences &&
+    (
+      (existingPreferences.genres?.length   ?? 0) > 0 ||
+      (existingPreferences.platforms?.length ?? 0) > 0 ||
+      (existingPreferences.languages?.length ?? 0) > 0 ||
+      !!existingPreferences.gamingHours
+    );
 
-        const isEmpty =
-          !data ||
-          ((!data.genres || data.genres.length === 0) &&
-            (!data.platforms || data.platforms.length === 0) &&
-            (!data.languages || data.languages.length === 0) &&
-            !data.gamingHours);
+  // ── POST / PUT mutation ────────────────────────────────────────────────────
 
-        setPreferencesExist(!isEmpty);
-      } catch {
-        // GET failed or returned nothing → treat as no preferences yet
-        setPreferencesExist(false);
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, [session?.access_token]);
+  const { mutateAsync: savePreferences } = useMutation({
+    mutationFn: (payload: Parameters<typeof createUserPreferences>[1]) =>
+      preferencesExist
+        ? updateUserPreferences(session?.access_token ?? "", payload)
+        : createUserPreferences(session?.access_token ?? "", payload),
+    onSuccess: (response) => {
+      console.log("Preferencias guardadas:", response);
+    },
+    onError: (error) => {
+      console.error("Error al guardar preferencias:", error);
+    },
+  });
 
   // ── Toggles ────────────────────────────────────────────────────────────────
 
@@ -84,38 +90,30 @@ export function useUserPreferences(
   // ── Submit ─────────────────────────────────────────────────────────────────
 
   const handleApply = async () => {
-    try {
-      const selectedPlatforms = getSelectedPlatforms();
-      const selectedLanguages = getSelectedLanguageVariants();
+    const selectedPlatforms = getSelectedPlatforms();
+    const selectedLanguages = getSelectedLanguageVariants();
 
-      const payload = {
-        gamingHours: Number(weeklyPlayTime) || 0,
-        genres:      selectedGenres,
-        platforms:   selectedPlatforms,
-        languages:   selectedLanguages,
-      };
+    const payload = {
+      gamingHours: Number(weeklyPlayTime) || 0,
+      genres:      selectedGenres,
+      platforms:   selectedPlatforms,
+      languages:   selectedLanguages,
+    };
 
-      const response = preferencesExist
-        ? await updateUserPreferences(session?.access_token ?? "", payload)
-        : await createUserPreferences(session?.access_token ?? "", payload);
+    await savePreferences(payload);
 
-      console.log("Preferencias guardadas:", response);
+    setPlatforms(selectedPlatforms.map((p) => p.name));
+    setGenres(selectedGenres.map((g) => g.name));
+    setGamingHours(Number(weeklyPlayTime) || 0);
+    setLanguages(selectedLanguages.map((l) => l.name));
 
-      setPlatforms(selectedPlatforms.map((p) => p.name));
-      setGenres(selectedGenres.map((g) => g.name));
-      setGamingHours(Number(weeklyPlayTime) || 0);
-      setLanguages(selectedLanguages.map((l) => l.name));
-
-      onApply({
-        selectedPlatforms:  selectedPlatforms.map((p) => p.name),
-        selectedGenres:     selectedGenres.map((g) => g.name),
-        selectedLanguages:  selectedLanguages.map((l) => l.name),
-        weeklyPlayTime,
-      });
-      onClose();
-    } catch (error) {
-      console.error("Error al guardar preferencias:", error);
-    }
+    onApply({
+      selectedPlatforms:  selectedPlatforms.map((p) => p.name),
+      selectedGenres:     selectedGenres.map((g) => g.name),
+      selectedLanguages:  selectedLanguages.map((l) => l.name),
+      weeklyPlayTime,
+    });
+    onClose();
   };
 
   return {

@@ -5,13 +5,13 @@ let genresCache: Genre[] | null = null;
 
 export async function fetchGenres(token: string): Promise<Genre[]> {
   if (genresCache) {
-    console.log("Using genres from cache:", genresCache);
+    // console.log("Using genres from cache:", genresCache);
     return genresCache;
   }
 
   const data = await getGenres(token);
   genresCache = data;
-  console.log("Using genres from API:", data);
+  // console.log("Using genres from API:", data);
   return data;
 }
 

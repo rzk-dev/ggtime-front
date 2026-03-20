@@ -52,9 +52,9 @@ export default function HomeScreen() {
     refetchOnWindowFocus: false,
   });
 
-  const platform = fetchPlatforms(session?.access_token ?? "");
-  const genres = fetchGenres(session?.access_token ?? "");
-  const languages = fetchLanguages(session?.access_token ?? "");
+  // const platform = fetchPlatforms(session?.access_token ?? "");
+  // const genres = fetchGenres(session?.access_token ?? "");
+  // const languages = fetchLanguages(session?.access_token ?? "");
 
   const games = videogamesQuery.data?.pages.flat();
 

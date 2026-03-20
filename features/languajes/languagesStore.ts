@@ -5,13 +5,13 @@ let languagesCache: Languages[] | null = null;
 
 export async function fetchLanguages(token: string): Promise<Languages[]> {
   if (languagesCache) {
-    console.log("Using languages from cache:", languagesCache);
+    // console.log("Using languages from cache:", languagesCache);
     return languagesCache;
   }
 
   const data = await getLanguages(token);
   languagesCache = data;
-  console.log("Using languages from API:", data);
+  // console.log("Using languages from API:", data);
   return data;
 }
 
