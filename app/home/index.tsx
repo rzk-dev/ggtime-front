@@ -75,15 +75,12 @@ export default function HomeScreen() {
     <SafeAreaView
       style={{
         flex: 1,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
         backgroundColor: colors.dark.background,
       }}
     >
       <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
       <AppHeader title="" onUserPress={() => console.log("Perfil")} />
 
-      {/* pestañas */}
       <View
         style={{
           flexDirection: "row",
@@ -115,12 +112,14 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      {/* cuerpo */}
       {activeTab === "search" ? (
         <FlatList
           style={{ flex: 1 }}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.container}
+          contentContainerStyle={[
+            styles.container,
+            { paddingBottom: 90 + insets.bottom },
+          ]}
           data={games}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
@@ -148,7 +147,10 @@ export default function HomeScreen() {
         <FlatList
           style={{ flex: 1 }}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.container}
+          contentContainerStyle={[
+            styles.container,
+            { paddingBottom: 90 + insets.bottom },
+          ]}
           data={favorites}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
@@ -165,7 +167,6 @@ export default function HomeScreen() {
         />
       )}
 
-      {/* modal */}
       <Modal visible={detailVisible} animationType="fade" transparent>
         <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
           <View style={styles.backdrop} />
@@ -177,6 +178,21 @@ export default function HomeScreen() {
           onToggleFavorite={handleToggleFavorite}
         />
       </Modal>
+
+      <View
+        style={[
+          styles.bottomBar,
+        ]}
+      >
+        <Pressable
+          style={styles.recommendButtonStyle}
+          onPress={() => console.log("Recommend Pressed")}
+        >
+          <Text style={{ color: colors.dark.background, fontWeight: "bold" }}>
+            RECOMMEND A GAME
+          </Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
@@ -197,5 +213,25 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
+  },
+
+  bottomBar: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 10,
+  },
+
+  recommendButtonStyle: {
+    flex: 0,
+    alignSelf: "center",
+    backgroundColor: colors.dark.tint,
+    paddingVertical: 15,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
 });
