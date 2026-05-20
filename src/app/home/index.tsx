@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -33,21 +33,31 @@ export default function HomeScreen() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
 
-  const genres = queryClient.getQueryData(['genres']);
-  console.log('[Prefetch] genres cargados:', Array.isArray(genres) ? genres.length : 'ERROR');
-  console.log('[Prefetch] genres:', genres);
+  /* Acceso a datos prefetchados en el queryClient (si es necesario)
+  const { session } = useSession();
+  const { data: genres } = useGetGenres(session?.access_token);
+  const { data: platforms } = useGetPlatforms(session?.access_token);
+  const { data: languages } = useGetLanguages(session?.access_token);
+  const { data: userPreferences } = useGetUserPreferences(session?.access_token);
+  */
 
-  const platforms = queryClient.getQueryData(['platforms']);
-  console.log('[Prefetch] platforms cargados:', Array.isArray(platforms) ? platforms.length : 'ERROR');
-  console.log('[Prefetch] platforms:', platforms);
+  useEffect(() => {
+      const genres = queryClient.getQueryData(['genres']);
+      console.log('[Prefetch] genres cargados:', Array.isArray(genres) ? genres.length : 'ERROR');
+      console.log('[Prefetch] genres:', genres);
 
-  const languages = queryClient.getQueryData(['languages']);
-  console.log('[Prefetch] languages cargados:', Array.isArray(languages) ? languages.length : 'ERROR');
-  console.log('[Prefetch] languages:', languages);
+      const platforms = queryClient.getQueryData(['platforms']);
+      console.log('[Prefetch] platforms cargados:', Array.isArray(platforms) ? platforms.length : 'ERROR');
+      console.log('[Prefetch] platforms:', platforms);
 
-  const userPreferences = queryClient.getQueryData(['userPreferences']);
-  console.log('[Prefetch] userPreferences cargados:', userPreferences ? 'Sí' : 'No');
-  console.log('[Prefetch] userPreferences:', userPreferences);
+      const languages = queryClient.getQueryData(['languages']);
+      console.log('[Prefetch] languages cargados:', Array.isArray(languages) ? languages.length : 'ERROR');
+      console.log('[Prefetch] languages:', languages);
+
+      const userPreferences = queryClient.getQueryData(['userPreferences']);
+      console.log('[Prefetch] userPreferences cargados:', userPreferences ? 'Sí' : 'No');
+      console.log('[Prefetch] userPreferences:', userPreferences);
+  }, []);
   
 
   const fetchVideogames = ({ pageParam = 0 }) =>

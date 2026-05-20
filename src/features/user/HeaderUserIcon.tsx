@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Image, Modal } from "react-native";
 import { colors } from "@/src/shared/constants/colors";
-import defaultAvatar from "../../assets/images/user-icon-v1.png";
-import UserPreferences from "@/features/user/UserPreferences";
+import UserPreferences from "./UserPreferences";
+import defaultAvatar from "@/src/assets/images/default-avatar.png";
 
 interface Props {
   onPress?: () => void;
