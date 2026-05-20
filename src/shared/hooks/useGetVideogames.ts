@@ -1,4 +1,4 @@
-import { Videogame } from "@/src/shared/videogames/videogame";
+import { Videogame } from "@/src/shared/models/videogames/videogame";
 import { useEffect, useState } from "react";
 import axios from "axios";
 

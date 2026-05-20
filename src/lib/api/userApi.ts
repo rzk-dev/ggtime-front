@@ -1,11 +1,9 @@
+import { BASE_URL } from "@/src/shared/constants/baseUrl";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
 
 
-
-const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
-
 const usersAPI = {
-  userPreferencesEndpoint: () => `${baseURL}/api/user`,
+  userPreferencesEndpoint: () => `${BASE_URL}/api/user`,
 };
 
 export async function getUserPreferences(auth_token: string){

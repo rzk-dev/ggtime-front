@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
 import { colors } from "@/src/shared/constants/colors";
 import { getPlatformIcon } from "@/src/shared/constants/platformIcons";
-import { Videogame } from "@/src/shared/videogames/videogame";
+import { Videogame } from "@/src/shared/models/videogames/videogame";
 
 type Props = {
   videogame: Videogame;

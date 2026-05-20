@@ -1,13 +1,11 @@
-import { Videogame } from "@/src/shared/videogames/videogame";
-import { VideogameDetail } from "@/src/shared/videogames/videogameDetail";
-import { useSupabase } from "@/src/lib/SupabaseProvider";
-
-const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
+import { BASE_URL } from "@/src/shared/constants/baseUrl";
+import { Videogame } from "@/src/shared/models/videogames/videogame";
+import { VideogameDetail } from "@/src/shared/models/videogames/videogameDetail";
 
 const videogamesAPI = {
-  getById: (id: number) => `${baseURL}/api/videogames/${id}`,
+  getById: (id: number) => `${BASE_URL}/api/videogames/${id}`,
   getAll: (limit: number = 100, offset: number = 0) =>
-    `${baseURL}/api/videogames?limit=${limit}&offset=${offset}`,
+    `${BASE_URL}/api/videogames?limit=${limit}&offset=${offset}`,
 };
 
 export async function getById(

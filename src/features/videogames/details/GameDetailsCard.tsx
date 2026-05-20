@@ -12,10 +12,10 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { colors } from "@/src/shared/constants/colors";
-import { Companies } from "@/src/shared/videogames/involvedCompanies";
-import { simplifyLanguages } from "@/src/shared/videogames/languages";
+import { Companies } from "@/src/shared/models/videogames/involvedCompanies";
+import { simplifyLanguages } from "@/src/shared/models/videogames/languages";
 import { useQuery } from "@tanstack/react-query";
-import { getById } from "../../../lib/videogameApi";
+import { getById } from "../../../lib/api/videogameApi";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 
 type Props = {
