@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 function useGetLanguages(auth_token: string) {
     return useQuery({
         queryKey: ['languages'],
-        queryFn: () => getAllLanguages(auth_token),
+        queryFn: () => getAllLanguages(auth_token!),
+        enabled: !!auth_token,
     });
 }
 

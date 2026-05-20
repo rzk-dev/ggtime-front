@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 function useGetGenres(auth_token: string) {
   return useQuery({
     queryKey: ['genres'],
-    queryFn: () => getAllGenres(auth_token),
+    queryFn: () => getAllGenres(auth_token!),
+    enabled: !!auth_token,
   });
 }
 

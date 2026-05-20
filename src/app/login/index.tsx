@@ -4,28 +4,34 @@ import React, { useState } from "react";
 import { View, Text, Alert, Button, TextInput, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { useQueryClient } from '@tanstack/react-query';
+import { prefetchAppData } from "@/src/lib/api/prefetch";
+
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const handleLogin = async () => {
-    setLoading(true);
+const handleLogin = async () => {
+  setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password,
+  });
 
-    if (error) {
-      Alert.alert(error.message);
-    } else {
-      router.replace("/home");
-    }
-    setLoading(false);
-  };
+  if (error) {
+    Alert.alert(error.message);
+  } else {
+    await prefetchAppData(queryClient, data.session?.access_token!); // precachea los datos antes de navegar a home
+    router.replace("/home");
+  }
+
+  setLoading(false);
+};
 
   const handleRegister = async () => {
     setLoading(true);

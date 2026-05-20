@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 function useGetPlatforms(auth_token: string) {
   return useQuery({
     queryKey: ['platforms'],
-    queryFn: () => getAllPlatforms(auth_token),
+    queryFn: () => getAllPlatforms(auth_token!),
+    enabled: !!auth_token,
   });
 }
 export default useGetPlatforms;

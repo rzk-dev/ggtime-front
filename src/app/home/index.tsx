@@ -21,6 +21,7 @@ import GameListCards from "@/src/features/videogames/GameListCards";
 import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/src/features/header/AppHeader";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
+import { queryClient } from "@/src/lib/queryClient";
 
 const PAGE_SIZE = 50;
 
@@ -31,6 +32,23 @@ export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
+
+  const genres = queryClient.getQueryData(['genres']);
+  console.log('[Prefetch] genres cargados:', Array.isArray(genres) ? genres.length : 'ERROR');
+  console.log('[Prefetch] genres:', genres);
+
+  const platforms = queryClient.getQueryData(['platforms']);
+  console.log('[Prefetch] platforms cargados:', Array.isArray(platforms) ? platforms.length : 'ERROR');
+  console.log('[Prefetch] platforms:', platforms);
+
+  const languages = queryClient.getQueryData(['languages']);
+  console.log('[Prefetch] languages cargados:', Array.isArray(languages) ? languages.length : 'ERROR');
+  console.log('[Prefetch] languages:', languages);
+
+  const userPreferences = queryClient.getQueryData(['userPreferences']);
+  console.log('[Prefetch] userPreferences cargados:', userPreferences ? 'Sí' : 'No');
+  console.log('[Prefetch] userPreferences:', userPreferences);
+  
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
