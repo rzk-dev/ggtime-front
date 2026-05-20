@@ -10,7 +10,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
-import { colors } from "@/constants/colors";
+import { colors } from "@/src/shared/constants/colors";
 import {
   SafeAreaView,
   useSafeAreaInsets,

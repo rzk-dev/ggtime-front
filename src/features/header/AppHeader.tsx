@@ -1,8 +1,8 @@
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { colors } from "@/constants/colors";
+import { colors } from "@/src/shared/constants/colors";
 import HeaderUserIcon from "../user/HeaderUserIcon";
-import { useSupabase } from "@/lib/SupabaseProvider";
+import { useSupabase } from "@/src/lib/SupabaseProvider";
 interface AppHeaderProps {
   title?: string;
   onUserPress?: () => void;

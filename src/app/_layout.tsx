@@ -1,6 +1,6 @@
-import { queryClient } from "@/lib/queryClient";
+import { queryClient } from "@/src/lib/queryClient";
 import Toast from "react-native-toast-message";
-import { SupabaseProvider, useSupabase } from "@/lib/SupabaseProvider";
+import { SupabaseProvider, useSupabase } from "@/src/lib/SupabaseProvider";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Redirect, Stack, usePathname } from "expo-router";
 import React from "react";

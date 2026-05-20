@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
 import Checkbox from "expo-checkbox";
-import { colors } from "@/constants/colors";
+import { colors } from "@/src/shared/constants/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 

@@ -1,6 +1,6 @@
-import { Videogame } from "@/domain/videogames/videogame";
-import { VideogameDetail } from "@/domain/videogames/videogameDetail";
-import { useSupabase } from "@/lib/SupabaseProvider";
+import { Videogame } from "@/src/shared/videogames/videogame";
+import { VideogameDetail } from "@/src/shared/videogames/videogameDetail";
+import { useSupabase } from "@/src/lib/SupabaseProvider";
 
 const baseURL = `http://${process.env.EXPO_PUBLIC_HOST}`;
 

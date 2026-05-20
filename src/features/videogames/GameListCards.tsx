@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
-import { colors } from "@/constants/colors";
-import { getPlatformIcon } from "@/constants/platformIcons";
-import { Videogame } from "@/domain/videogames/videogame";
+import { colors } from "@/src/shared/constants/colors";
+import { getPlatformIcon } from "@/src/shared/constants/platformIcons";
+import { Videogame } from "@/src/shared/videogames/videogame";
 
 type Props = {
   videogame: Videogame;

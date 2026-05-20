@@ -1,4 +1,4 @@
-import { UserPreference } from "@/domain/users/userPreferences";
+import { UserPreference } from "@/src/shared/models/users/userPreferences";
 
 
 

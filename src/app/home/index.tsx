@@ -10,17 +10,17 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
-import { colors } from "@/constants/colors";
+import { colors } from "@/src/shared/constants/colors";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getAll } from "@/features/videogames/api";
-import GameListCards from "@/features/videogames/GameListCards";
-import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
-import AppHeader from "@/features/header/AppHeader";
-import { useSupabase } from "@/lib/SupabaseProvider";
+import { getAll } from "@/src/lib/videogameApi";
+import GameListCards from "@/src/features/videogames/GameListCards";
+import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
+import AppHeader from "@/src/features/header/AppHeader";
+import { useSupabase } from "@/src/lib/SupabaseProvider";
 
 const PAGE_SIZE = 50;
 
