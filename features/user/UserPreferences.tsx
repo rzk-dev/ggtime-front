@@ -15,6 +15,8 @@ type Props = {
   }) => void;
 };
 
+
+/* TODO: Recuperar de bbdd y recorrer con un bucle y asignar un checkbox a cada item (y añadir languages)*/
 const AVAILABLE_PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Retro/Arcade"];
 
 const AVAILABLE_GENRES = ["Pinball","Adventure","Indie","Arcade","Visual Novel","Card & Board","MOBA","Point-and-click",
@@ -31,6 +33,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
   const storeData = async (userPreferences:object) => {
   try {
+    /* TODO: Usar AsyncStorage para cachear el token*/
     const jsonValue = JSON.stringify(userPreferences);
     await AsyncStorage.setItem('my-key', jsonValue);
   } catch (e) {

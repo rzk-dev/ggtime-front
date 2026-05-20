@@ -24,6 +24,11 @@ export async function getUserPreferences(auth_token: string){
     return response.json();
 }
 
+/* TanStack Query
+    TODO: cambiar upsert por POST y PUT 
+        POST /api/user -> Crear
+        PUT /api/user -> Actualizar
+*/
 export async function upsertUserPreferences(
     auth_token: string, 
     userPreferences:UserPreference

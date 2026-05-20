@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Image, Modal } from "react-native";
 import { colors } from "@/constants/colors";
-import defaultAvatar from "@/assets/images/user-icon-v1.png";
+import defaultAvatar from "../../assets/images/user-icon-v1.png";
 import UserPreferences from "@/features/user/UserPreferences";
 
 interface Props {
