@@ -33,16 +33,8 @@ export default function HomeScreen() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
 
-  /* Acceso a datos prefetchados en el queryClient (si es necesario)
-  const { session } = useSession();
-  const { data: genres } = useGetGenres(session?.access_token);
-  const { data: platforms } = useGetPlatforms(session?.access_token);
-  const { data: languages } = useGetLanguages(session?.access_token);
-  const { data: userPreferences } = useGetUserPreferences(session?.access_token);
-  */
-
-      const genres = useQuery({queryKey: "genres",  queryFn: () => fetchGenres(accessToken)})
-      console.log('[Prefetch] platforms:', genres.data);
+  {/* EJEMPLO DE USO DE useQuery, SOLO PARA DESARROLLO */}
+  // const genres = useQuery({queryKey: "genres",  queryFn: () => fetchGenres(accessToken)})
   
 
   const fetchVideogames = ({ pageParam = 0 }) =>
