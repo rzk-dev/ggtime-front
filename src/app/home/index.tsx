@@ -22,6 +22,10 @@ import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/src/features/header/AppHeader";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchUserPreferences } from "@/src/lib/api/userApi";
+import { useUserStore } from "@/src/shared/hooks/useUserStore";
+import { fetchPlatforms } from "@/src/lib/api/platformApi";
+import { fetchLanguages } from "@/src/lib/api/languageApi";
+import { fetchGenres } from "@/src/lib/api/genreApi";
 
 const PAGE_SIZE = 50;
 
@@ -33,12 +37,42 @@ export default function HomeScreen() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
 
-  const userPreferences = useQuery({
-    queryKey: ["userPreferences"],
-    queryFn: () => fetchUserPreferences(session?.access_token ?? ""),
-    enabled: !!session,
+  const { setPreferences, setPlatforms, setGenres, setLanguages } = useUserStore();
+
+    const preferences = useQuery({
+    queryKey: ["preferences"],
+    queryFn: async () => {
+      const data = await fetchUserPreferences(session?.access_token ?? "");
+      setPreferences(data);
+      return data;
+    },
   });
-  console.log("User Preferences:", userPreferences.data);
+    console.log("Fetched user preferences:", preferences.data);
+
+  const platforms = useQuery({
+    queryKey: ["platforms"],
+    queryFn: async () => {
+      const data = await fetchPlatforms(session?.access_token ?? "");
+      setPlatforms(data);
+      return data;
+    },
+  });
+  const genres = useQuery({
+    queryKey: ["genres"],
+    queryFn: async () => {
+      const data = await fetchGenres(session?.access_token ?? "");
+      setGenres(data);
+      return data;
+    }
+  });
+  const languages = useQuery({
+    queryKey: ["languages"],
+    queryFn: async () => {
+      const data = await fetchLanguages(session?.access_token ?? "");
+      setLanguages(data);
+      return data;
+    }
+  });
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");

@@ -3,12 +3,13 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
 import { fetchPlatforms } from "@/src/lib/api/platformApi";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchGenres } from "@/src/lib/api/genreApi";
 import { fetchLanguages } from "@/src/lib/api/languageApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
-import { createUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
+import { createUserPreferences, fetchUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
+import { useUserStore } from "@/src/shared/hooks/useUserStore";
 
 type Props = {
   visible: boolean;
@@ -29,14 +30,6 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
   const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(session?.access_token ?? "")});
 
-  const updateUser = useMutation({
-    mutationFn: (data: UserPreference) => updateUserPreferences(session?.access_token ?? "", data),
-  });
-  const createUser = useMutation({
-    mutationFn: (data: UserPreference) => createUserPreferences(session?.access_token ?? "", data),
-  });
-
-  if (!visible) return null;
 
   const toggleSelection = (
     value: number,
@@ -52,13 +45,20 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
   const handleApply = () => {
     const payload: UserPreference = {
-      gamingHours: Number(weeklyPlayTime),
-      genres: selectedGenres.map((id) => genres.data?.find((g) => g.id === id)!),
-      platforms: selectedPlatforms.map((id) => platforms.data?.find((p) => p.id === id)!),
-      languages: [],
-    };
+        id: useUserStore.getState().preferences?.id ?? null,
+        gamingHours: Number(weeklyPlayTime),
+        genres: selectedGenres.map((id) => genres.data?.find((g) => g.id === id)!),
+        platforms: selectedPlatforms.map((id) => platforms.data?.find((p) => p.id === id)!),
+        languages: [],
+      };
 
-    updateUser.mutate(payload);
+    if(useUserStore.getState().preferences){
+      updateUserPreferences(session?.access_token ?? "", payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
+      console.log("Updating preferences with payload:", payload);
+    } else {
+      createUserPreferences(session?.access_token ?? "", payload.gamingHours, payload.genres, payload.platforms, payload.languages);
+      console.log("Creating preferences with payload:", payload);
+    }
 
     onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
     onClose();
