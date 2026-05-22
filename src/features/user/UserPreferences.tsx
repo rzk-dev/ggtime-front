@@ -2,49 +2,39 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchPlatforms } from "@/src/lib/api/platformApi";
+import { useQuery } from "@tanstack/react-query";
+import { useSupabase } from "@/src/lib/SupabaseProvider";
+import { fetchGenres } from "@/src/lib/api/genreApi";
+import { fetchLanguages } from "@/src/lib/api/languageApi";
 
 
 type Props = {
   visible: boolean;
   onClose: () => void;
   onApply: (preferences: {
-    selectedPlatforms: string[];
-    selectedGenres: string[];
+    selectedPlatforms: number[];
+    selectedGenres: number[];
     weeklyPlayTime: string;
   }) => void;
 };
 
-
-/* TODO: Recuperar de bbdd y recorrer con un bucle y asignar un checkbox a cada item (y añadir languages)*/
-const AVAILABLE_PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Retro/Arcade"];
-
-const AVAILABLE_GENRES = ["Pinball","Adventure","Indie","Arcade","Visual Novel","Card & Board","MOBA","Point-and-click",
-    "Fighting","Shooter","Music","Platform","Puzzle","Racing","RTS","RPG","Simulator",
-    "Sport","Strategy","Turn-based","Tactical","Hack and slash","Beat 'em up","Quiz/Trivia"];
-
+const { session } = useSupabase();
+const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(session?.access_token ?? "")});
+const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
+const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(session?.access_token ?? "")});
 
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
+  const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
   const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
 
   if (!visible) return null;
 
-  const storeData = async (userPreferences:object) => {
-  try {
-    /* TODO: Usar AsyncStorage para cachear el token*/
-    const jsonValue = JSON.stringify(userPreferences);
-    await AsyncStorage.setItem('my-key', jsonValue);
-  } catch (e) {
-    // saving error
-  }
-};
-
   const toggleSelection = (
-    value: string,
-    list: string[],
-    setter: React.Dispatch<React.SetStateAction<string[]>>
+    value: number,
+    list: number[],
+    setter: React.Dispatch<React.SetStateAction<number[]>>
   ) => {
     if (list.includes(value)) {
       setter(list.filter((item) => item !== value));
@@ -76,20 +66,20 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
-            {AVAILABLE_PLATFORMS.map((platform) => (
-              <View style={styles.checkboxRow} key={platform}>
+            {platforms.data?.map((platform) => (
+              <View style={styles.checkboxRow} key={platform.id}>
                 <Checkbox
-                  value={selectedPlatforms.includes(platform)}
+                  value={selectedPlatforms.includes(platform.id)}
                   onValueChange={() =>
-                    toggleSelection(platform, selectedPlatforms, setSelectedPlatforms)
+                    toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
                   }
                   color={
-                    selectedPlatforms.includes(platform)
+                    selectedPlatforms.includes(platform.id)
                       ? colors.dark.addButton
                       : colors.dark.text
                   }
                 />
-                <Text style={styles.checkboxLabel}>{platform}</Text>
+                <Text style={styles.checkboxLabel}>{platform.name}</Text>
               </View>
             ))}
           </View>
@@ -98,20 +88,20 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
-            {AVAILABLE_GENRES.map((genre) => (
-              <View style={styles.checkboxRow} key={genre}>
+            {genres.data?.map((genre) => (
+              <View style={styles.checkboxRow} key={genre.id}>
                 <Checkbox
-                  value={selectedGenres.includes(genre)}
+                  value={selectedGenres.includes(genre.id)}
                   onValueChange={() =>
-                    toggleSelection(genre, selectedGenres, setSelectedGenres)
+                    toggleSelection(genre.id, selectedGenres, setSelectedGenres)
                   }
                   color={
-                    selectedGenres.includes(genre)
+                    selectedGenres.includes(genre.id)
                       ? colors.dark.addButton
                       : colors.dark.text
                   }
                 />
-                <Text style={styles.checkboxLabel}>{genre}</Text>
+                <Text style={styles.checkboxLabel}>{genre.name}</Text>
               </View>
             ))}
           </View>

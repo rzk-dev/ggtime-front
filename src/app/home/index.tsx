@@ -33,10 +33,6 @@ export default function HomeScreen() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
 
-  {/* EJEMPLO DE USO DE useQuery, SOLO PARA DESARROLLO */}
-  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")})
-  
-
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
 

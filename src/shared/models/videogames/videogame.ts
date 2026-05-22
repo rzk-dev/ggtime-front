@@ -1,5 +1,5 @@
 import { Cover } from "./cover";
-import { Platform } from "./platform";
+import { GamePlatforms } from "./platform";
 
 export type Videogame = {
   id: number;
@@ -7,5 +7,5 @@ export type Videogame = {
   slug: string;
   ageRatings: string[];
   cover: Cover
-  platforms: Platform[];
+  platforms: GamePlatforms[];
 }
