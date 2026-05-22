@@ -26,9 +26,11 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
   const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
   const { session } = useSupabase();
-  const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(session?.access_token ?? "")});
-  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
-  const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(session?.access_token ?? "")});
+  const token = session?.access_token ?? "";
+  const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
+  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
+  const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
+  const prefs = useUserStore.getState().preferences?.id ?? null;
 
 
   const toggleSelection = (
@@ -45,18 +47,18 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
   const handleApply = () => {
     const payload: UserPreference = {
-        id: useUserStore.getState().preferences?.id ?? null,
+        id: prefs,
         gamingHours: Number(weeklyPlayTime),
         genres: selectedGenres.map((id) => genres.data?.find((g) => g.id === id)!),
         platforms: selectedPlatforms.map((id) => platforms.data?.find((p) => p.id === id)!),
         languages: [],
       };
 
-    if(useUserStore.getState().preferences){
-      updateUserPreferences(session?.access_token ?? "", payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
+    if(prefs != null){
+      updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
       console.log("Updating preferences with payload:", payload);
     } else {
-      createUserPreferences(session?.access_token ?? "", payload.gamingHours, payload.genres, payload.platforms, payload.languages);
+      createUserPreferences(token, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
       console.log("Creating preferences with payload:", payload);
     }
 
