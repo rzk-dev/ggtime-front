@@ -1,0 +1,1 @@
+export const BASE_URL = `http://${process.env.EXPO_PUBLIC_HOST}`;
