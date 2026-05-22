@@ -9,7 +9,6 @@ import { fetchGenres } from "@/src/lib/api/genreApi";
 import { fetchLanguages } from "@/src/lib/api/languageApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
 import { createUserPreferences, fetchUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
-import { useUserStore } from "@/src/shared/hooks/useUserStore";
 
 type Props = {
   visible: boolean;
@@ -30,7 +29,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
   const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
   const availableLanguages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
-  const userPreferencesId = useUserStore.getState().preferences?.id ?? null;
+  const userPreferencesQuery = useQuery({queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences(token)});
 
 
   const toggleSelection = (
@@ -47,14 +46,14 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
   const handleApply = () => {
     const payload: UserPreference = {
-        id: userPreferencesId,
+        id: userPreferencesQuery.data?.id ?? null,
         gamingHours: Number(weeklyPlayTime),
         genres: selectedGenres.map((id) => availableGenres.data?.find((g) => g.id === id)!),
         platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p) => p.id === id)!),
         languages: [],
       };
 
-    if(userPreferencesId != null){
+    if(userPreferencesQuery.data?.id != null){
       updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
       console.log("Updating preferences with payload:", payload);
     } else {
