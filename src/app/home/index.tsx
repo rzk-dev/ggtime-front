@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -22,9 +22,6 @@ import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/src/features/header/AppHeader";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchUserPreferences } from "@/src/lib/api/userApi";
-import { fetchPlatforms } from "@/src/lib/api/platformApi";
-import { fetchLanguages } from "@/src/lib/api/languageApi";
-import { fetchGenres } from "@/src/lib/api/genreApi";
 
 const PAGE_SIZE = 50;
 
