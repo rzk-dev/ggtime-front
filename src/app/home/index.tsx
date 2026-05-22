@@ -21,7 +21,7 @@ import GameListCards from "@/src/features/videogames/GameListCards";
 import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/src/features/header/AppHeader";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
-import { fetchGenres } from "@/src/lib/api/genreApi";
+import { fetchUserPreferences } from "@/src/lib/api/userApi";
 
 const PAGE_SIZE = 50;
 
@@ -33,9 +33,12 @@ export default function HomeScreen() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
 
-  {/* EJEMPLO DE USO DE useQuery, SOLO PARA DESARROLLO */}
-  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
-  
+  const userPreferences = useQuery({
+    queryKey: ["userPreferences"],
+    queryFn: () => fetchUserPreferences(session?.access_token ?? ""),
+    enabled: !!session,
+  });
+  console.log("User Preferences:", userPreferences.data);
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");
