@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
 import { fetchPlatforms } from "@/src/lib/api/platformApi";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchGenres } from "@/src/lib/api/genreApi";
 import { fetchLanguages } from "@/src/lib/api/languageApi";
-
+import { UserPreference } from "@/src/shared/models/users/userPreferences";
+import { createUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
 
 type Props = {
   visible: boolean;
@@ -19,15 +20,21 @@ type Props = {
   }) => void;
 };
 
-const { session } = useSupabase();
-const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(session?.access_token ?? "")});
-const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
-const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(session?.access_token ?? "")});
-
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
   const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
+  const { session } = useSupabase();
+  const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(session?.access_token ?? "")});
+  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
+  const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(session?.access_token ?? "")});
+
+  const updateUser = useMutation({
+    mutationFn: (data: UserPreference) => updateUserPreferences(session?.access_token ?? "", data),
+  });
+  const createUser = useMutation({
+    mutationFn: (data: UserPreference) => createUserPreferences(session?.access_token ?? "", data),
+  });
 
   if (!visible) return null;
 
@@ -44,6 +51,15 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   };
 
   const handleApply = () => {
+    const payload: UserPreference = {
+      gamingHours: Number(weeklyPlayTime),
+      genres: selectedGenres.map((id) => genres.data?.find((g) => g.id === id)!),
+      platforms: selectedPlatforms.map((id) => platforms.data?.find((p) => p.id === id)!),
+      languages: [],
+    };
+
+    updateUser.mutate(payload);
+
     onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
     onClose();
   };
