@@ -1,6 +1,6 @@
 import { Cover } from "./cover";
 import { Companies } from "./involvedCompanies";
-import { Platform } from "./platform";
+import { GamePlatforms } from "./platform";
 import { Genre } from "./genres";
 import { Languages } from "./languages";
 
@@ -10,7 +10,7 @@ export type VideogameDetail = {
   slug: string;
   ageRatings: string[];
   cover: Cover;
-  platforms: Platform[];
+  platforms: GamePlatforms[];
   genres: Genre[];
   keywords: string[];
   playerPerspectives: string;

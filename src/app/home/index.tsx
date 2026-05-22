@@ -34,7 +34,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
 
   {/* EJEMPLO DE USO DE useQuery, SOLO PARA DESARROLLO */}
-  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")})
+  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
   
 
   const fetchVideogames = ({ pageParam = 0 }) =>
