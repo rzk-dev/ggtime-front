@@ -27,9 +27,9 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
   const { session } = useSupabase();
   const token = session?.access_token ?? "";
-  const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
-  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
-  const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
+  const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
+  const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
+  const availableLanguages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
   const userPreferencesId = useUserStore.getState().preferences?.id ?? null;
 
 
@@ -49,8 +49,8 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
     const payload: UserPreference = {
         id: userPreferencesId,
         gamingHours: Number(weeklyPlayTime),
-        genres: selectedGenres.map((id) => genres.data?.find((g) => g.id === id)!),
-        platforms: selectedPlatforms.map((id) => platforms.data?.find((p) => p.id === id)!),
+        genres: selectedGenres.map((id) => availableGenres.data?.find((g) => g.id === id)!),
+        platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p) => p.id === id)!),
         languages: [],
       };
 
@@ -84,7 +84,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
-            {platforms.data?.map((platform) => (
+            {availablePlatforms.data?.map((platform) => (
               <View style={styles.checkboxRow} key={platform.id}>
                 <Checkbox
                   value={selectedPlatforms.includes(platform.id)}
@@ -106,7 +106,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
-            {genres.data?.map((genre) => (
+            {availableGenres.data?.map((genre) => (
               <View style={styles.checkboxRow} key={genre.id}>
                 <Checkbox
                   value={selectedGenres.includes(genre.id)}
