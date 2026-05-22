@@ -30,7 +30,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
   const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
   const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
-  const prefs = useUserStore.getState().preferences?.id ?? null;
+  const userPreferencesId = useUserStore.getState().preferences?.id ?? null;
 
 
   const toggleSelection = (
@@ -47,14 +47,14 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
   const handleApply = () => {
     const payload: UserPreference = {
-        id: prefs,
+        id: userPreferencesId,
         gamingHours: Number(weeklyPlayTime),
         genres: selectedGenres.map((id) => genres.data?.find((g) => g.id === id)!),
         platforms: selectedPlatforms.map((id) => platforms.data?.find((p) => p.id === id)!),
         languages: [],
       };
 
-    if(prefs != null){
+    if(userPreferencesId != null){
       updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
       console.log("Updating preferences with payload:", payload);
     } else {
