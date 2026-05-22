@@ -15,13 +15,13 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getAll } from "@/src/lib/api/videogameApi";
 import GameListCards from "@/src/features/videogames/GameListCards";
 import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/src/features/header/AppHeader";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
-import { queryClient } from "@/src/lib/queryClient";
+import { fetchGenres } from "@/src/lib/api/genreApi";
 
 const PAGE_SIZE = 50;
 
@@ -34,7 +34,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
 
   {/* EJEMPLO DE USO DE useQuery, SOLO PARA DESARROLLO */}
-  // const genres = useQuery({queryKey: "genres",  queryFn: () => fetchGenres(accessToken)})
+  const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")})
   
 
   const fetchVideogames = ({ pageParam = 0 }) =>

@@ -1,7 +1,7 @@
 import { BASE_URL } from "@/src/shared/constants/baseUrl";
 import { Platform } from "react-native";
 
-export async function getAllPlatforms(auth_token: string): Promise<Platform[]> {
+export async function fetchPlatforms(auth_token: string): Promise<Platform[]> {
   const response = await fetch(`${BASE_URL}/api/platforms`, {
     headers: {
         Authorization: `Bearer ${auth_token}`,

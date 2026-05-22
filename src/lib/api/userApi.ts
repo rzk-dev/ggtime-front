@@ -6,7 +6,7 @@ const usersAPI = {
   userPreferencesEndpoint: () => `${BASE_URL}/api/user`,
 };
 
-export async function getUserPreferences(auth_token: string){
+export async function fetchUserPreferences(auth_token: string){
     const response = await fetch(usersAPI.userPreferencesEndpoint(),
     {
         method: 'GET',
