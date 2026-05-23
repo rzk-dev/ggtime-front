@@ -35,12 +35,12 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const toggleSelection = ( //Función genérica para manejar la selección de plataformas y géneros
     value: number,
     list: number[],
-    setter: React.Dispatch<React.SetStateAction<number[]>>
+    setter: React.Dispatch<React.SetStateAction<number[]>> //Setter para actualizar el estado de las plataformas o géneros seleccionados
   ) => {
     if (list.includes(value)) {
-      setter(list.filter((item) => item !== value));
+      setter(list.filter((item) => item !== value)); //Si el valor ya está seleccionado, lo eliminamos de la lista. Si no, lo añadimos
     } else {
-      setter([...list, value]);
+      setter([...list, value]); //Si el valor no está seleccionado, lo añadimos a la lista de seleccionados
     }
   };
 
