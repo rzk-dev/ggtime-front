@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -33,7 +33,11 @@ export default function HomeScreen() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
   const userPreferenesQuery = useQuery({queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences(session?.access_token ?? "")});
+
+  // Log con propósitos de desarrollo
+  useEffect(() => {
   console.log("User preferences query data:", userPreferenesQuery.data);
+  }, [userPreferenesQuery.data]);
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam, session?.access_token ?? "");

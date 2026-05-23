@@ -100,8 +100,9 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
+            {/* Iteramos sobre las plataformas disponibles para mostrar un checkbox por cada una y permitir su selección */}
             {availablePlatforms.data?.map((platform) => (
-              <View style={styles.checkboxRow} key={platform.id}> {/* Iteramos sobre las plataformas disponibles para mostrar un checkbox por cada una y permitir su selección */}
+              <View style={styles.checkboxRow} key={platform.id}>
                 <Checkbox
                   value={selectedPlatforms.includes(platform.id)}
                   onValueChange={() =>
@@ -122,8 +123,9 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
+            {/* Iteramos sobre los géneros disponibles para mostrar un checkbox por cada uno y permitir su selección */}
             {availableGenres.data?.map((genre) => (
-              <View style={styles.checkboxRow} key={genre.id}> {/* Iteramos sobre los géneros disponibles para mostrar un checkbox por cada uno y permitir su selección */}
+              <View style={styles.checkboxRow} key={genre.id}>
                 <Checkbox
                   value={selectedGenres.includes(genre.id)}
                   onValueChange={() =>
