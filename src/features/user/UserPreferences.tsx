@@ -9,6 +9,7 @@ import { fetchGenres } from "@/src/lib/api/genreApi";
 import { fetchLanguages } from "@/src/lib/api/languageApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
 import { createUserPreferences, fetchUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
+import { queryClient } from "@/src/lib/queryClient";
 
 type Props = {
   visible: boolean;
@@ -61,11 +62,21 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
         languages: [],
       };
 
-    if(userPreferencesQuery.data?.id != null){ //Si ya existen preferencias de usuario, las actualizamos. Si no, las creamos
-      updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
-    } else {
-      createUserPreferences(token, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
-    }
+      const request = userPreferencesQuery.data?.id != null
+      ? updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages)
+      : createUserPreferences(token, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
+
+      request.then(() => {
+      queryClient.invalidateQueries({ queryKey: ["userPreferences"] }); //Invalidamos la consulta de preferencias de usuario para que se vuelva a obtener la información actualizada desde el backend
+      onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
+      onClose();
+  });
+
+    // if(userPreferencesQuery.data?.id != null){ //Si ya existen preferencias de usuario, las actualizamos. Si no, las creamos
+    //   updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
+    // } else {
+    //   createUserPreferences(token, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
+    // }
 
     onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime }); // Llamamos a la función onApply para actualizar las preferencias en el estado del componente padre
     onClose(); //Cerramos el panel de preferencias
