@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
@@ -10,6 +10,8 @@ import { fetchLanguages } from "@/src/lib/api/languageApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
 import { createUserPreferences, fetchUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
 import { queryClient } from "@/src/lib/queryClient";
+import { GamePlatforms } from "@/src/shared/models/videogames/platform";
+import { Genre } from "@/src/shared/models/videogames/genres";
 
 type Props = {
   visible: boolean;
@@ -22,18 +24,33 @@ type Props = {
 };
 
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]); //Estado para almacenar las plataformas seleccionadas por el usuario
-  const [selectedGenres, setSelectedGenres] = useState<number[]>([]); //Estado para almacenar los géneros seleccionados por el usuario
-  const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>(""); //Estado para almacenar las horas de juego semanales introducidas por el usuario
-  const { session } = useSupabase(); //Obtenemos la sesión actual para acceder al token de autenticación
-  const token = session?.access_token ?? ""; //Obtenemos el token de autenticación para las consultas a la API
-  const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)}); //Obtenemos las plataformas disponibles desde el backend
-  const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)}); //Obtenemos los géneros disponibles desde el backend
-  const availableLanguages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)}); //Obtenemos los idiomas disponibles desde el backend
-  const userPreferencesQuery = useQuery({queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences(token)}); //Obtenemos las preferencias de usuario desde el backend para mostrarlas en el panel de preferencias y permitir su edición
+  const { session } = useSupabase();
+  const token = session?.access_token ?? "";
+  const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
+  const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
+  const availableLanguages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
+  const userPreferencesQuery = useQuery({queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences(token)});
 
+  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>(
+  userPreferencesQuery.data?.platforms.map((p: GamePlatforms) => p.id) ?? []
+  );
+  const [selectedGenres, setSelectedGenres] = useState<number[]>(
+    userPreferencesQuery.data?.genres.map((g: Genre) => g.id) ?? []
+  );
+  const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>(
+    userPreferencesQuery.data?.gamingHours.toString() ?? ""
+  );
 
-  const toggleSelection = ( //Función genérica para manejar la selección de plataformas y géneros
+  //Por si los datos llegan después de montar el componente
+  useEffect(() => {
+    if (userPreferencesQuery.data) {
+      setSelectedPlatforms(userPreferencesQuery.data.platforms.map((p: GamePlatforms) => p.id));
+      setSelectedGenres(userPreferencesQuery.data.genres.map((g: Genre) => g.id));
+      setWeeklyPlayTime(userPreferencesQuery.data.gamingHours.toString());
+    }
+  }, [userPreferencesQuery.data]);
+  
+  const toggleSelection = (
     value: number,
     list: number[],
     setter: React.Dispatch<React.SetStateAction<number[]>> //Setter para actualizar el estado de las plataformas o géneros seleccionados
@@ -57,12 +74,12 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
     const payload: UserPreference = { //Construimos el payload para enviar al backend
         id: userPreferencesQuery.data?.id ?? null,
         gamingHours: selectedGamingHours,
-        genres: selectedGenres.map((id) => availableGenres.data?.find((g) => g.id === id)!),
-        platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p) => p.id === id)!),
+        genres: selectedGenres.map((id) => availableGenres.data?.find((g: Genre) => g.id === id)!),
+        platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p: GamePlatforms) => p.id === id)!),
         languages: [],
       };
 
-      const request = userPreferencesQuery.data?.id != null
+      const request = userPreferencesQuery.data?.id != null //Si ya existen preferencias de usuario, hacemos una actualización (PUT). Si no existen, creamos unas nuevas (POST)
       ? updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages)
       : createUserPreferences(token, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
 
@@ -71,12 +88,6 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
       onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
       onClose();
   });
-
-    // if(userPreferencesQuery.data?.id != null){ //Si ya existen preferencias de usuario, las actualizamos. Si no, las creamos
-    //   updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
-    // } else {
-    //   createUserPreferences(token, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
-    // }
 
     onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime }); // Llamamos a la función onApply para actualizar las preferencias en el estado del componente padre
     onClose(); //Cerramos el panel de preferencias
