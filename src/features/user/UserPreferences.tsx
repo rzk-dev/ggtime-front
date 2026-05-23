@@ -21,18 +21,18 @@ type Props = {
 };
 
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
-  const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
-  const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
-  const { session } = useSupabase();
-  const token = session?.access_token ?? "";
-  const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
-  const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
-  const availableLanguages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
-  const userPreferencesQuery = useQuery({queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences(token)});
+  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]); //Estado para almacenar las plataformas seleccionadas por el usuario
+  const [selectedGenres, setSelectedGenres] = useState<number[]>([]); //Estado para almacenar los géneros seleccionados por el usuario
+  const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>(""); //Estado para almacenar las horas de juego semanales introducidas por el usuario
+  const { session } = useSupabase(); //Obtenemos la sesión actual para acceder al token de autenticación
+  const token = session?.access_token ?? ""; //Obtenemos el token de autenticación para las consultas a la API
+  const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)}); //Obtenemos las plataformas disponibles desde el backend
+  const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)}); //Obtenemos los géneros disponibles desde el backend
+  const availableLanguages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)}); //Obtenemos los idiomas disponibles desde el backend
+  const userPreferencesQuery = useQuery({queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences(token)}); //Obtenemos las preferencias de usuario desde el backend para mostrarlas en el panel de preferencias y permitir su edición
 
 
-  const toggleSelection = (
+  const toggleSelection = ( //Función genérica para manejar la selección de plataformas y géneros
     value: number,
     list: number[],
     setter: React.Dispatch<React.SetStateAction<number[]>>
@@ -45,24 +45,30 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   };
 
   const handleApply = () => {
-    const payload: UserPreference = {
+
+    var selectedGamingHours = 0;
+    if (!isNaN(Number(weeklyPlayTime)) && Number(weeklyPlayTime) > 0) { //Comprobamos si ha introducido horas de juego nuevo
+      selectedGamingHours = Number(weeklyPlayTime);
+    } else {
+      selectedGamingHours = userPreferencesQuery.data?.gamingHours; //Si no ha introducido horas de juego nuevo, mantenemos las horas de juego anteriores
+    }
+
+    const payload: UserPreference = { //Construimos el payload para enviar al backend
         id: userPreferencesQuery.data?.id ?? null,
-        gamingHours: Number(weeklyPlayTime),
+        gamingHours: selectedGamingHours,
         genres: selectedGenres.map((id) => availableGenres.data?.find((g) => g.id === id)!),
         platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p) => p.id === id)!),
         languages: [],
       };
 
-    if(userPreferencesQuery.data?.id != null){
+    if(userPreferencesQuery.data?.id != null){ //Si ya existen preferencias de usuario, las actualizamos. Si no, las creamos
       updateUserPreferences(token, payload.id, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
-      console.log("Updating preferences with payload:", payload);
     } else {
       createUserPreferences(token, payload.gamingHours, payload.genres, payload.platforms, payload.languages);
-      console.log("Creating preferences with payload:", payload);
     }
 
-    onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
-    onClose();
+    onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime }); // Llamamos a la función onApply para actualizar las preferencias en el estado del componente padre
+    onClose(); //Cerramos el panel de preferencias
   };
 
   return (
@@ -84,11 +90,11 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
             {availablePlatforms.data?.map((platform) => (
-              <View style={styles.checkboxRow} key={platform.id}>
+              <View style={styles.checkboxRow} key={platform.id}> {/* Iteramos sobre las plataformas disponibles para mostrar un checkbox por cada una y permitir su selección */}
                 <Checkbox
                   value={selectedPlatforms.includes(platform.id)}
                   onValueChange={() =>
-                    toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
+                    toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms) //Función genérica para manejar la selección de plataformas
                   }
                   color={
                     selectedPlatforms.includes(platform.id)
@@ -106,11 +112,11 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
             {availableGenres.data?.map((genre) => (
-              <View style={styles.checkboxRow} key={genre.id}>
+              <View style={styles.checkboxRow} key={genre.id}> {/* Iteramos sobre los géneros disponibles para mostrar un checkbox por cada uno y permitir su selección */}
                 <Checkbox
                   value={selectedGenres.includes(genre.id)}
                   onValueChange={() =>
-                    toggleSelection(genre.id, selectedGenres, setSelectedGenres)
+                    toggleSelection(genre.id, selectedGenres, setSelectedGenres) //Función genérica para manejar la selección de géneros
                   }
                   color={
                     selectedGenres.includes(genre.id)
