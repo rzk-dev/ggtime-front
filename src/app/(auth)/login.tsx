@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { View, Text, Alert, Button, TextInput, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-import { useQueryClient } from '@tanstack/react-query';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>("");
@@ -12,22 +11,22 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
-const handleLogin = async () => {
-  setLoading(true);
+  const handleLogin = async () => {
+    setLoading(true);
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: email,
-    password: password,
-  });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
 
-  if (error) {
-    Alert.alert(error.message);
-  } else {
-    router.replace("/home");
-  }
+    if (error) {
+      Alert.alert(error.message);
+    } else {
+      router.replace("/home");
+    }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   const handleRegister = async () => {
     setLoading(true);

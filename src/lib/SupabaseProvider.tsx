@@ -14,11 +14,7 @@ export const SupabaseContext = createContext<SupabaseContextType | undefined>(
   undefined,
 );
 
-export const SupabaseProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const SupabaseProvider = ({ children, }: { children: React.ReactNode; }) => {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
