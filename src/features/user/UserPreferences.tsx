@@ -6,7 +6,6 @@ import { fetchPlatforms } from "@/src/lib/api/platformApi";
 import { useQuery } from "@tanstack/react-query";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchGenres } from "@/src/lib/api/genreApi";
-import { fetchLanguages } from "@/src/lib/api/languageApi";
 
 
 type Props = {
@@ -19,12 +18,13 @@ type Props = {
   }) => void;
 };
 
-const { session } = useSupabase();
-const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(session?.access_token ?? "")});
-const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
-const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(session?.access_token ?? "")});
 
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
+  const { session } = useSupabase();
+
+  const platforms = useQuery({ queryKey: ["platforms"], queryFn: () => fetchPlatforms(session?.access_token ?? "") });
+  const genres = useQuery({ queryKey: ["genres"], queryFn: () => fetchGenres(session?.access_token ?? "") });
+
   const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
   const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
@@ -56,9 +56,9 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
           <Text style={styles.title}>User Preferences</Text>
 
           <Pressable onPress={onClose} style={styles.close}>
-          <Text style={styles.closeText}>Close</Text>
+            <Text style={styles.closeText}>Close</Text>
           </Pressable>
-        
+
         </View>
         <View style={styles.divider} />
 
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     backgroundColor: "rgba(0,0,0,0.15)",
     borderRadius: 15,
-    
+
   },
   closeText: {
     color: colors.dark.text,

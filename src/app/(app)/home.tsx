@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -26,6 +26,7 @@ const PAGE_SIZE = 50;
 
 export default function HomeScreen() {
   const { session } = useSupabase();
+
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");

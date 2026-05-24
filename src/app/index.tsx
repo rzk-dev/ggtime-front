@@ -1,25 +1,22 @@
-import React, { useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-  StatusBar,
-  Pressable,
-  Modal,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { colors } from "@/src/shared/constants/colors";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { getAll } from "@/features/videogames/api";
-import GameListCards from "@/features/videogames/GameListCards";
-import GameDetailsCard from "@/features/videogames/details/GameDetailsCard";
-import AppHeader from "@/features/header/AppHeader";
+import { Redirect } from "expo-router";
+import { useSupabase } from "@/src/lib/SupabaseProvider";
+import { ActivityIndicator, View } from "react-native";
 
 export default function Index() {
+  const { session, isReady } = useSupabase();
+
+  if (!isReady) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+
+  if (session) {
+    return <Redirect href="/(app)/home" />;
+  }
+
+  return <Redirect href="/(auth)/login" />;
 }
