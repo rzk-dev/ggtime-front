@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
 import { fetchPlatforms } from "@/src/lib/api/platformApi";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchGenres } from "@/src/lib/api/genreApi";
 import { fetchLanguages } from "@/src/lib/api/languageApi";
@@ -24,7 +24,7 @@ type Props = {
 };
 
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
-  const { session } = useSupabase();
+  const { session, signout } = useSupabase();
   const token = session?.access_token ?? "";
   const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
   const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
@@ -60,6 +60,11 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
     } else {
       setter([...list, value]); //Si el valor no está seleccionado, lo añadimos a la lista de seleccionados
     }
+  };
+
+  const handleLogout = () => {
+    queryClient.clear();
+    signout();
   };
 
   const handleApply = () => {
@@ -169,6 +174,9 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
               <Text style={styles.buttonText}>Apply</Text>
             </Pressable>
           </View>
+          <Pressable onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </Pressable>
         </ScrollView>
       </View>
     </View>
@@ -277,4 +285,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.06)",
     marginVertical: 5,
   },
+  logoutButton: {
+  marginTop: 12,
+  alignSelf: "center",
+  paddingHorizontal: 16,
+  paddingVertical: 8,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: "#e74c3c",
+},
+logoutText: {
+  color: "#e74c3c",
+  fontWeight: "700",
+  fontSize: 14,
+},
 });
