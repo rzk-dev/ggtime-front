@@ -3,10 +3,9 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
 import { fetchPlatforms } from "@/src/lib/api/platformApi";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchGenres } from "@/src/lib/api/genreApi";
-import { fetchLanguages } from "@/src/lib/api/languageApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
 import { createUserPreferences, fetchUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
 import { queryClient } from "@/src/lib/queryClient";
@@ -23,16 +22,14 @@ type Props = {
   }) => void;
 };
 
-export default function UserPreferences({ visible, onClose, onApply }: Props) {
-  const { session, signout } = useSupabase();
-  const token = session?.access_token ?? "";
-  const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
-  const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
-  const availableLanguages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
-  const userPreferencesQuery = useQuery({queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences(token)});
+export default function UserPreferences({ onClose, onApply }: Props) {
+  const { signout } = useSupabase();
+  const availablePlatforms = useQuery({ queryKey: ["platforms"], queryFn: () => fetchPlatforms() });
+  const availableGenres = useQuery({ queryKey: ["genres"], queryFn: () => fetchGenres() });
+  const userPreferencesQuery = useQuery({ queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences() });
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>(
-  userPreferencesQuery.data?.platforms.map((p: GamePlatforms) => p.id) ?? []
+    userPreferencesQuery.data?.platforms.map((p: GamePlatforms) => p.id) ?? []
   );
   const [selectedGenres, setSelectedGenres] = useState<number[]>(
     userPreferencesQuery.data?.genres.map((g: Genre) => g.id) ?? []
@@ -41,7 +38,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
     userPreferencesQuery.data?.gamingHours.toString() ?? ""
   );
 
-  //Por si los datos llegan después de montar el componente
+  // Synchronize data if they come after the component is mounted
   useEffect(() => {
     if (userPreferencesQuery.data) {
       setSelectedPlatforms(userPreferencesQuery.data.platforms.map((p: GamePlatforms) => p.id));
@@ -49,16 +46,16 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
       setWeeklyPlayTime(userPreferencesQuery.data.gamingHours.toString());
     }
   }, [userPreferencesQuery.data]);
-  
+
   const toggleSelection = (
     value: number,
     list: number[],
     setter: React.Dispatch<React.SetStateAction<number[]>>
   ) => {
     if (list.includes(value)) {
-      setter(list.filter((item) => item !== value)); //Si el valor ya está seleccionado, lo eliminamos de la lista. Si no, lo añadimos
+      setter(list.filter((item) => item !== value));
     } else {
-      setter([...list, value]); //Si el valor no está seleccionado, lo añadimos a la lista de seleccionados
+      setter([...list, value]);
     }
   };
 
@@ -70,29 +67,29 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
   const handleApply = () => {
 
     var selectedGamingHours = 0;
-    if (!isNaN(Number(weeklyPlayTime)) && Number(weeklyPlayTime) > 0) { //Comprobamos si ha introducido horas de juego nuevo
+    if (!isNaN(Number(weeklyPlayTime)) && Number(weeklyPlayTime) > 0) {
       selectedGamingHours = Number(weeklyPlayTime);
     } else {
-      selectedGamingHours = userPreferencesQuery.data?.gamingHours; //Si no ha introducido horas de juego nuevo, mantenemos las horas de juego anteriores
+      selectedGamingHours = userPreferencesQuery.data?.gamingHours;
     }
 
     const payload: UserPreference = {
-        id: userPreferencesQuery.data?.id ?? null,
-        gamingHours: selectedGamingHours,
-        genres: selectedGenres.map((id) => availableGenres.data?.find((g: Genre) => g.id === id)!),
-        platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p: GamePlatforms) => p.id === id)!),
-        languages: [],
-      };
+      id: userPreferencesQuery.data?.id ?? null,
+      gamingHours: selectedGamingHours,
+      genres: selectedGenres.map((id) => availableGenres.data?.find((g: Genre) => g.id === id)!),
+      platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p: GamePlatforms) => p.id === id)!),
+      languages: [],
+    };
 
-      const request = userPreferencesQuery.data?.id != null
-      ? updateUserPreferences(token, payload)
-      : createUserPreferences(token, payload);
+    const request = userPreferencesQuery.data?.id != null
+      ? updateUserPreferences(payload)
+      : createUserPreferences(payload);
 
-      request.then(() => {
-      queryClient.invalidateQueries({ queryKey: ["userPreferences"] }); //Invalidamos la consulta de preferencias de usuario para que se vuelva a obtener la información actualizada desde el backend
+    request.then(() => {
+      queryClient.invalidateQueries({ queryKey: ["userPreferences"] });
       onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
       onClose();
-  });
+    });
 
     onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
     onClose();
@@ -286,17 +283,17 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   logoutButton: {
-  marginTop: 12,
-  alignSelf: "center",
-  paddingHorizontal: 16,
-  paddingVertical: 8,
-  borderRadius: 8,
-  borderWidth: 1,
-  borderColor: "#e74c3c",
-},
-logoutText: {
-  color: "#e74c3c",
-  fontWeight: "700",
-  fontSize: 14,
-},
+    marginTop: 12,
+    alignSelf: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e74c3c",
+  },
+  logoutText: {
+    color: "#e74c3c",
+    fontWeight: "700",
+    fontSize: 14,
+  },
 });

@@ -1,17 +1,7 @@
 import { Genre } from "@/src/shared/models/videogames/genres";
-import { BASE_URL } from "@/src/shared/constants/baseUrl";
+import { api } from "../fetchClient";
 
-export async function fetchGenres(auth_token: string): Promise<Genre[]> {
-  const response = await fetch(`${BASE_URL}/api/genres`, {
-    headers: {
-      Authorization: `Bearer ${auth_token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
-
-  return response.json();
+export async function fetchGenres(): Promise<Genre[]> {
+  const response = await api.get(`/api/genres`)
+  return response;
 }

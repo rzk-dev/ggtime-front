@@ -1,45 +1,27 @@
-import { BASE_URL } from "@/src/shared/constants/baseUrl";
 import { Videogame } from "@/src/shared/models/videogames/videogame";
 import { VideogameDetail } from "@/src/shared/models/videogames/videogameDetail";
+import { api } from "../fetchClient";
 
 const videogamesAPI = {
-  getById: (id: number) => `${BASE_URL}/api/videogames/${id}`,
+  getById: (id: number) => `/api/videogames/${id}`,
   getAll: (limit: number = 100, offset: number = 0) =>
-    `${BASE_URL}/api/videogames?limit=${limit}&offset=${offset}`,
+    `/api/videogames?limit=${limit}&offset=${offset}`,
 };
 
 export async function getById(
   id: number,
-  auth_token: string,
 ): Promise<VideogameDetail> {
-  const response = await fetch(videogamesAPI.getById(id), {
-    headers: {
-      Authorization: `Bearer ${auth_token}`,
-    },
-  });
+  const response = await api.get(videogamesAPI.getById(id));
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch game details");
-  }
-
-  return response.json();
+  return response;
 }
 
 export async function getAll(
   limit: number,
   offset: number,
-  auth_token: string,
 ): Promise<Videogame[]> {
-  const response = await fetch(videogamesAPI.getAll(limit, offset), {
-    headers: {
-      Authorization: `Bearer ${auth_token}`,
-    },
-  });
+  const url = videogamesAPI.getAll(limit, offset)
+  const response = await api.get(url)
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
-
-  return response.json();
+  return response;
 }

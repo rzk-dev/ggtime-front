@@ -10,13 +10,10 @@ import {
   ActivityIndicator,
   Platform,
 } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
 import { colors } from "@/src/shared/constants/colors";
-import { Companies } from "@/src/shared/models/videogames/involvedCompanies";
 import { simplifyLanguages } from "@/src/shared/models/videogames/languages";
 import { useQuery } from "@tanstack/react-query";
 import { getById } from "../../../lib/api/videogameApi";
-import { useSupabase } from "@/src/lib/SupabaseProvider";
 
 type Props = {
   id: number;
@@ -33,8 +30,7 @@ export default function GameDetailsCard({
   //favorites,
   //onToggleFavorite,
 }: Props) {
-  const { session } = useSupabase();
-  const getVideogameDetails = () => getById(id, session?.access_token ?? "");
+  const getVideogameDetails = () => getById(id)
 
   const { isLoading, data } = useQuery({
     queryKey: ["videogames", id],
@@ -100,9 +96,9 @@ export default function GameDetailsCard({
             <Text style={styles.metaValue}>
               {data?.involvedCompanies?.length
                 ? data?.involvedCompanies
-                    .map((c) => getCompanyName(c))
-                    .filter(Boolean)
-                    .join(", ")
+                  .map((c) => getCompanyName(c))
+                  .filter(Boolean)
+                  .join(", ")
                 : "N/A"}
             </Text>
           </View>
@@ -149,8 +145,8 @@ export default function GameDetailsCard({
           <Text style={styles.languageData}>
             {simplifiedLanguages.length > 0
               ? simplifiedLanguages
-                  .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
-                  .join("\n")
+                .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
+                .join("\n")
               : "N/A"}
           </Text>
         </ScrollView>
