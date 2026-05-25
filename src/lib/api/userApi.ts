@@ -32,7 +32,7 @@ export async function updateUserPreferences(
       Authorization: `Bearer ${auth_token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({preferences}),
+    body: JSON.stringify(preferences),
   });
 
   if (!response.ok) {
@@ -51,7 +51,7 @@ export async function createUserPreferences(
       Authorization: `Bearer ${auth_token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ preferences }),
+    body: JSON.stringify(preferences),
   });
 
   if (!response.ok) {
