@@ -55,7 +55,7 @@ export async function createUserPreferences(
       Authorization: `Bearer ${auth_token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ gamingHours, genres, platforms, languages }),
+    body: JSON.stringify(preferences),
   });
 
   if (!response.ok) {
