@@ -101,9 +101,9 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
           <Text style={styles.title}>User Preferences</Text>
 
           <Pressable onPress={onClose} style={styles.close}>
-          <Text style={styles.closeText}>Close</Text>
+            <Text style={styles.closeText}>Close</Text>
           </Pressable>
-        
+
         </View>
         <View style={styles.divider} />
 
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     backgroundColor: "rgba(0,0,0,0.15)",
     borderRadius: 15,
-    
+
   },
   closeText: {
     color: colors.dark.text,
