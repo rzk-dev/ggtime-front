@@ -21,8 +21,8 @@ import { useSupabase } from "@/src/lib/SupabaseProvider";
 type Props = {
   id: number;
   onClose: () => void;
-  favorites: any[];
-  onToggleFavorite: (game: any) => void;
+  //favorites: any[];
+  //onToggleFavorite: (game: any) => void;
 };
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -30,8 +30,8 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 export default function GameDetailsCard({
   id,
   onClose,
-  favorites,
-  onToggleFavorite,
+  //favorites,
+  //onToggleFavorite,
 }: Props) {
   const { session } = useSupabase();
   const getVideogameDetails = () => getById(id, session?.access_token ?? "");
@@ -58,7 +58,7 @@ export default function GameDetailsCard({
 
   const getCompanyName = (c: any) => c?.company?.name ?? c?.string ?? "";
   const simplifiedLanguages = simplifyLanguages(data?.languageSupports || []);
-  const isFavorite = favorites.some((f) => f.id === data?.id);
+  //const isFavorite = favorites.some((f) => f.id === data?.id);
 
   return (
     <View style={styles.outerWrap}>
@@ -74,7 +74,7 @@ export default function GameDetailsCard({
                 <Text style={styles.closeText}>Close</Text>
               </Pressable>
 
-              <Pressable
+              {/* <Pressable
                 onPress={() => onToggleFavorite(data)}
                 style={styles.favoriteButton}
               >
@@ -83,7 +83,7 @@ export default function GameDetailsCard({
                   size={22}
                   color="#fff"
                 />
-              </Pressable>
+              </Pressable> */}
             </ImageBackground>
           ) : null}
         </View>

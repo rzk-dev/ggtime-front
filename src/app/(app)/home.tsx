@@ -55,6 +55,8 @@ export default function HomeScreen() {
 
   const games = videogamesQuery.data?.pages.flat();
 
+  // Gestionar favoritos
+  /*
   const handleToggleFavorite = (game: any) => {
     if (favorites.some((f) => f.id === game.id)) {
       setFavorites(favorites.filter((f) => f.id !== game.id));
@@ -62,6 +64,7 @@ export default function HomeScreen() {
       setFavorites([...favorites, game]);
     }
   };
+  */
 
   if (videogamesQuery.isLoading) {
     return (
@@ -108,7 +111,7 @@ export default function HomeScreen() {
           </Text>
         </Pressable>
 
-        <Pressable onPress={() => setActiveTab("mygames")}>
+        {/* <Pressable onPress={() => setActiveTab("mygames")}>
           <Text
             style={{
               color: activeTab === "mygames" ? colors.dark.text : "#888",
@@ -117,7 +120,7 @@ export default function HomeScreen() {
           >
             My Games
           </Text>
-        </Pressable>
+        </Pressable> */}
       </View>
 
       {activeTab === "search" ? (
@@ -182,8 +185,8 @@ export default function HomeScreen() {
         <GameDetailsCard
           id={selectedItem ?? 0}
           onClose={() => setDetailVisible(false)}
-          favorites={favorites}
-          onToggleFavorite={handleToggleFavorite}
+          //favorites={favorites}
+          //onToggleFavorite={handleToggleFavorite}
         />
       </Modal>
 
