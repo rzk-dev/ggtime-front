@@ -47,10 +47,7 @@ export async function updateUserPreferences(
 
 export async function createUserPreferences(
   auth_token: string,
-  gamingHours: number, 
-  genres: UserPreference["genres"], 
-  platforms: UserPreference["platforms"], 
-  languages: UserPreference["languages"]
+  preferences: UserPreference
 ): Promise<void> {
   const response = await fetch(`${BASE_URL}/api/user`, {
     method: "POST",
