@@ -23,12 +23,8 @@ export async function fetchUserPreferences(auth_token: string){
 }
 
 export async function updateUserPreferences(
-  auth_token: string,  
-  id: number | null,
-  gamingHours: number, 
-  genres: UserPreference["genres"], 
-  platforms: UserPreference["platforms"], 
-  languages: UserPreference["languages"]
+  auth_token: string,
+  preferences: UserPreference
 ): Promise<void> {
   const response = await fetch(`${BASE_URL}/api/user`, {
     method: "PUT",
@@ -36,7 +32,7 @@ export async function updateUserPreferences(
       Authorization: `Bearer ${auth_token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ id, gamingHours, genres, platforms, languages }),
+    body: JSON.stringify({preferences}),
   });
 
   if (!response.ok) {
@@ -47,10 +43,7 @@ export async function updateUserPreferences(
 
 export async function createUserPreferences(
   auth_token: string,
-  gamingHours: number, 
-  genres: UserPreference["genres"], 
-  platforms: UserPreference["platforms"], 
-  languages: UserPreference["languages"]
+  preferences: UserPreference
 ): Promise<void> {
   const response = await fetch(`${BASE_URL}/api/user`, {
     method: "POST",
@@ -58,7 +51,7 @@ export async function createUserPreferences(
       Authorization: `Bearer ${auth_token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ gamingHours, genres, platforms, languages }),
+    body: JSON.stringify({ preferences }),
   });
 
   if (!response.ok) {
