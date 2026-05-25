@@ -4,7 +4,7 @@ class FetchClient {
   private baseURL: string;
 
   constructor(baseURL: string) {
-    this.baseURL = `http://${baseURL}`
+    this.baseURL = `${baseURL}`
   }
 
   private async getHeaders(extraHeaders: HeadersInit = {}) {
