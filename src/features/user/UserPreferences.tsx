@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
@@ -7,7 +7,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchGenres } from "@/src/lib/api/genreApi";
 import { fetchLanguages } from "@/src/lib/api/languageApi";
-
+import { UserPreference } from "@/src/shared/models/users/userPreferences";
+import { createUserPreferences, fetchUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
+import { queryClient } from "@/src/lib/queryClient";
+import { GamePlatforms } from "@/src/shared/models/videogames/platform";
+import { Genre } from "@/src/shared/models/videogames/genres";
 
 type Props = {
   visible: boolean;
@@ -19,31 +23,72 @@ type Props = {
   }) => void;
 };
 
-const { session } = useSupabase();
-const platforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(session?.access_token ?? "")});
-const genres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(session?.access_token ?? "")});
-const languages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(session?.access_token ?? "")});
-
 export default function UserPreferences({ visible, onClose, onApply }: Props) {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
-  const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
-  const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>("");
+  const { session } = useSupabase();
+  const token = session?.access_token ?? "";
+  const availablePlatforms = useQuery({queryKey: ["platforms"],  queryFn: () => fetchPlatforms(token)});
+  const availableGenres = useQuery({queryKey: ["genres"],  queryFn: () => fetchGenres(token)});
+  const availableLanguages = useQuery({queryKey: ["languages"],  queryFn: () => fetchLanguages(token)});
+  const userPreferencesQuery = useQuery({queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences(token)});
 
-  if (!visible) return null;
+  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>(
+  userPreferencesQuery.data?.platforms.map((p: GamePlatforms) => p.id) ?? []
+  );
+  const [selectedGenres, setSelectedGenres] = useState<number[]>(
+    userPreferencesQuery.data?.genres.map((g: Genre) => g.id) ?? []
+  );
+  const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>(
+    userPreferencesQuery.data?.gamingHours.toString() ?? ""
+  );
 
+  //Por si los datos llegan después de montar el componente
+  useEffect(() => {
+    if (userPreferencesQuery.data) {
+      setSelectedPlatforms(userPreferencesQuery.data.platforms.map((p: GamePlatforms) => p.id));
+      setSelectedGenres(userPreferencesQuery.data.genres.map((g: Genre) => g.id));
+      setWeeklyPlayTime(userPreferencesQuery.data.gamingHours.toString());
+    }
+  }, [userPreferencesQuery.data]);
+  
   const toggleSelection = (
     value: number,
     list: number[],
     setter: React.Dispatch<React.SetStateAction<number[]>>
   ) => {
     if (list.includes(value)) {
-      setter(list.filter((item) => item !== value));
+      setter(list.filter((item) => item !== value)); //Si el valor ya está seleccionado, lo eliminamos de la lista. Si no, lo añadimos
     } else {
-      setter([...list, value]);
+      setter([...list, value]); //Si el valor no está seleccionado, lo añadimos a la lista de seleccionados
     }
   };
 
   const handleApply = () => {
+
+    var selectedGamingHours = 0;
+    if (!isNaN(Number(weeklyPlayTime)) && Number(weeklyPlayTime) > 0) { //Comprobamos si ha introducido horas de juego nuevo
+      selectedGamingHours = Number(weeklyPlayTime);
+    } else {
+      selectedGamingHours = userPreferencesQuery.data?.gamingHours; //Si no ha introducido horas de juego nuevo, mantenemos las horas de juego anteriores
+    }
+
+    const payload: UserPreference = {
+        id: userPreferencesQuery.data?.id ?? null,
+        gamingHours: selectedGamingHours,
+        genres: selectedGenres.map((id) => availableGenres.data?.find((g: Genre) => g.id === id)!),
+        platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p: GamePlatforms) => p.id === id)!),
+        languages: [],
+      };
+
+      const request = userPreferencesQuery.data?.id != null
+      ? updateUserPreferences(token, payload)
+      : createUserPreferences(token, payload);
+
+      request.then(() => {
+      queryClient.invalidateQueries({ queryKey: ["userPreferences"] }); //Invalidamos la consulta de preferencias de usuario para que se vuelva a obtener la información actualizada desde el backend
+      onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
+      onClose();
+  });
+
     onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
     onClose();
   };
@@ -66,7 +111,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
-            {platforms.data?.map((platform) => (
+            {availablePlatforms.data?.map((platform) => (
               <View style={styles.checkboxRow} key={platform.id}>
                 <Checkbox
                   value={selectedPlatforms.includes(platform.id)}
@@ -88,7 +133,7 @@ export default function UserPreferences({ visible, onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
-            {genres.data?.map((genre) => (
+            {availableGenres.data?.map((genre) => (
               <View style={styles.checkboxRow} key={genre.id}>
                 <Checkbox
                   value={selectedGenres.includes(genre.id)}
