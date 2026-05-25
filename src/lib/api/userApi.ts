@@ -1,61 +1,23 @@
-import { BASE_URL } from "@/src/shared/constants/baseUrl";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
+import { api } from "../fetchClient";
 
 
 const usersAPI = {
-  userPreferencesEndpoint: () => `${BASE_URL}/api/user`,
+  userPreferencesEndpoint: () => `/api/user`,
 };
 
-export async function fetchUserPreferences(auth_token: string){
-    const response = await fetch(usersAPI.userPreferencesEndpoint(),
-    {
-        method: 'GET',
-        headers: {
-        Authorization: `Bearer ${auth_token}`,
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error("Failed to fetch user preferences");
-    }
-
-    return response.json();
+export async function fetchUserPreferences() {
+  const url = usersAPI.userPreferencesEndpoint()
+  const response = await api.get(url)
+  return response
 }
 
-export async function updateUserPreferences(
-  auth_token: string,
-  preferences: UserPreference
-): Promise<void> {
-  const response = await fetch(`${BASE_URL}/api/user`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${auth_token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(preferences),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
+export async function updateUserPreferences(preferences: UserPreference): Promise<void> {
+  const url = usersAPI.userPreferencesEndpoint()
+  await api.put(url, preferences)
 }
 
-export async function createUserPreferences(
-  auth_token: string,
-  preferences: UserPreference
-): Promise<void> {
-  const response = await fetch(`${BASE_URL}/api/user`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${auth_token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(preferences),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
+export async function createUserPreferences(preferences: UserPreference): Promise<void> {
+  const url = usersAPI.userPreferencesEndpoint()
+  await api.post(url, preferences);
 }
