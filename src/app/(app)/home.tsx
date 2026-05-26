@@ -15,18 +15,17 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getAll } from "@/src/lib/api/videogameApi";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { getAll, recommendGame } from "@/src/lib/api/videogameApi";
 import GameListCards from "@/src/features/videogames/GameListCards";
 import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/src/features/header/AppHeader";
-import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchUserPreferences } from "@/src/lib/api/userApi";
+import { UserPreference } from "@/src/shared/models/users/userPreferences";
 
 const PAGE_SIZE = 50;
 
 export default function HomeScreen() {
-  const { session } = useSupabase();
 
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
@@ -38,6 +37,16 @@ export default function HomeScreen() {
   useEffect(() => {
     console.log("User preferences query data:", userPreferenesQuery.data);
   }, [userPreferenesQuery.data]);
+
+  const [recommendationVisible, setRecommendationVisible] = useState<boolean>(false);
+
+  const recommendation = useMutation({
+  mutationFn: (preferences: UserPreference) => recommendGame(preferences),
+  onSuccess: (data) => {
+    setSelectedItem(data.id);
+    setRecommendationVisible(true);
+  },
+});
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam);
@@ -189,6 +198,16 @@ export default function HomeScreen() {
         />
       </Modal>
 
+      <Modal visible={recommendationVisible} animationType="fade" transparent>
+        <TouchableWithoutFeedback onPress={() => setRecommendationVisible(false)}>
+          <View style={styles.backdrop} />
+        </TouchableWithoutFeedback>
+        <GameDetailsCard
+          id={selectedItem ?? 0}
+          onClose={() => setRecommendationVisible(false)}
+        />
+      </Modal>
+
       <View
         style={[
           styles.bottomBar,
@@ -196,9 +215,9 @@ export default function HomeScreen() {
       >
         <Pressable
           style={styles.recommendButtonStyle}
-          onPress={() => console.log("Recommend Pressed")}
+          onPress={() => recommendation.mutate(userPreferenesQuery.data!)}
         >
-          <Text style={{ color: colors.dark.background, fontWeight: "bold" }}>
+          <Text style={{ color: colors.dark.text, fontWeight: "bold" }}>
             RECOMMEND A GAME
           </Text>
         </Pressable>
