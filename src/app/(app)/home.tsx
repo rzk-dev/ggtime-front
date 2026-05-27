@@ -46,6 +46,9 @@ export default function HomeScreen() {
     setSelectedItem(data.id);
     setRecommendationVisible(true);
   },
+  onError: (error) => {
+    console.error("Recommendation error:", error);
+  },
 });
 
   const fetchVideogames = ({ pageParam = 0 }) =>
@@ -193,8 +196,6 @@ export default function HomeScreen() {
         <GameDetailsCard
           id={selectedItem ?? 0}
           onClose={() => setDetailVisible(false)}
-        //favorites={favorites}
-        //onToggleFavorite={handleToggleFavorite}
         />
       </Modal>
 
@@ -214,11 +215,18 @@ export default function HomeScreen() {
         ]}
       >
         <Pressable
-          style={styles.recommendButtonStyle}
-          onPress={() => recommendation.mutate(userPreferenesQuery.data!)}
+          style={[
+            styles.recommendButtonStyle,
+            (!userPreferenesQuery.data || recommendation.isPending) && { opacity: 0.5 }
+          ]}
+          onPress={() => {
+            if (!userPreferenesQuery.data) return;
+            recommendation.mutate(userPreferenesQuery.data);
+          }}
+          disabled={!userPreferenesQuery.data || recommendation.isPending}
         >
           <Text style={{ color: colors.dark.text, fontWeight: "bold" }}>
-            RECOMMEND A GAME
+            {recommendation.isPending ? "LOADING..." : "RECOMMEND"}
           </Text>
         </Pressable>
       </View>

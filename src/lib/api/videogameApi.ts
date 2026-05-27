@@ -32,5 +32,6 @@ export async function recommendGame(
   preferences: UserPreference
 ): Promise<VideogameDetail> {
   const response = await api.post(videogamesAPI.recommendation, preferences);
+  console.log("recommendGame response:", JSON.stringify(response));
   return response;
 }
