@@ -22,6 +22,7 @@ import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/src/features/header/AppHeader";
 import { fetchUserPreferences } from "@/src/lib/api/userApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
+import { RecommendGameResponse } from "@/src/shared/models/videogames/RecommendedVideogameDetail";
 
 const PAGE_SIZE = 50;
 
@@ -43,7 +44,7 @@ export default function HomeScreen() {
   const recommendation = useMutation({
   mutationFn: (preferences: UserPreference) => recommendGame(preferences),
   onSuccess: (data) => {
-    setSelectedItem(data.id);
+    setSelectedItem(data.videogameDetails.Id);
     setRecommendationVisible(true);
   },
   onError: (error) => {

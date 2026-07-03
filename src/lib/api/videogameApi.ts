@@ -2,6 +2,7 @@ import { Videogame } from "@/src/shared/models/videogames/videogame";
 import { VideogameDetail } from "@/src/shared/models/videogames/videogameDetail";
 import { api } from "../fetchClient";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
+import { RecommendGameResponse } from "@/src/shared/models/videogames/RecommendedVideogameDetail";
 
 const videogamesAPI = {
   getById: (id: number) => `/api/videogames/${id}`,
@@ -14,6 +15,7 @@ export async function getById(
   id: number,
 ): Promise<VideogameDetail> {
   const response = await api.get(videogamesAPI.getById(id));
+  console.log("getById response:", JSON.stringify(response));
 
   return response;
 }
@@ -30,7 +32,7 @@ export async function getAll(
 
 export async function recommendGame(
   preferences: UserPreference
-): Promise<VideogameDetail> {
+): Promise<RecommendGameResponse> {
   const response = await api.post(videogamesAPI.recommendation, preferences);
   console.log("recommendGame response:", JSON.stringify(response));
   return response;
