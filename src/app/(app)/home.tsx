@@ -22,7 +22,7 @@ import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
 import AppHeader from "@/src/features/header/AppHeader";
 import { fetchUserPreferences } from "@/src/lib/api/userApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
-import { RecommendGameResponse } from "@/src/shared/models/videogames/RecommendedVideogameDetail";
+import { TimeToBeat } from "@/src/shared/models/videogames/timeToBeat";
 
 const PAGE_SIZE = 50;
 
@@ -41,16 +41,20 @@ export default function HomeScreen() {
 
   const [recommendationVisible, setRecommendationVisible] = useState<boolean>(false);
 
+  const [recommendedItem, setRecommendedItem] = useState<number>();
+  const [recommendedTimeToBeat, setRecommendedTimeToBeat] = useState<TimeToBeat>();
+
   const recommendation = useMutation({
-  mutationFn: (preferences: UserPreference) => recommendGame(preferences),
-  onSuccess: (data) => {
-    setSelectedItem(data.videogameDetails.Id);
-    setRecommendationVisible(true);
-  },
-  onError: (error) => {
-    console.error("Recommendation error:", error);
-  },
-});
+    mutationFn: (preferences: UserPreference) => recommendGame(preferences),
+    onSuccess: (data) => {
+      setRecommendedItem(data.videogameDetails.Id);
+      setRecommendedTimeToBeat(data.timeToBeat);
+      setRecommendationVisible(true);
+    },
+    onError: (error) => {
+      console.error("Recommendation error:", error);
+    },
+  });
 
   const fetchVideogames = ({ pageParam = 0 }) =>
     getAll(PAGE_SIZE, pageParam);
@@ -205,7 +209,8 @@ export default function HomeScreen() {
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
         <GameDetailsCard
-          id={selectedItem ?? 0}
+          id={recommendedItem ?? 0}
+          timeToBeat={recommendedTimeToBeat}
           onClose={() => setRecommendationVisible(false)}
         />
       </Modal>

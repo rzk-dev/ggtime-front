@@ -14,10 +14,12 @@ import { colors } from "@/src/shared/constants/colors";
 import { simplifyLanguages } from "@/src/shared/models/videogames/languages";
 import { useQuery } from "@tanstack/react-query";
 import { getById } from "../../../lib/api/videogameApi";
+import { TimeToBeat } from "@/src/shared/models/videogames/timeToBeat";
 
 type Props = {
   id: number;
   onClose: () => void;
+  timeToBeat?: TimeToBeat;
   //favorites: any[];
   //onToggleFavorite: (game: any) => void;
 };
@@ -27,6 +29,7 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 export default function GameDetailsCard({
   id,
   onClose,
+  timeToBeat,
   //favorites,
   //onToggleFavorite,
 }: Props) {
@@ -55,6 +58,15 @@ export default function GameDetailsCard({
   const getCompanyName = (c: any) => c?.company?.name ?? c?.string ?? "";
   const simplifiedLanguages = simplifyLanguages(data?.languageSupports || []);
   //const isFavorite = favorites.some((f) => f.id === data?.id);
+
+  const formatPlaytime = (seconds?: number | null) => {
+    if (!seconds) return "N/A";
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours === 0) return `${minutes}m`;
+    if (minutes === 0) return `${hours}h`;
+    return `${hours}h ${minutes}m`;
+  };
 
   return (
     <View style={styles.outerWrap}>
@@ -114,7 +126,7 @@ export default function GameDetailsCard({
             <Text style={{ ...styles.metaLabel, marginLeft: 10 }}>
               Average playtime:{" "}
             </Text>
-            <Text style={styles.metaValue}>{"N/A"}</Text>
+            <Text style={styles.metaValue}>{formatPlaytime(timeToBeat?.normally)}</Text>
           </View>
 
           <View style={styles.metaRow}>

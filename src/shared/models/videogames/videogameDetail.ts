@@ -3,6 +3,7 @@ import { Companies } from "./involvedCompanies";
 import { GamePlatforms } from "./platform";
 import { Genre } from "./genres";
 import { Languages } from "./languages";
+import { TimeToBeat } from "./timeToBeat";
 
 export type VideogameDetail = {
   id: number;
