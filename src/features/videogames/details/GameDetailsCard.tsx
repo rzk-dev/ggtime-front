@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,56 +7,135 @@ import {
   ScrollView,
   Pressable,
   Dimensions,
-  ActivityIndicator,
   Platform,
+  Animated,
+  PanResponder,
 } from "react-native";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "@/src/shared/constants/colors";
 import { simplifyLanguages } from "@/src/shared/models/videogames/languages";
 import { useQuery } from "@tanstack/react-query";
 import { getById } from "../../../lib/api/videogameApi";
 import { TimeToBeat } from "@/src/shared/models/videogames/timeToBeat";
+import CardSkeleton from "./CardSkeleton";
+import CardErrorState from "./CardErrorState";
 
 type Props = {
   id: number;
   onClose: () => void;
   timeToBeat?: TimeToBeat;
+  isRecommendation?: boolean;
   //favorites: any[];
   //onToggleFavorite: (game: any) => void;
 };
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
+const ESRB_VALUES = ["E", "E10+", "T", "M", "AO", "RP"];
+const PEGI_VALUES = ["3", "7", "12", "16", "18"];
+
 export default function GameDetailsCard({
   id,
   onClose,
   timeToBeat,
+  isRecommendation,
   //favorites,
   //onToggleFavorite,
 }: Props) {
-  const getVideogameDetails = () => getById(id)
+  const [coverLoaded, setCoverLoaded] = useState(false);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [summaryTruncated, setSummaryTruncated] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  const [languagesExpanded, setLanguagesExpanded] = useState(false);
+  const scrollOffsetY = React.useRef(0);
 
-  const { isLoading, data } = useQuery({
+  // Si este componente llega a reutilizarse sin desmontar (p.ej. un carrusel
+  // de detalles en el futuro), evita arrastrar el estado del juego anterior.
+  useEffect(() => {
+    setCoverLoaded(false);
+    setSummaryExpanded(false);
+    setSummaryTruncated(false);
+    setShowScrollHint(true);
+    setLanguagesExpanded(false);
+  }, [id]);
+
+  const getVideogameDetails = () => getById(id);
+
+  const { isLoading, isError, data, refetch } = useQuery({
     queryKey: ["videogames", id],
     queryFn: getVideogameDetails,
   });
 
+  const handleClose = () => {
+    Haptics.selectionAsync();
+    onClose();
+  };
+
+  // ---- Swipe-down-to-dismiss ----
+  // translateY sigue al dedo mientras arrastra; pasado el umbral, cierra;
+  // si no, vuelve a su posición con un pequeño resorte.
+  const translateY = React.useRef(new Animated.Value(0)).current;
+  const DISMISS_THRESHOLD = 120;
+
+  const panResponder = React.useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) =>
+        scrollOffsetY.current <= 0 &&
+        gesture.dy > 6 &&
+        Math.abs(gesture.dy) > Math.abs(gesture.dx),
+      onPanResponderMove: (_, gesture) => {
+        if (gesture.dy > 0) translateY.setValue(gesture.dy);
+      },
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dy > DISMISS_THRESHOLD) {
+          Haptics.selectionAsync();
+          Animated.timing(translateY, {
+            toValue: SCREEN_HEIGHT,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => onClose());
+        } else {
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+            bounciness: 6,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
   if (isLoading) {
+    return <CardSkeleton onClose={handleClose} />;
+  }
+
+  if (isError || !data) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "rgba(25,25,25,0.5)",
-          justifyContent: "center",
-          alignItems: "center",
+      <CardErrorState
+        onRetry={() => {
+          Haptics.selectionAsync();
+          refetch();
         }}
-      >
-        <ActivityIndicator size="large" color="white" />
-      </View>
+        onClose={handleClose}
+      />
     );
   }
 
   const getCompanyName = (c: any) => c?.company?.name ?? c?.string ?? "";
-  const simplifiedLanguages = simplifyLanguages(data?.languageSupports || []);
+
+  const LANGUAGES_COLLAPSED_LIMIT = 8;
+  const simplifiedLanguages = [...simplifyLanguages(data?.languageSupports || [])].sort(
+    (a, b) => {
+      // Primero los que tienen soporte más completo (más tipos: voz, subtítulos, interfaz)
+      if (b.types.length !== a.types.length) return b.types.length - a.types.length;
+      return a.name.localeCompare(b.name);
+    }
+  );
+  const visibleLanguages = languagesExpanded
+    ? simplifiedLanguages
+    : simplifiedLanguages.slice(0, LANGUAGES_COLLAPSED_LIMIT);
+  const hiddenLanguagesCount = simplifiedLanguages.length - visibleLanguages.length;
   //const isFavorite = favorites.some((f) => f.id === data?.id);
 
   const formatPlaytime = (seconds?: number | null) => {
@@ -68,18 +147,55 @@ export default function GameDetailsCard({
     return `${hours}h ${minutes}m`;
   };
 
+  const year = data?.firstReleaseDate
+    ? new Date(data.firstReleaseDate * 1000).getFullYear()
+    : "N/A";
+
+  const esrbRating = data?.ageRatings?.find((r) => ESRB_VALUES.includes(r));
+  const pegiRating = data?.ageRatings?.find((r) => PEGI_VALUES.includes(r));
+
   return (
     <View style={styles.outerWrap}>
-      <View style={[styles.card, { height: SCREEN_HEIGHT * 0.75 }]}>
+      <Animated.View
+        style={[
+          styles.card,
+          { height: SCREEN_HEIGHT * 0.75, transform: [{ translateY }] },
+        ]}
+        {...panResponder.panHandlers}
+      >
+        <View style={styles.dismissHandle} />
+
         <View style={styles.coverContainer}>
+          {!coverLoaded && (
+            <View style={styles.coverPlaceholder}>
+              <View style={styles.coverPulseWrap}>
+                <CoverPulse />
+              </View>
+            </View>
+          )}
+
           {data?.cover?.url ? (
             <ImageBackground
               source={{ uri: data?.cover.url }}
               style={styles.cover}
               resizeMode="cover"
+              onLoadEnd={() => setCoverLoaded(true)}
             >
-              <Pressable onPress={onClose} style={styles.close}>
-                <Text style={styles.closeText}>Close</Text>
+              {isRecommendation && (
+                <View style={styles.recommendedBadge}>
+                  <Text style={styles.recommendedBadgeText}>Recommended for you</Text>
+                </View>
+              )}
+
+              <Pressable
+                onPress={handleClose}
+                style={({ pressed }) => [
+                  styles.closeButton,
+                  pressed && { opacity: 0.6 },
+                ]}
+                hitSlop={10}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
               </Pressable>
 
               {/* <Pressable
@@ -94,14 +210,77 @@ export default function GameDetailsCard({
               </Pressable> */}
             </ImageBackground>
           ) : null}
+
+          {/* Fundido de la portada hacia el color de fondo de la card */}
+          <LinearGradient
+            colors={["transparent", colors.dark.card]}
+            style={styles.coverFade}
+            pointerEvents="none"
+          />
         </View>
 
         <ScrollView
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={true}
+          scrollEventThrottle={16}
+          onScroll={(e) => {
+            const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+            scrollOffsetY.current = contentOffset.y;
+            const distanceToBottom =
+              contentSize.height - layoutMeasurement.height - contentOffset.y;
+            setShowScrollHint(distanceToBottom > 24);
+          }}
+          onContentSizeChange={(_, contentHeight) => {
+            setShowScrollHint(contentHeight > SCREEN_HEIGHT * 0.75 * 0.6);
+          }}
         >
           <Text style={styles.title}>{data?.name}</Text>
+
+          {(esrbRating || pegiRating) ? (
+            <View style={styles.ageBadgeRow}>
+              {esrbRating && (
+                <View style={styles.ageBadge}>
+                  <Text style={styles.ageBadgeLabel}>ESRB</Text>
+                  <Text style={styles.ageBadgeText}>{esrbRating}</Text>
+                </View>
+              )}
+              {pegiRating && (
+                <View style={styles.ageBadge}>
+                  <Text style={styles.ageBadgeLabel}>PEGI</Text>
+                  <Text style={styles.ageBadgeText}>{pegiRating}</Text>
+                </View>
+              )}
+            </View>
+          ) : (
+            <View style={styles.titleSpacer} />
+          )}
+
+          <View style={styles.metaGrid}>
+            <View style={styles.metaItem}>
+              <Text style={styles.metaLabel}>Year</Text>
+              <Text style={styles.metaValue}>{year}</Text>
+            </View>
+
+            <View style={styles.metaItem}>
+              <Text style={styles.metaLabel}>Average Playtime</Text>
+              <Text style={styles.metaValue}>{formatPlaytime(timeToBeat?.normally)}</Text>
+            </View>
+
+            <View style={styles.metaItem}>
+              <Text style={styles.metaLabel}>Genres</Text>
+              <Text style={styles.metaValue}>
+                {data?.genres?.map((g) => (g as any).name || g).join(", ") || "N/A"}
+              </Text>
+            </View>
+
+            <View style={styles.metaItem}>
+              <Text style={styles.metaLabel}>Available Platforms</Text>
+              <Text style={styles.metaValue}>
+                {data?.platforms?.map((p) => p.name).join(", ") || "N/A"}
+              </Text>
+            </View>
+          </View>
 
           <View style={styles.metaRow}>
             <Text style={styles.metaLabel}>Publisher: </Text>
@@ -115,54 +294,82 @@ export default function GameDetailsCard({
             </Text>
           </View>
 
-          <View style={styles.metaRow}>
-            <Text style={styles.metaLabel}>Year: </Text>
-            <Text style={styles.metaValue}>
-              {data?.firstReleaseDate
-                ? new Date(data?.firstReleaseDate * 1000).getFullYear()
-                : "N/A"}
-            </Text>
-
-            <Text style={{ ...styles.metaLabel, marginLeft: 10 }}>
-              Average playtime:{" "}
-            </Text>
-            <Text style={styles.metaValue}>{formatPlaytime(timeToBeat?.normally)}</Text>
-          </View>
-
-          <View style={styles.metaRow}>
-            <Text style={styles.metaLabel}>Genres: </Text>
-            <Text style={styles.metaValue}>
-              {data?.genres?.map((g) => (g as any).name || g).join(", ") ||
-                "N/A"}
-            </Text>
-          </View>
-
-          <View style={styles.metaRow}>
-            <Text style={[styles.metaLabel]}>Platform: </Text>
-            <Text style={styles.metaValue}>
-              {data?.platforms?.map((p) => p.name).join(", ") || "N/A"}
-            </Text>
-          </View>
-
           <View style={styles.divider} />
 
           <Text style={styles.sectionTitle}>Summary</Text>
-          <Text style={styles.summaryText}>
+          <Text
+            style={styles.summaryText}
+            numberOfLines={summaryExpanded ? undefined : 4}
+            onTextLayout={(e) => {
+              if (!summaryExpanded && e.nativeEvent.lines.length >= 4) {
+                setSummaryTruncated(true);
+              }
+            }}
+          >
             {data?.summary || "No summary available."}
           </Text>
+          {summaryTruncated && (
+            <Pressable
+              onPress={() => {
+                Haptics.selectionAsync();
+                setSummaryExpanded((prev) => !prev);
+              }}
+              hitSlop={6}
+              style={({ pressed }) => pressed && { opacity: 0.6 }}
+            >
+              <Text style={styles.showMoreText}>
+                {summaryExpanded ? "Show less" : "Show more..."}
+              </Text>
+            </Pressable>
+          )}
 
           <View style={styles.divider} />
 
           <Text style={[styles.sectionTitle]}>Languages</Text>
-          <Text style={styles.languageData}>
-            {simplifiedLanguages.length > 0
-              ? simplifiedLanguages
-                .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
-                .join("\n")
-              : "N/A"}
-          </Text>
+          <View style={styles.languageChipsWrap}>
+            {visibleLanguages.length > 0 ? (
+              visibleLanguages.map((lang) => (
+                <View key={lang.name} style={styles.languageChip}>
+                  <Text style={styles.languageChipName}>{lang.name}</Text>
+                  <Text style={styles.languageChipTypes}>{lang.types.join(" · ")}</Text>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.languageData}>N/A</Text>
+            )}
+          </View>
+          {hiddenLanguagesCount > 0 && (
+            <Pressable
+              onPress={() => {
+                Haptics.selectionAsync();
+                setLanguagesExpanded(true);
+              }}
+              hitSlop={6}
+              style={({ pressed }) => pressed && { opacity: 0.6 }}
+            >
+              <Text style={styles.showMoreText}>+{hiddenLanguagesCount} more</Text>
+            </Pressable>
+          )}
         </ScrollView>
-      </View>
+
+        {showScrollHint && (
+          <LinearGradient
+            colors={["transparent", colors.dark.card]}
+            style={styles.scrollHint}
+            pointerEvents="none"
+          />
+        )}
+      </Animated.View>
+    </View>
+  );
+}
+
+function CoverPulse() {
+  return (
+    <View style={styles.coverDotsRow}>
+      <View style={styles.coverDot} />
+      <View style={[styles.coverDot, { opacity: 0.6 }]} />
+      <View style={[styles.coverDot, { opacity: 0.3 }]} />
     </View>
   );
 }
@@ -195,24 +402,91 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 14,
     borderTopRightRadius: 14,
     overflow: "hidden",
+    height: SCREEN_HEIGHT * 0.32,
+    position: "relative",
+  },
+  dismissHandle: {
+    position: "absolute",
+    top: 8,
+    alignSelf: "center",
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    zIndex: 10,
+  },
+  coverFade: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 56,
+  },
+  scrollHint: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 28,
+  },
+  coverPlaceholder: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  coverPulseWrap: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  coverDotsRow: {
+    flexDirection: "row",
+    gap: 6,
+  },
+  coverDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(255,255,255,0.6)",
   },
   cover: {
     width: "100%",
-    aspectRatio: 1,
+    height: "100%",
     justifyContent: "flex-start",
     alignItems: "flex-end",
   },
-  close: {
-    backgroundColor: "rgba(0,0,0,0.4)",
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    margin: 8,
-    borderRadius: 10,
+  closeButton: {
+    backgroundColor: "rgba(0,0,0,0.45)",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    margin: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  closeText: {
+  closeButtonText: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
+    lineHeight: 17,
+  },
+  recommendedBadge: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    backgroundColor: colors.dark.tint,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+  },
+  recommendedBadgeText: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "700",
   },
   favoriteButton: {
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -226,34 +500,78 @@ const styles = StyleSheet.create({
   content: {
     backgroundColor: "transparent",
     paddingHorizontal: 14,
+    marginTop: -12,
   },
   contentContainer: {
     paddingBottom: 24,
   },
   title: {
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: "800",
     color: colors.dark.text,
     textAlign: "center",
-    marginBottom: 5,
-    marginTop: 5,
+    marginBottom: 2,
+  },
+  titleSpacer: {
+    height: 8,
+  },
+  ageBadgeRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 6,
+    marginBottom: 12,
+  },
+  ageBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  ageBadgeLabel: {
+    color: colors.dark.text,
+    fontSize: 9,
+    fontWeight: "700",
+    opacity: 0.6,
+  },
+  ageBadgeText: {
+    color: colors.dark.text,
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  metaGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 4,
+  },
+  metaItem: {
+    width: "50%",
+    marginBottom: 10,
+    paddingRight: 8,
   },
   metaRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
+    marginTop: 2,
+    marginBottom: 6,
   },
   metaLabel: {
     color: colors.dark.text,
     fontSize: 12,
-    opacity: 0.85,
+    opacity: 0.6,
     fontWeight: "700",
+    textTransform: "uppercase",
+    marginBottom: 2,
   },
   metaValue: {
     color: colors.dark.text,
-    fontSize: 12,
-    opacity: 0.9,
-    fontWeight: "400",
+    fontSize: 13,
+    opacity: 0.95,
+    fontWeight: "500",
   },
   divider: {
     height: 1,
@@ -271,6 +589,35 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 20,
     opacity: 0.95,
+  },
+  showMoreText: {
+    color: "#4FC3F7",
+    fontSize: 12,
+    fontWeight: "700",
+    marginTop: 4,
+  },
+  languageChipsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  languageChip: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderRadius: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    marginBottom: 8,
+  },
+  languageChipName: {
+    color: colors.dark.text,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  languageChipTypes: {
+    color: colors.dark.text,
+    fontSize: 11,
+    opacity: 0.7,
+    marginTop: 2,
   },
   languageData: {
     color: colors.dark.text,

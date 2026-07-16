@@ -1,3 +1,5 @@
+import { AgeRating } from "./ageRating";
+
 export type RecommendedVideogameDetail = {
   Id: number;
   Name: string;
@@ -12,4 +14,5 @@ export type TimeToBeat = {
 export type RecommendGameResponse = {
   videogameDetails: RecommendedVideogameDetail;
   timeToBeat: TimeToBeat;
+  AgeRatings: AgeRating[];
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -10,6 +10,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
+import * as Haptics from "expo-haptics"; // npx expo install expo-haptics
 import { colors } from "@/src/shared/constants/colors";
 import {
   SafeAreaView,
@@ -23,41 +24,52 @@ import AppHeader from "@/src/features/header/AppHeader";
 import { fetchUserPreferences } from "@/src/lib/api/userApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
 import { TimeToBeat } from "@/src/shared/models/videogames/timeToBeat";
+import GameListSkeleton from "@/src/features/videogames/GameListSkeleton";
+import EmptyState from "@/src/shared/EmptyState";
+import Toast from "@/src/shared/Toast";
 
 const PAGE_SIZE = 50;
 
 export default function HomeScreen() {
-
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
   const [favorites, setFavorites] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
-  const userPreferenesQuery = useQuery({ queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences() });
 
-  useEffect(() => {
-    console.log("User preferences query data:", userPreferenesQuery.data);
-  }, [userPreferenesQuery.data]);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setToastVisible(true);
+  };
+
+  const userPreferenesQuery = useQuery({
+    queryKey: ["userPreferences"],
+    queryFn: () => fetchUserPreferences(),
+  });
 
   const [recommendationVisible, setRecommendationVisible] = useState<boolean>(false);
-
   const [recommendedItem, setRecommendedItem] = useState<number>();
   const [recommendedTimeToBeat, setRecommendedTimeToBeat] = useState<TimeToBeat>();
 
   const recommendation = useMutation({
     mutationFn: (preferences: UserPreference) => recommendGame(preferences),
     onSuccess: (data) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setRecommendedItem(data.videogameDetails.Id);
       setRecommendedTimeToBeat(data.timeToBeat);
       setRecommendationVisible(true);
     },
     onError: (error) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       console.error("Recommendation error:", error);
+      Alert.alert("Error", "Failed to get recommendation. Please try again.");
     },
   });
 
-  const fetchVideogames = ({ pageParam = 0 }) =>
-    getAll(PAGE_SIZE, pageParam);
+  const fetchVideogames = ({ pageParam = 0 }) => getAll(PAGE_SIZE, pageParam);
 
   const videogamesQuery = useInfiniteQuery({
     queryKey: ["videogames"],
@@ -69,32 +81,48 @@ export default function HomeScreen() {
     refetchOnWindowFocus: false,
   });
 
-  const games = videogamesQuery.data?.pages.flat();
+  const games = videogamesQuery.data?.pages.flat() ?? [];
 
-  // Gestionar favoritos
-  /*
-  const handleToggleFavorite = (game: any) => {
-    if (favorites.some((f) => f.id === game.id)) {
-      setFavorites(favorites.filter((f) => f.id !== game.id));
-    } else {
-      setFavorites([...favorites, game]);
-    }
+  const handleCardPress = (id: number) => {
+    Haptics.selectionAsync();
+    setSelectedItem(id);
+    setDetailVisible(true);
   };
-  */
 
+  const handleRecommendPress = () => {
+    if (!userPreferenesQuery.data) {
+      showToast("Configura tus preferencias primero para recibir una recomendación");
+      return;
+    }
+    Haptics.selectionAsync();
+    recommendation.mutate(userPreferenesQuery.data);
+  };
+
+  // ---- Loading state con skeleton ----
   if (videogamesQuery.isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.dark.background }}>
+        <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+        <AppHeader title="" onUserPress={() => console.log("Perfil")} />
+        <GameListSkeleton count={15} />
+      </SafeAreaView>
     );
   }
 
+  // ---- Error state con reintentar ----
   if (videogamesQuery.isError) {
     return (
-      <View style={styles.center}>
-        <Text>{videogamesQuery.error?.toString()}</Text>
-      </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.dark.background }}>
+        <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+        <AppHeader title="" onUserPress={() => console.log("Perfil")} />
+        <EmptyState
+          icon="⚠️"
+          title="No pudimos cargar los juegos"
+          subtitle="Revisa tu conexión a internet e inténtalo de nuevo."
+          actionLabel="Reintentar"
+          onAction={() => videogamesQuery.refetch()}
+        />
+      </SafeAreaView>
     );
   }
 
@@ -127,7 +155,7 @@ export default function HomeScreen() {
           </Text>
         </Pressable>
 
-        {/* <Pressable onPress={() => setActiveTab("mygames")}>
+        <Pressable onPress={() => setActiveTab("mygames")}>
           <Text
             style={{
               color: activeTab === "mygames" ? colors.dark.text : "#888",
@@ -136,7 +164,7 @@ export default function HomeScreen() {
           >
             My Games
           </Text>
-        </Pressable> */}
+        </Pressable>
       </View>
 
       {activeTab === "search" ? (
@@ -145,16 +173,17 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.container,
+            games.length === 0 && { flex: 1 },
             { paddingBottom: 90 + insets.bottom },
           ]}
           data={games}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <Pressable
-              onPress={() => {
-                setSelectedItem(item.id);
-                setDetailVisible(true);
-              }}
+              onPress={() => handleCardPress(item.id)}
+              style={({ pressed }) => [
+                pressed && styles.cardPressed,
+              ]}
             >
               <GameListCards videogame={item} />
             </Pressable>
@@ -166,8 +195,19 @@ export default function HomeScreen() {
             videogamesQuery.fetchNextPage()
           }
           onEndReachedThreshold={0.5}
+          refreshing={videogamesQuery.isRefetching}
+          onRefresh={() => videogamesQuery.refetch()}
+          ListEmptyComponent={
+            <EmptyState
+              icon="🔍"
+              title="No encontramos juegos"
+              subtitle="Prueba ajustando los filtros o vuelve más tarde."
+            />
+          }
           ListFooterComponent={
-            videogamesQuery.isFetchingNextPage ? <ActivityIndicator /> : null
+            videogamesQuery.isFetchingNextPage ? (
+              <GameListSkeleton count={3} />
+            ) : null
           }
         />
       ) : (
@@ -176,25 +216,38 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.container,
+            favorites.length === 0 && { flex: 1 },
             { paddingBottom: 90 + insets.bottom },
           ]}
           data={favorites}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <Pressable
-              onPress={() => {
-                setSelectedItem(item.id);
-                setDetailVisible(true);
-              }}
+              onPress={() => handleCardPress(item.id)}
+              style={({ pressed }) => [
+                pressed && styles.cardPressed,
+              ]}
             >
               <GameListCards videogame={item} />
             </Pressable>
           )}
           numColumns={3}
+          ListEmptyComponent={
+            <EmptyState
+              icon="⭐"
+              title="Aún no tienes juegos guardados"
+              subtitle="Los juegos que marques como favoritos aparecerán aquí."
+            />
+          }
         />
       )}
 
-      <Modal visible={detailVisible} animationType="fade" transparent>
+      <Modal
+        visible={detailVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setDetailVisible(false)}
+      >
         <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
@@ -204,38 +257,45 @@ export default function HomeScreen() {
         />
       </Modal>
 
-      <Modal visible={recommendationVisible} animationType="fade" transparent>
+      <Modal
+        visible={recommendationVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setRecommendationVisible(false)}
+      >
         <TouchableWithoutFeedback onPress={() => setRecommendationVisible(false)}>
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
         <GameDetailsCard
           id={recommendedItem ?? 0}
           timeToBeat={recommendedTimeToBeat}
+          isRecommendation
           onClose={() => setRecommendationVisible(false)}
         />
       </Modal>
 
-      <View
-        style={[
-          styles.bottomBar,
-        ]}
-      >
+      <View style={styles.bottomBar}>
         <Pressable
-          style={[
+          style={({ pressed }) => [
             styles.recommendButtonStyle,
-            (!userPreferenesQuery.data || recommendation.isPending) && { opacity: 0.5 }
+            recommendation.isPending && { opacity: 0.7 },
+            pressed && !recommendation.isPending && { opacity: 0.85, transform: [{ scale: 0.98 }] },
           ]}
-          onPress={() => {
-            if (!userPreferenesQuery.data) return;
-            recommendation.mutate(userPreferenesQuery.data);
-          }}
-          disabled={!userPreferenesQuery.data || recommendation.isPending}
+          onPress={handleRecommendPress}
+          disabled={recommendation.isPending}
         >
           <Text style={{ color: colors.dark.text, fontWeight: "bold" }}>
             {recommendation.isPending ? "LOADING..." : "RECOMMEND"}
           </Text>
         </Pressable>
       </View>
+
+      <Toast
+        visible={toastVisible}
+        message={toastMessage}
+        onHide={() => setToastVisible(false)}
+        bottomOffset={100 + insets.bottom}
+      />
     </SafeAreaView>
   );
 }
@@ -248,6 +308,10 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: colors.dark.background,
+  },
+  cardPressed: {
+    opacity: 0.6,
+    transform: [{ scale: 0.97 }],
   },
   backdrop: {
     position: "absolute",
