@@ -26,8 +26,6 @@ type Props = {
   onClose: () => void;
   timeToBeat?: TimeToBeat;
   isRecommendation?: boolean;
-  //favorites: any[];
-  //onToggleFavorite: (game: any) => void;
 };
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -40,18 +38,13 @@ export default function GameDetailsCard({
   onClose,
   timeToBeat,
   isRecommendation,
-  //favorites,
-  //onToggleFavorite,
 }: Props) {
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [summaryTruncated, setSummaryTruncated] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [languagesExpanded, setLanguagesExpanded] = useState(false);
-  const scrollOffsetY = React.useRef(0);
 
-  // Si este componente llega a reutilizarse sin desmontar (p.ej. un carrusel
-  // de detalles en el futuro), evita arrastrar el estado del juego anterior.
   useEffect(() => {
     setCoverLoaded(false);
     setSummaryExpanded(false);
@@ -72,18 +65,17 @@ export default function GameDetailsCard({
     onClose();
   };
 
-  // ---- Swipe-down-to-dismiss ----
-  // translateY sigue al dedo mientras arrastra; pasado el umbral, cierra;
-  // si no, vuelve a su posición con un pequeño resorte.
   const translateY = React.useRef(new Animated.Value(0)).current;
   const DISMISS_THRESHOLD = 120;
 
   const panResponder = React.useRef(
     PanResponder.create({
+      onStartShouldSetPanResponderCapture: () => false,
+      onMoveShouldSetPanResponderCapture: (_, gesture) =>
+        Math.abs(gesture.dy) > 4 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
       onMoveShouldSetPanResponder: (_, gesture) =>
-        scrollOffsetY.current <= 0 &&
-        gesture.dy > 6 &&
-        Math.abs(gesture.dy) > Math.abs(gesture.dx),
+        Math.abs(gesture.dy) > 4 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
+      onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (_, gesture) => {
         if (gesture.dy > 0) translateY.setValue(gesture.dy);
       },
@@ -127,7 +119,6 @@ export default function GameDetailsCard({
   const LANGUAGES_COLLAPSED_LIMIT = 8;
   const simplifiedLanguages = [...simplifyLanguages(data?.languageSupports || [])].sort(
     (a, b) => {
-      // Primero los que tienen soporte más completo (más tipos: voz, subtítulos, interfaz)
       if (b.types.length !== a.types.length) return b.types.length - a.types.length;
       return a.name.localeCompare(b.name);
     }
@@ -136,7 +127,6 @@ export default function GameDetailsCard({
     ? simplifiedLanguages
     : simplifiedLanguages.slice(0, LANGUAGES_COLLAPSED_LIMIT);
   const hiddenLanguagesCount = simplifiedLanguages.length - visibleLanguages.length;
-  //const isFavorite = favorites.some((f) => f.id === data?.id);
 
   const formatPlaytime = (seconds?: number | null) => {
     if (!seconds) return "N/A";
@@ -161,11 +151,10 @@ export default function GameDetailsCard({
           styles.card,
           { height: SCREEN_HEIGHT * 0.75, transform: [{ translateY }] },
         ]}
-        {...panResponder.panHandlers}
       >
-        <View style={styles.dismissHandle} />
+        <View style={styles.dismissHandle} {...panResponder.panHandlers} />
 
-        <View style={styles.coverContainer}>
+        <View style={styles.coverContainer} {...panResponder.panHandlers}>
           {!coverLoaded && (
             <View style={styles.coverPlaceholder}>
               <View style={styles.coverPulseWrap}>
@@ -197,21 +186,9 @@ export default function GameDetailsCard({
               >
                 <Text style={styles.closeButtonText}>✕</Text>
               </Pressable>
-
-              {/* <Pressable
-                onPress={() => onToggleFavorite(data)}
-                style={styles.favoriteButton}
-              >
-                <FontAwesome
-                  name={isFavorite ? "heart" : "heart-o"}
-                  size={22}
-                  color="#fff"
-                />
-              </Pressable> */}
             </ImageBackground>
           ) : null}
 
-          {/* Fundido de la portada hacia el color de fondo de la card */}
           <LinearGradient
             colors={["transparent", colors.dark.card]}
             style={styles.coverFade}
@@ -226,7 +203,6 @@ export default function GameDetailsCard({
           scrollEventThrottle={16}
           onScroll={(e) => {
             const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
-            scrollOffsetY.current = contentOffset.y;
             const distanceToBottom =
               contentSize.height - layoutMeasurement.height - contentOffset.y;
             setShowScrollHint(distanceToBottom > 24);
@@ -263,7 +239,7 @@ export default function GameDetailsCard({
             </View>
 
             <View style={styles.metaItem}>
-              <Text style={styles.metaLabel}>Average Playtime</Text>
+              <Text style={styles.metaLabel}>Playtime</Text>
               <Text style={styles.metaValue}>{formatPlaytime(timeToBeat?.normally)}</Text>
             </View>
 
@@ -275,7 +251,7 @@ export default function GameDetailsCard({
             </View>
 
             <View style={styles.metaItem}>
-              <Text style={styles.metaLabel}>Available Platforms</Text>
+              <Text style={styles.metaLabel}>Platform</Text>
               <Text style={styles.metaValue}>
                 {data?.platforms?.map((p) => p.name).join(", ") || "N/A"}
               </Text>
@@ -506,7 +482,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   title: {
-    fontSize: 21,
+    fontSize: 18,
     fontWeight: "800",
     color: colors.dark.text,
     textAlign: "center",
