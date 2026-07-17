@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  TextInput,
+  ActivityIndicator,
+} from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
 import { fetchPlatforms } from "@/src/lib/api/platformApi";
 import { useQuery } from "@tanstack/react-query";
-import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { fetchGenres } from "@/src/lib/api/genreApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
 import { createUserPreferences, fetchUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
@@ -23,7 +30,6 @@ type Props = {
 };
 
 export default function UserPreferences({ onClose, onApply }: Props) {
-  const { signout } = useSupabase();
   const availablePlatforms = useQuery({ queryKey: ["platforms"], queryFn: () => fetchPlatforms() });
   const availableGenres = useQuery({ queryKey: ["genres"], queryFn: () => fetchGenres() });
   const userPreferencesQuery = useQuery({ queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences() });
@@ -38,7 +44,10 @@ export default function UserPreferences({ onClose, onApply }: Props) {
     userPreferencesQuery.data?.gamingHours.toString() ?? ""
   );
 
-  // Synchronize data if they come after the component is mounted
+  const [playTimeError, setPlayTimeError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   useEffect(() => {
     if (userPreferencesQuery.data) {
       setSelectedPlatforms(userPreferencesQuery.data.platforms.map((p: GamePlatforms) => p.id));
@@ -59,121 +68,177 @@ export default function UserPreferences({ onClose, onApply }: Props) {
     }
   };
 
-  const handleLogout = () => {
-    queryClient.clear();
-    signout();
-  };
+  const handleApply = async () => {
+    setSaveError(null);
 
-  const handleApply = () => {
+    const trimmedPlayTime = weeklyPlayTime.trim();
+    const parsedPlayTime = Number(trimmedPlayTime);
 
-    var selectedGamingHours = 0;
-    if (!isNaN(Number(weeklyPlayTime)) && Number(weeklyPlayTime) > 0) {
-      selectedGamingHours = Number(weeklyPlayTime);
-    } else {
-      selectedGamingHours = userPreferencesQuery.data?.gamingHours;
+    if (trimmedPlayTime.length === 0 || isNaN(parsedPlayTime) || parsedPlayTime <= 0) {
+      setPlayTimeError("Enter a valid number greater than 0");
+      return;
     }
+    setPlayTimeError(null);
 
     const payload: UserPreference = {
       id: userPreferencesQuery.data?.id ?? null,
-      gamingHours: selectedGamingHours,
+      gamingHours: parsedPlayTime,
       genres: selectedGenres.map((id) => availableGenres.data?.find((g: Genre) => g.id === id)!),
       platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p: GamePlatforms) => p.id === id)!),
       languages: [],
     };
 
-    const request = userPreferencesQuery.data?.id != null
-      ? updateUserPreferences(payload)
-      : createUserPreferences(payload);
+    setIsSaving(true);
+    try {
+      if (userPreferencesQuery.data?.id != null) {
+        await updateUserPreferences(payload);
+      } else {
+        await createUserPreferences(payload);
+      }
 
-    request.then(() => {
-      queryClient.invalidateQueries({ queryKey: ["userPreferences"] });
-      onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
+      await queryClient.invalidateQueries({ queryKey: ["userPreferences"] });
+      onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime: trimmedPlayTime });
       onClose();
-    });
-
-    onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
-    onClose();
+    } catch (error) {
+      console.error("Error saving user preferences:", error);
+      setSaveError("Couldn't save your preferences. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <View style={styles.overlay}>
       <View style={styles.panel}>
 
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View style={styles.headerRow}>
           <Text style={styles.title}>User Preferences</Text>
-
-          <Pressable onPress={onClose} style={styles.close}>
-            <Text style={styles.closeText}>Close</Text>
+          <Pressable
+            onPress={onClose}
+            style={({ pressed }) => [styles.closeButton, pressed && { opacity: 0.6 }]}
+            hitSlop={10}
+          >
+            <Text style={styles.closeButtonText}>✕</Text>
           </Pressable>
-
         </View>
         <View style={styles.divider} />
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
 
-          <Text style={styles.sectionTitle}>Platforms</Text>
-          <View style={styles.checkboxContainer}>
-            {availablePlatforms.data?.map((platform) => (
-              <View style={styles.checkboxRow} key={platform.id}>
-                <Checkbox
-                  value={selectedPlatforms.includes(platform.id)}
-                  onValueChange={() =>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>Platforms</Text>
+            {selectedPlatforms.length > 0 && (
+              <Text style={styles.selectionCount}>{selectedPlatforms.length} selected</Text>
+            )}
+          </View>
+
+          {availablePlatforms.isLoading ? (
+            <ActivityIndicator color={colors.dark.text} style={styles.sectionLoading} />
+          ) : (
+            <View style={styles.checkboxContainer}>
+              {availablePlatforms.data?.map((platform) => (
+                <Pressable
+                  key={platform.id}
+                  style={styles.checkboxRow}
+                  onPress={() =>
                     toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
                   }
-                  color={
-                    selectedPlatforms.includes(platform.id)
-                      ? colors.dark.addButton
-                      : colors.dark.text
-                  }
-                />
-                <Text style={styles.checkboxLabel}>{platform.name}</Text>
-              </View>
-            ))}
-          </View>
+                >
+                  <Checkbox
+                    value={selectedPlatforms.includes(platform.id)}
+                    onValueChange={() =>
+                      toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
+                    }
+                    color={
+                      selectedPlatforms.includes(platform.id)
+                        ? colors.dark.addButton
+                        : colors.dark.text
+                    }
+                  />
+                  <Text style={styles.checkboxLabel}>{platform.name}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
 
           <View style={styles.divider} />
 
-          <Text style={styles.sectionTitle}>Genres</Text>
-          <View style={styles.checkboxContainer}>
-            {availableGenres.data?.map((genre) => (
-              <View style={styles.checkboxRow} key={genre.id}>
-                <Checkbox
-                  value={selectedGenres.includes(genre.id)}
-                  onValueChange={() =>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>Genres</Text>
+            {selectedGenres.length > 0 && (
+              <Text style={styles.selectionCount}>{selectedGenres.length} selected</Text>
+            )}
+          </View>
+
+          {availableGenres.isLoading ? (
+            <ActivityIndicator color={colors.dark.text} style={styles.sectionLoading} />
+          ) : (
+            <View style={styles.checkboxContainer}>
+              {availableGenres.data?.map((genre) => (
+                <Pressable
+                  key={genre.id}
+                  style={styles.checkboxRow}
+                  onPress={() =>
                     toggleSelection(genre.id, selectedGenres, setSelectedGenres)
                   }
-                  color={
-                    selectedGenres.includes(genre.id)
-                      ? colors.dark.addButton
-                      : colors.dark.text
-                  }
-                />
-                <Text style={styles.checkboxLabel}>{genre.name}</Text>
-              </View>
-            ))}
-          </View>
+                >
+                  <Checkbox
+                    value={selectedGenres.includes(genre.id)}
+                    onValueChange={() =>
+                      toggleSelection(genre.id, selectedGenres, setSelectedGenres)
+                    }
+                    color={
+                      selectedGenres.includes(genre.id)
+                        ? colors.dark.addButton
+                        : colors.dark.text
+                    }
+                  />
+                  <Text style={styles.checkboxLabel}>{genre.name}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
 
           <Text style={styles.sectionTitle}>Weekly Play Time (hours)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, playTimeError && styles.inputError]}
             value={weeklyPlayTime}
-            onChangeText={setWeeklyPlayTime}
+            onChangeText={(text) => {
+              setWeeklyPlayTime(text);
+              if (playTimeError) setPlayTimeError(null);
+            }}
             keyboardType="numeric"
             placeholder="e.g. 10"
             placeholderTextColor="#888"
           />
+          {playTimeError && <Text style={styles.errorText}>{playTimeError}</Text>}
+
+          {saveError && (
+            <View style={styles.saveErrorBox}>
+              <Text style={styles.saveErrorText}>{saveError}</Text>
+            </View>
+          )}
 
           <View style={styles.buttonRow}>
-            <Pressable onPress={onClose} style={[styles.button, styles.cancelButton]}>
+            <Pressable
+              onPress={onClose}
+              style={[styles.button, styles.cancelButton]}
+              disabled={isSaving}
+            >
               <Text style={styles.buttonText}>Cancel</Text>
             </Pressable>
-            <Pressable onPress={handleApply} style={[styles.button, styles.applyButton]}>
-              <Text style={styles.buttonText}>Apply</Text>
+            <Pressable
+              onPress={handleApply}
+              style={[styles.button, styles.applyButton, isSaving && { opacity: 0.7 }]}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.buttonText}>Apply</Text>
+              )}
             </Pressable>
           </View>
-          <Pressable onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </Pressable>
         </ScrollView>
       </View>
     </View>
@@ -203,25 +268,40 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 16,
   },
-  close: {
-    alignSelf: "flex-start",
-    padding: 8,
-    marginBottom: 8,
-    backgroundColor: "rgba(0,0,0,0.15)",
-    borderRadius: 15,
-
-  },
-  closeText: {
-    color: colors.dark.text,
-    fontSize: 14,
-    fontWeight: "500",
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
   },
   title: {
+    flex: 1,
     fontSize: 18,
     fontWeight: "700",
     color: colors.dark.text,
-    marginBottom: 12,
     textAlign: "center",
+    marginLeft: 28,
+  },
+  closeButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButtonText: {
+    color: colors.dark.text,
+    fontSize: 14,
+    fontWeight: "700",
+    lineHeight: 14,
+  },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 16,
+    marginBottom: 8,
   },
   sectionTitle: {
     fontSize: 14,
@@ -230,6 +310,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
     textAlign: "left",
+  },
+  selectionCount: {
+    fontSize: 12,
+    color: colors.dark.addButton,
+    fontWeight: "600",
+  },
+  sectionLoading: {
+    marginVertical: 16,
   },
   checkboxContainer: {
     flexDirection: "row",
@@ -242,6 +330,7 @@ const styles = StyleSheet.create({
     width: "45%",
     marginVertical: 4,
     marginRight: "5%",
+    paddingVertical: 4,
   },
   checkboxLabel: {
     marginLeft: 8,
@@ -249,12 +338,34 @@ const styles = StyleSheet.create({
     color: colors.dark.text,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: "rgba(255,255,255,0.08)",
     borderRadius: 8,
-    padding: 8,
+    padding: 10,
     fontSize: 14,
     marginTop: 6,
+    marginBottom: 4,
+    color: colors.dark.text,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  inputError: {
+    borderColor: "#e74c3c",
+  },
+  errorText: {
+    color: "#e74c3c",
+    fontSize: 12,
     marginBottom: 12,
+  },
+  saveErrorBox: {
+    backgroundColor: "rgba(231,76,60,0.12)",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+  },
+  saveErrorText: {
+    color: "#e74c3c",
+    fontSize: 13,
+    textAlign: "center",
   },
   buttonRow: {
     flexDirection: "row",
@@ -266,6 +377,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     marginLeft: 8,
+    minWidth: 72,
+    alignItems: "center",
+    justifyContent: "center",
   },
   cancelButton: {
     backgroundColor: "#666",
@@ -281,19 +395,5 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "rgba(255,255,255,0.06)",
     marginVertical: 5,
-  },
-  logoutButton: {
-    marginTop: 12,
-    alignSelf: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#e74c3c",
-  },
-  logoutText: {
-    color: "#e74c3c",
-    fontWeight: "700",
-    fontSize: 14,
   },
 });
