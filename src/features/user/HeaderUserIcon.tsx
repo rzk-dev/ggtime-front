@@ -43,8 +43,7 @@ export default function HeaderUserIcon({ onPress }: Props) {
           onPress: () => {
             queryClient.clear();
             signout();
-            // Anade aqui lo que necesites gestionar al cerrar sesion
-            // (limpiar AsyncStorage, resetear navigation stack, analytics, etc.)
+            // TODO: (limpiar AsyncStorage, resetear navigation stack, analytics, etc.)
           },
         },
       ]

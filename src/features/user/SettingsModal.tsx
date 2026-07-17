@@ -7,10 +7,8 @@ type Language = "en" | "es";
 type Props = {
   visible: boolean;
   onClose: () => void;
-  // Conectar aquí con tu ThemeProvider real cuando exista.
   isDarkMode?: boolean;
   onToggleDarkMode?: (value: boolean) => void;
-  // Conectar aquí con tu i18n real (ej. react-i18next) cuando exista.
   language?: Language;
   onChangeLanguage?: (lang: Language) => void;
 };
@@ -28,7 +26,6 @@ export default function SettingsModal({
   language = "en",
   onChangeLanguage,
 }: Props) {
-  // Estado local de respaldo si el padre aún no gestiona tema/idioma globalmente.
   const [localDarkMode, setLocalDarkMode] = useState(isDarkMode);
   const [localLanguage, setLocalLanguage] = useState<Language>(language);
 
