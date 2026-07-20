@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Modal, Pressable, TouchableWithoutFeedback, Dimensions } from "react-native";
-import { colors } from "@/src/shared/constants/colors";
+import { useTheme } from "@/src/shared/ThemeProvider";
 
 type Anchor = { x: number; y: number; width: number; height: number };
 
@@ -25,6 +25,9 @@ export default function AccountMenu({
   onSelectSettings,
   onSelectLogout,
 }: Props) {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
   const handlePress = (action: () => void) => {
     onClose();
     setTimeout(action, 150);
@@ -87,53 +90,54 @@ export default function AccountMenu({
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  arrow: {
-    position: "absolute",
-    width: 0,
-    height: 0,
-    borderLeftWidth: ARROW_SIZE,
-    borderRightWidth: ARROW_SIZE,
-    borderBottomWidth: ARROW_SIZE,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderBottomColor: colors.dark.card,
-  },
-  menu: {
-    position: "absolute",
-    backgroundColor: colors.dark.card,
-    borderRadius: 12,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  option: {
-    paddingVertical: 13,
-    paddingHorizontal: 16,
-  },
-  optionPressed: {
-    backgroundColor: "rgba(255,255,255,0.06)",
-  },
-  optionText: {
-    color: colors.dark.text,
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  logoutText: {
-    color: "#e74c3c",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "rgba(255,255,255,0.08)",
-  },
-});
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    backdrop: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+    arrow: {
+      position: "absolute",
+      width: 0,
+      height: 0,
+      borderLeftWidth: ARROW_SIZE,
+      borderRightWidth: ARROW_SIZE,
+      borderBottomWidth: ARROW_SIZE,
+      borderLeftColor: "transparent",
+      borderRightColor: "transparent",
+      borderBottomColor: theme.card,
+    },
+    menu: {
+      position: "absolute",
+      backgroundColor: theme.card,
+      borderRadius: 12,
+      overflow: "hidden",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    option: {
+      paddingVertical: 13,
+      paddingHorizontal: 16,
+    },
+    optionPressed: {
+      backgroundColor: theme.cardElevated,
+    },
+    optionText: {
+      color: theme.text,
+      fontSize: 15,
+      fontWeight: "600",
+    },
+    logoutText: {
+      color: theme.danger,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: theme.border,
+    },
+  });
