@@ -10,8 +10,8 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
-import * as Haptics from "expo-haptics"; // npx expo install expo-haptics
-import { colors } from "@/src/shared/constants/colors";
+import * as Haptics from "expo-haptics";
+import { useTheme } from "@/src/shared/ThemeProvider";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -25,12 +25,15 @@ import { fetchUserPreferences } from "@/src/lib/api/userApi";
 import { UserPreference } from "@/src/shared/models/users/userPreferences";
 import { TimeToBeat } from "@/src/shared/models/videogames/timeToBeat";
 import GameListSkeleton from "@/src/features/videogames/GameListSkeleton";
-import EmptyState from "@/src/shared/EmptyState";
-import Toast from "@/src/shared/Toast";
+import EmptyState from "@/src/features/videogames/EmptyState";
+import Toast from "@/src/features/videogames/Toast";
 
 const PAGE_SIZE = 50;
 
 export default function HomeScreen() {
+  const { theme, isDarkMode } = useTheme();
+  const styles = createStyles(theme);
+
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<number>();
   const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
@@ -98,22 +101,26 @@ export default function HomeScreen() {
     recommendation.mutate(userPreferenesQuery.data);
   };
 
-  // ---- Loading state con skeleton ----
   if (videogamesQuery.isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.dark.background }}>
-        <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+        <StatusBar
+          barStyle={isDarkMode ? "light-content" : "dark-content"}
+          backgroundColor={theme.background}
+        />
         <AppHeader title="" onUserPress={() => console.log("Perfil")} />
         <GameListSkeleton count={15} />
       </SafeAreaView>
     );
   }
 
-  // ---- Error state con reintentar ----
   if (videogamesQuery.isError) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.dark.background }}>
-        <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+        <StatusBar
+          barStyle={isDarkMode ? "light-content" : "dark-content"}
+          backgroundColor={theme.background}
+        />
         <AppHeader title="" onUserPress={() => console.log("Perfil")} />
         <EmptyState
           icon="⚠️"
@@ -127,29 +134,20 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: colors.dark.background,
-      }}
-    >
-      <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+      <StatusBar
+        barStyle={isDarkMode ? "light-content" : "dark-content"}
+        backgroundColor={theme.background}
+      />
       <AppHeader title="" onUserPress={() => console.log("Perfil")} />
 
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          backgroundColor: colors.dark.card,
-          paddingVertical: 10,
-        }}
-      >
+      <View style={styles.tabBar}>
         <Pressable onPress={() => setActiveTab("search")}>
           <Text
-            style={{
-              color: activeTab === "search" ? colors.dark.text : "#888",
-              fontWeight: activeTab === "search" ? "bold" : "normal",
-            }}
+            style={[
+              styles.tabLabel,
+              activeTab === "search" && styles.tabLabelActive,
+            ]}
           >
             All Games
           </Text>
@@ -157,10 +155,10 @@ export default function HomeScreen() {
 
         <Pressable onPress={() => setActiveTab("mygames")}>
           <Text
-            style={{
-              color: activeTab === "mygames" ? colors.dark.text : "#888",
-              fontWeight: activeTab === "mygames" ? "bold" : "normal",
-            }}
+            style={[
+              styles.tabLabel,
+              activeTab === "mygames" && styles.tabLabelActive,
+            ]}
           >
             My Games
           </Text>
@@ -284,7 +282,7 @@ export default function HomeScreen() {
           onPress={handleRecommendPress}
           disabled={recommendation.isPending}
         >
-          <Text style={{ color: colors.dark.text, fontWeight: "bold" }}>
+          <Text style={styles.recommendButtonText}>
             {recommendation.isPending ? "LOADING..." : "RECOMMEND"}
           </Text>
         </Pressable>
@@ -300,45 +298,62 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  container: {
-    backgroundColor: colors.dark.background,
-  },
-  cardPressed: {
-    opacity: 0.6,
-    transform: [{ scale: 0.97 }],
-  },
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-
-  bottomBar: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 10,
-  },
-
-  recommendButtonStyle: {
-    flex: 0,
-    alignSelf: "center",
-    backgroundColor: colors.dark.tint,
-    paddingVertical: 15,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 5,
-  },
-});
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    center: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    container: {
+      backgroundColor: theme.background,
+    },
+    cardPressed: {
+      opacity: 0.6,
+      transform: [{ scale: 0.97 }],
+    },
+    backdrop: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: theme.overlay,
+    },
+    tabBar: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      backgroundColor: theme.card,
+      paddingVertical: 10,
+    },
+    tabLabel: {
+      color: theme.textMuted,
+      fontWeight: "normal",
+    },
+    tabLabelActive: {
+      color: theme.text,
+      fontWeight: "bold",
+    },
+    bottomBar: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingTop: 10,
+    },
+    recommendButtonStyle: {
+      flex: 0,
+      alignSelf: "center",
+      backgroundColor: theme.primary,
+      paddingVertical: 15,
+      paddingHorizontal: 24,
+      borderRadius: 20,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 3,
+      elevation: 5,
+    },
+    recommendButtonText: {
+      color: theme.onPrimary,
+      fontWeight: "bold",
+    },
+  });

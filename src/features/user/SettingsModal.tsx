@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Modal, Pressable, TouchableWithoutFeedback, Switch } from "react-native";
-import { colors } from "@/src/shared/constants/colors";
+import { useTheme } from "@/src/shared/ThemeProvider";
 
 type Language = "en" | "es";
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  isDarkMode?: boolean;
-  onToggleDarkMode?: (value: boolean) => void;
   language?: Language;
   onChangeLanguage?: (lang: Language) => void;
 };
@@ -21,24 +19,14 @@ const LANGUAGES: { code: Language; label: string }[] = [
 export default function SettingsModal({
   visible,
   onClose,
-  isDarkMode = true,
-  onToggleDarkMode,
   language = "en",
   onChangeLanguage,
 }: Props) {
-  const [localDarkMode, setLocalDarkMode] = useState(isDarkMode);
+  const { theme, isDarkMode, toggleDarkMode } = useTheme();
+  const styles = createStyles(theme);
+
   const [localLanguage, setLocalLanguage] = useState<Language>(language);
-
-  const darkMode = onToggleDarkMode ? isDarkMode : localDarkMode;
   const currentLanguage = onChangeLanguage ? language : localLanguage;
-
-  const handleToggleDarkMode = (value: boolean) => {
-    if (onToggleDarkMode) {
-      onToggleDarkMode(value);
-    } else {
-      setLocalDarkMode(value);
-    }
-  };
 
   const handleSelectLanguage = (lang: Language) => {
     if (onChangeLanguage) {
@@ -96,9 +84,9 @@ export default function SettingsModal({
           <View style={styles.themeRow}>
             <Text style={styles.sectionTitle}>Dark Mode</Text>
             <Switch
-              value={darkMode}
-              onValueChange={handleToggleDarkMode}
-              trackColor={{ false: "#666", true: colors.dark.addButton }}
+              value={isDarkMode}
+              onValueChange={toggleDarkMode}
+              trackColor={{ false: "#767577", true: theme.primary }}
               thumbColor="#fff"
             />
           </View>
@@ -112,108 +100,109 @@ export default function SettingsModal({
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  centerWrap: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
-  panel: {
-    backgroundColor: colors.dark.card,
-    borderRadius: 16,
-    padding: 20,
-    width: "100%",
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.dark.text,
-    textAlign: "center",
-    marginLeft: 28,
-  },
-  closeIconButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeIconText: {
-    color: colors.dark.text,
-    fontSize: 14,
-    fontWeight: "700",
-    lineHeight: 14,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    marginVertical: 14,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.dark.text,
-  },
-  languageOptions: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 12,
-  },
-  languageOption: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderWidth: 1,
-    borderColor: "transparent",
-  },
-  languageOptionSelected: {
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderColor: colors.dark.addButton,
-  },
-  languageOptionText: {
-    color: colors.dark.text,
-    fontSize: 14,
-    fontWeight: "600",
-    opacity: 0.7,
-  },
-  languageOptionTextSelected: {
-    opacity: 1,
-    color: colors.dark.addButton,
-  },
-  themeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  doneButton: {
-    marginTop: 20,
-    backgroundColor: colors.dark.addButton,
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  doneButtonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 15,
-  },
-});
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    backdrop: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: theme.overlay,
+    },
+    centerWrap: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 24,
+    },
+    panel: {
+      backgroundColor: theme.card,
+      borderRadius: 16,
+      padding: 20,
+      width: "100%",
+    },
+    headerRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 12,
+    },
+    title: {
+      flex: 1,
+      fontSize: 18,
+      fontWeight: "700",
+      color: theme.text,
+      textAlign: "center",
+      marginLeft: 28,
+    },
+    closeIconButton: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: theme.cardElevated,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    closeIconText: {
+      color: theme.text,
+      fontSize: 14,
+      fontWeight: "700",
+      lineHeight: 14,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: theme.border,
+      marginVertical: 14,
+    },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: "700",
+      color: theme.text,
+    },
+    languageOptions: {
+      flexDirection: "row",
+      gap: 10,
+      marginTop: 12,
+    },
+    languageOption: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: 10,
+      alignItems: "center",
+      backgroundColor: theme.cardElevated,
+      borderWidth: 1,
+      borderColor: "transparent",
+    },
+    languageOptionSelected: {
+      backgroundColor: theme.primaryMuted,
+      borderColor: theme.primary,
+    },
+    languageOptionText: {
+      color: theme.text,
+      fontSize: 14,
+      fontWeight: "600",
+      opacity: 0.7,
+    },
+    languageOptionTextSelected: {
+      opacity: 1,
+      color: theme.primary,
+    },
+    themeRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    doneButton: {
+      marginTop: 20,
+      backgroundColor: theme.primary,
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    },
+    doneButtonText: {
+      color: theme.onPrimary,
+      fontWeight: "700",
+      fontSize: 15,
+    },
+  });

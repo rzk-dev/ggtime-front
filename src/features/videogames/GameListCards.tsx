@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
-import { colors } from "@/src/shared/constants/colors";
+import { useTheme } from "@/src/shared/ThemeProvider";
 import { getPlatformIcon } from "@/src/shared/constants/platformIcons";
 import { Videogame } from "@/src/shared/models/videogames/videogame";
 
@@ -10,6 +10,9 @@ type Props = {
 };
 
 export default function GameListCards({ videogame }: Props) {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
   const screenWidth = Dimensions.get("window").width;
   const screenHeight = Dimensions.get("window").height;
   const columnsNumber = 3;
@@ -52,40 +55,41 @@ export default function GameListCards({ videogame }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    margin: 5,
-    backgroundColor: colors.dark.card,
-    paddingBottom: 10,
-    borderRadius: 5,
-  },
-  coverImage: {
-    height: 100,
-    borderTopRightRadius: 5,
-    borderTopLeftRadius: 5,
-  },
-  titleContainer: {},
-  title: {
-    flexShrink: 1,
-    padding: 10,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: colors.dark.text,
-  },
-  iconsContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 5,
-  },
-  platformIcon: {
-    width: 25,
-    height: 25,
-    resizeMode: "contain",
-  },
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-});
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    card: {
+      margin: 5,
+      backgroundColor: theme.card,
+      paddingBottom: 10,
+      borderRadius: 5,
+    },
+    coverImage: {
+      height: 100,
+      borderTopRightRadius: 5,
+      borderTopLeftRadius: 5,
+    },
+    titleContainer: {},
+    title: {
+      flexShrink: 1,
+      padding: 10,
+      fontWeight: "bold",
+      textAlign: "center",
+      color: theme.text,
+    },
+    iconsContainer: {
+      flex: 1,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 5,
+    },
+    platformIcon: {
+      width: 25,
+      height: 25,
+      resizeMode: "contain",
+    },
+    backdrop: {
+      flex: 1,
+      backgroundColor: theme.overlay,
+    },
+  });

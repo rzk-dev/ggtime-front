@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "@/src/shared/constants/colors";
+import { useTheme } from "@/src/shared/ThemeProvider";
 import { simplifyLanguages } from "@/src/shared/models/videogames/languages";
 import { useQuery } from "@tanstack/react-query";
 import { getById } from "../../../lib/api/videogameApi";
@@ -39,6 +39,9 @@ export default function GameDetailsCard({
   timeToBeat,
   isRecommendation,
 }: Props) {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [summaryTruncated, setSummaryTruncated] = useState(false);
@@ -144,6 +147,14 @@ export default function GameDetailsCard({
   const esrbRating = data?.ageRatings?.find((r) => ESRB_VALUES.includes(r));
   const pegiRating = data?.ageRatings?.find((r) => PEGI_VALUES.includes(r));
 
+  const CoverPulse = () => (
+    <View style={styles.coverDotsRow}>
+      <View style={styles.coverDot} />
+      <View style={[styles.coverDot, { opacity: 0.6 }]} />
+      <View style={[styles.coverDot, { opacity: 0.3 }]} />
+    </View>
+  );
+
   return (
     <View style={styles.outerWrap}>
       <Animated.View
@@ -190,7 +201,7 @@ export default function GameDetailsCard({
           ) : null}
 
           <LinearGradient
-            colors={["transparent", colors.dark.card]}
+            colors={["transparent", theme.card]}
             style={styles.coverFade}
             pointerEvents="none"
           />
@@ -330,7 +341,7 @@ export default function GameDetailsCard({
 
         {showScrollHint && (
           <LinearGradient
-            colors={["transparent", colors.dark.card]}
+            colors={["transparent", theme.card]}
             style={styles.scrollHint}
             pointerEvents="none"
           />
@@ -340,274 +351,263 @@ export default function GameDetailsCard({
   );
 }
 
-function CoverPulse() {
-  return (
-    <View style={styles.coverDotsRow}>
-      <View style={styles.coverDot} />
-      <View style={[styles.coverDot, { opacity: 0.6 }]} />
-      <View style={[styles.coverDot, { opacity: 0.3 }]} />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  outerWrap: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: "transparent",
-  },
-  card: {
-    backgroundColor: colors.dark.card,
-    borderRadius: 14,
-    ...Platform.select({
-      ios: {
-        overflow: "hidden",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.35,
-        shadowRadius: 20,
-      },
-      android: {
-        elevation: 20,
-        overflow: "hidden",
-      },
-    }),
-  },
-  coverContainer: {
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
-    overflow: "hidden",
-    height: SCREEN_HEIGHT * 0.32,
-    position: "relative",
-  },
-  dismissHandle: {
-    position: "absolute",
-    top: 8,
-    alignSelf: "center",
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "rgba(255,255,255,0.55)",
-    zIndex: 10,
-  },
-  coverFade: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 56,
-  },
-  scrollHint: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 28,
-  },
-  coverPlaceholder: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  coverPulseWrap: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  coverDotsRow: {
-    flexDirection: "row",
-    gap: 6,
-  },
-  coverDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "rgba(255,255,255,0.6)",
-  },
-  cover: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "flex-start",
-    alignItems: "flex-end",
-  },
-  closeButton: {
-    backgroundColor: "rgba(0,0,0,0.45)",
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    margin: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 17,
-    fontWeight: "700",
-    lineHeight: 17,
-  },
-  recommendedBadge: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    backgroundColor: colors.dark.tint,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-  },
-  recommendedBadgeText: {
-    color: "#fff",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  favoriteButton: {
-    backgroundColor: "rgba(0,0,0,0.4)",
-    padding: 8,
-    margin: 8,
-    borderRadius: 20,
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-  },
-  content: {
-    backgroundColor: "transparent",
-    paddingHorizontal: 14,
-    marginTop: -12,
-  },
-  contentContainer: {
-    paddingBottom: 24,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: colors.dark.text,
-    textAlign: "center",
-    marginBottom: 2,
-  },
-  titleSpacer: {
-    height: 8,
-  },
-  ageBadgeRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 6,
-    marginBottom: 12,
-  },
-  ageBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  ageBadgeLabel: {
-    color: colors.dark.text,
-    fontSize: 9,
-    fontWeight: "700",
-    opacity: 0.6,
-  },
-  ageBadgeText: {
-    color: colors.dark.text,
-    fontSize: 12,
-    fontWeight: "800",
-  },
-  metaGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 4,
-  },
-  metaItem: {
-    width: "50%",
-    marginBottom: 10,
-    paddingRight: 8,
-  },
-  metaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    marginTop: 2,
-    marginBottom: 6,
-  },
-  metaLabel: {
-    color: colors.dark.text,
-    fontSize: 12,
-    opacity: 0.6,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    marginBottom: 2,
-  },
-  metaValue: {
-    color: colors.dark.text,
-    fontSize: 13,
-    opacity: 0.95,
-    fontWeight: "500",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    marginVertical: 12,
-  },
-  sectionTitle: {
-    color: colors.dark.text,
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 6,
-  },
-  summaryText: {
-    color: colors.dark.text,
-    fontSize: 13,
-    lineHeight: 20,
-    opacity: 0.95,
-  },
-  showMoreText: {
-    color: "#4FC3F7",
-    fontSize: 12,
-    fontWeight: "700",
-    marginTop: 4,
-  },
-  languageChipsWrap: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  languageChip: {
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderRadius: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    marginBottom: 8,
-  },
-  languageChipName: {
-    color: colors.dark.text,
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  languageChipTypes: {
-    color: colors.dark.text,
-    fontSize: 11,
-    opacity: 0.7,
-    marginTop: 2,
-  },
-  languageData: {
-    color: colors.dark.text,
-    marginBottom: 8,
-    fontSize: 14,
-    lineHeight: 20,
-    flexWrap: "wrap",
-  },
-  companySection: {
-    marginBottom: 8,
-  },
-  text: {
-    fontSize: 14,
-    color: colors.dark.text,
-    marginLeft: 8,
-  },
-});
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    outerWrap: {
+      flex: 1,
+      justifyContent: "center",
+      padding: 24,
+      backgroundColor: "transparent",
+    },
+    card: {
+      backgroundColor: theme.card,
+      borderRadius: 14,
+      ...Platform.select({
+        ios: {
+          overflow: "hidden",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.35,
+          shadowRadius: 20,
+        },
+        android: {
+          elevation: 20,
+          overflow: "hidden",
+        },
+      }),
+    },
+    coverContainer: {
+      borderTopLeftRadius: 14,
+      borderTopRightRadius: 14,
+      overflow: "hidden",
+      height: SCREEN_HEIGHT * 0.32,
+      position: "relative",
+    },
+    dismissHandle: {
+      position: "absolute",
+      top: 8,
+      alignSelf: "center",
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: "rgba(255,255,255,0.55)",
+      zIndex: 10,
+    },
+    coverFade: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: 56,
+    },
+    scrollHint: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: 28,
+    },
+    coverPlaceholder: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: theme.cardElevated,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    coverPulseWrap: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    coverDotsRow: {
+      flexDirection: "row",
+      gap: 6,
+    },
+    coverDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: "rgba(255,255,255,0.6)",
+    },
+    cover: {
+      width: "100%",
+      height: "100%",
+      justifyContent: "flex-start",
+      alignItems: "flex-end",
+    },
+    closeButton: {
+      backgroundColor: "rgba(0,0,0,0.45)",
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      margin: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    closeButtonText: {
+      color: "#fff",
+      fontSize: 17,
+      fontWeight: "700",
+      lineHeight: 17,
+    },
+    recommendedBadge: {
+      position: "absolute",
+      top: 10,
+      left: 10,
+      backgroundColor: theme.primary,
+      paddingVertical: 4,
+      paddingHorizontal: 10,
+      borderRadius: 12,
+    },
+    recommendedBadgeText: {
+      color: theme.onPrimary,
+      fontSize: 11,
+      fontWeight: "700",
+    },
+    favoriteButton: {
+      backgroundColor: "rgba(0,0,0,0.4)",
+      padding: 8,
+      margin: 8,
+      borderRadius: 20,
+      position: "absolute",
+      bottom: 0,
+      right: 0,
+    },
+    content: {
+      backgroundColor: "transparent",
+      paddingHorizontal: 14,
+      marginTop: -12,
+    },
+    contentContainer: {
+      paddingBottom: 24,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: "800",
+      color: theme.text,
+      textAlign: "center",
+      marginBottom: 2,
+    },
+    titleSpacer: {
+      height: 8,
+    },
+    ageBadgeRow: {
+      flexDirection: "row",
+      justifyContent: "center",
+      gap: 8,
+      marginTop: 6,
+      marginBottom: 12,
+    },
+    ageBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: theme.cardElevated,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 6,
+    },
+    ageBadgeLabel: {
+      color: theme.text,
+      fontSize: 9,
+      fontWeight: "700",
+      opacity: 0.6,
+    },
+    ageBadgeText: {
+      color: theme.text,
+      fontSize: 12,
+      fontWeight: "800",
+    },
+    metaGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      marginBottom: 4,
+    },
+    metaItem: {
+      width: "50%",
+      marginBottom: 10,
+      paddingRight: 8,
+    },
+    metaRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
+      marginTop: 2,
+      marginBottom: 6,
+    },
+    metaLabel: {
+      color: theme.textSecondary,
+      fontSize: 12,
+      fontWeight: "700",
+      textTransform: "uppercase",
+      marginBottom: 2,
+    },
+    metaValue: {
+      color: theme.text,
+      fontSize: 13,
+      opacity: 0.95,
+      fontWeight: "500",
+    },
+    divider: {
+      height: 1,
+      backgroundColor: theme.border,
+      marginVertical: 12,
+    },
+    sectionTitle: {
+      color: theme.text,
+      fontSize: 14,
+      fontWeight: "700",
+      marginBottom: 6,
+    },
+    summaryText: {
+      color: theme.text,
+      fontSize: 13,
+      lineHeight: 20,
+      opacity: 0.95,
+    },
+    showMoreText: {
+      color: theme.primary,
+      fontSize: 12,
+      fontWeight: "700",
+      marginTop: 4,
+    },
+    languageChipsWrap: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+    },
+    languageChip: {
+      backgroundColor: theme.cardElevated,
+      borderRadius: 10,
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      marginBottom: 8,
+    },
+    languageChipName: {
+      color: theme.text,
+      fontSize: 12,
+      fontWeight: "700",
+    },
+    languageChipTypes: {
+      color: theme.textSecondary,
+      fontSize: 11,
+      marginTop: 2,
+    },
+    languageData: {
+      color: theme.text,
+      marginBottom: 8,
+      fontSize: 14,
+      lineHeight: 20,
+      flexWrap: "wrap",
+    },
+    companySection: {
+      marginBottom: 8,
+    },
+    text: {
+      fontSize: 14,
+      color: theme.text,
+      marginLeft: 8,
+    },
+  });
