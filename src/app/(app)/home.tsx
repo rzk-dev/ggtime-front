@@ -94,7 +94,7 @@ export default function HomeScreen() {
 
   const handleRecommendPress = () => {
     if (!userPreferenesQuery.data) {
-      showToast("Configura tus preferencias primero para recibir una recomendación");
+      showToast("Set your preferences first to receive a recommendation.");
       return;
     }
     Haptics.selectionAsync();
@@ -124,9 +124,9 @@ export default function HomeScreen() {
         <AppHeader title="" onUserPress={() => console.log("Perfil")} />
         <EmptyState
           icon="⚠️"
-          title="No pudimos cargar los juegos"
-          subtitle="Revisa tu conexión a internet e inténtalo de nuevo."
-          actionLabel="Reintentar"
+          title="We couldn't load the games"
+          subtitle="Check your internet connection and try again."
+          actionLabel="Retry"
           onAction={() => videogamesQuery.refetch()}
         />
       </SafeAreaView>
@@ -198,8 +198,8 @@ export default function HomeScreen() {
           ListEmptyComponent={
             <EmptyState
               icon="🔍"
-              title="No encontramos juegos"
-              subtitle="Prueba ajustando los filtros o vuelve más tarde."
+              title="We couldn't find games"
+              subtitle="Try adjusting the filters or come back later."
             />
           }
           ListFooterComponent={
@@ -232,9 +232,9 @@ export default function HomeScreen() {
           numColumns={3}
           ListEmptyComponent={
             <EmptyState
-              icon="⭐"
-              title="Aún no tienes juegos guardados"
-              subtitle="Los juegos que marques como favoritos aparecerán aquí."
+              icon=""
+              title="You don't have any saved games yet."
+              subtitle="Games you mark as favorites will appear here."
             />
           }
         />

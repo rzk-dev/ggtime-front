@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -29,6 +29,98 @@ type Props = {
   }) => void;
 };
 
+// ---- Agrupación de plataformas por compañía --------------------------------
+
+type PlatformCompany = "SONY" | "MICROSOFT" | "NINTENDO" | "PC" | "MOBILE";
+
+const COMPANY_ORDER: PlatformCompany[] = ["SONY", "MICROSOFT", "NINTENDO", "PC", "MOBILE"];
+
+const COMPANY_LABELS: Record<PlatformCompany, string> = {
+  SONY: "PlayStation",
+  MICROSOFT: "Xbox",
+  NINTENDO: "Nintendo",
+  PC: "PC",
+  MOBILE: "Mobile",
+};
+
+// Reglas de matching por nombre. Se evalúan en orden; la primera que matchea gana.
+// Se usa .toLowerCase() + regex de palabra completa para evitar falsos positivos
+// (ej. que "One" de "Xbox One" no choque con otra cosa).
+const COMPANY_RULES: { company: PlatformCompany; patterns: RegExp[] }[] = [
+  {
+    company: "SONY",
+    patterns: [/playstation/i, /\bps\s?[1-5]\b/i, /\bpsp\b/i, /\bps\s?vita\b/i, /\bvita\b/i],
+  },
+  {
+    company: "MICROSOFT",
+    patterns: [/xbox/i],
+  },
+  {
+    company: "NINTENDO",
+    patterns: [
+      /nintendo/i,
+      /\bwii\b/i,
+      /\bwii\s?u\b/i,
+      /\bswitch\b/i,
+      /\b3ds\b/i,
+      /\bnds\b/i,
+      /\bds\b/i,
+      /\bgame\s?boy\b/i,
+      /\bgamecube\b/i,
+      /\bsnes\b/i,
+      /\bnes\b/i,
+    ],
+  },
+  {
+    company: "MOBILE",
+    patterns: [
+      /\bios\b/i,
+      /\bandroid\b/i,
+      /\bmobile\b/i,
+      /iphone/i,
+      /ipad/i,
+      /\bwindows\s?phone\b/i,
+    ],
+  },
+  {
+    company: "PC",
+    patterns: [/\bpc\b/i, /windows/i, /mac\b/i, /linux/i, /steam/i],
+  },
+];
+
+function getPlatformCompany(platformName: string): PlatformCompany {
+  for (const rule of COMPANY_RULES) {
+    if (rule.patterns.some((pattern) => pattern.test(platformName))) {
+      return rule.company;
+    }
+  }
+  // Fallback: cualquier plataforma no reconocida cae en PC para no perderla del listado.
+  return "PC";
+}
+
+function groupPlatformsByCompany(
+  platforms: GamePlatforms[] | undefined
+): Record<PlatformCompany, GamePlatforms[]> {
+  const grouped: Record<PlatformCompany, GamePlatforms[]> = {
+    SONY: [],
+    MICROSOFT: [],
+    NINTENDO: [],
+    PC: [],
+    MOBILE: [],
+  };
+
+  if (!platforms) return grouped;
+
+  for (const platform of platforms) {
+    const company = getPlatformCompany(platform.name);
+    grouped[company].push(platform);
+  }
+
+  return grouped;
+}
+
+// -----------------------------------------------------------------------------
+
 export default function UserPreferences({ onClose, onApply }: Props) {
   const availablePlatforms = useQuery({ queryKey: ["platforms"], queryFn: () => fetchPlatforms() });
   const availableGenres = useQuery({ queryKey: ["genres"], queryFn: () => fetchGenres() });
@@ -48,6 +140,14 @@ export default function UserPreferences({ onClose, onApply }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  const [collapsedCompanies, setCollapsedCompanies] = useState<Record<PlatformCompany, boolean>>(
+    {} as Record<PlatformCompany, boolean>
+  );
+
+  const toggleCompanyCollapsed = (company: PlatformCompany) => {
+    setCollapsedCompanies((prev) => ({ ...prev, [company]: !prev[company] }));
+  };
+
   useEffect(() => {
     if (userPreferencesQuery.data) {
       setSelectedPlatforms(userPreferencesQuery.data.platforms.map((p: GamePlatforms) => p.id));
@@ -55,6 +155,11 @@ export default function UserPreferences({ onClose, onApply }: Props) {
       setWeeklyPlayTime(userPreferencesQuery.data.gamingHours.toString());
     }
   }, [userPreferencesQuery.data]);
+
+  const groupedPlatforms = useMemo(
+    () => groupPlatformsByCompany(availablePlatforms.data),
+    [availablePlatforms.data]
+  );
 
   const toggleSelection = (
     value: number,
@@ -135,30 +240,66 @@ export default function UserPreferences({ onClose, onApply }: Props) {
           {availablePlatforms.isLoading ? (
             <ActivityIndicator color={colors.dark.text} style={styles.sectionLoading} />
           ) : (
-            <View style={styles.checkboxContainer}>
-              {availablePlatforms.data?.map((platform) => (
-                <Pressable
-                  key={platform.id}
-                  style={styles.checkboxRow}
-                  onPress={() =>
-                    toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
-                  }
-                >
-                  <Checkbox
-                    value={selectedPlatforms.includes(platform.id)}
-                    onValueChange={() =>
-                      toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
-                    }
-                    color={
-                      selectedPlatforms.includes(platform.id)
-                        ? colors.dark.addButton
-                        : colors.dark.text
-                    }
-                  />
-                  <Text style={styles.checkboxLabel}>{platform.name}</Text>
-                </Pressable>
-              ))}
-            </View>
+            COMPANY_ORDER.map((company) => {
+              const platformsForCompany = groupedPlatforms[company];
+              if (platformsForCompany.length === 0) return null;
+
+              const selectedInCompany = platformsForCompany.filter((p) =>
+                selectedPlatforms.includes(p.id)
+              ).length;
+
+              const isCollapsed = collapsedCompanies[company] ?? false;
+
+              return (
+                <View key={company} style={styles.companyGroup}>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.companyHeaderRow,
+                      pressed && { opacity: 0.6 },
+                    ]}
+                    onPress={() => toggleCompanyCollapsed(company)}
+                    hitSlop={4}
+                  >
+                    <View style={styles.companyTitleRow}>
+                      <Text style={styles.companyChevron}>{isCollapsed ? "▸" : "▾"}</Text>
+                      <Text style={styles.companyTitle}>{COMPANY_LABELS[company]}</Text>
+                    </View>
+                    {selectedInCompany > 0 && (
+                      <Text style={styles.companySelectionCount}>
+                        {selectedInCompany}/{platformsForCompany.length}
+                      </Text>
+                    )}
+                  </Pressable>
+
+                  {!isCollapsed && (
+                    <View style={styles.checkboxContainer}>
+                      {platformsForCompany.map((platform) => (
+                        <Pressable
+                          key={platform.id}
+                          style={styles.checkboxRow}
+                          onPress={() =>
+                            toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
+                          }
+                        >
+                          <Checkbox
+                            value={selectedPlatforms.includes(platform.id)}
+                            onValueChange={() =>
+                              toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
+                            }
+                            color={
+                              selectedPlatforms.includes(platform.id)
+                                ? colors.dark.addButton
+                                : colors.dark.text
+                            }
+                          />
+                          <Text style={styles.checkboxLabel}>{platform.name}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              );
+            })
           )}
 
           <View style={styles.divider} />
@@ -318,6 +459,39 @@ const styles = StyleSheet.create({
   },
   sectionLoading: {
     marginVertical: 16,
+  },
+  companyGroup: {
+    marginBottom: 4,
+  },
+  companyHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 6,
+  },
+  companyTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  companyChevron: {
+    fontSize: 11,
+    color: colors.dark.text,
+    opacity: 0.6,
+    marginRight: 6,
+    width: 10,
+  },
+  companyTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.dark.text,
+    opacity: 0.6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  companySelectionCount: {
+    fontSize: 11,
+    color: colors.dark.addButton,
+    fontWeight: "600",
   },
   checkboxContainer: {
     flexDirection: "row",
