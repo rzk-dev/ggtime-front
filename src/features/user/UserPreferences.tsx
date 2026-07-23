@@ -29,7 +29,6 @@ type Props = {
   }) => void;
 };
 
-// ---- Agrupación de plataformas por compañía --------------------------------
 
 type PlatformCompany = "SONY" | "MICROSOFT" | "NINTENDO" | "PC" | "MOBILE";
 
@@ -119,7 +118,6 @@ function groupPlatformsByCompany(
   return grouped;
 }
 
-// -----------------------------------------------------------------------------
 
 export default function UserPreferences({ onClose, onApply }: Props) {
   const availablePlatforms = useQuery({ queryKey: ["platforms"], queryFn: () => fetchPlatforms() });
