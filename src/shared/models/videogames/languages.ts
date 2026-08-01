@@ -2,7 +2,6 @@ export type Languages = {
   id: number;
   name: string;
   locale: string;
-  type: string;
 };
 
 export const simplifyLanguages = (languages: Languages[]) => {

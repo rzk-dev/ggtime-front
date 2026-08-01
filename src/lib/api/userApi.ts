@@ -3,7 +3,7 @@ import { api } from "../fetchClient";
 
 
 const usersAPI = {
-  userPreferencesEndpoint: () => `/api/user`,
+  userPreferencesEndpoint: () => `/api/preferences`,
 };
 
 export async function fetchUserPreferences() {
