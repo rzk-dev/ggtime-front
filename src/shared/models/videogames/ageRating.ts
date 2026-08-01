@@ -1,6 +1,5 @@
-import { RatingCategory } from "./ratingCategory";
-
 export type AgeRating = {
   id: number;
-  ratingCategory: RatingCategory;
+  organization: string;
+  rating: string;
 }

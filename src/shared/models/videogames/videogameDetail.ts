@@ -3,13 +3,14 @@ import { Companies } from "./involvedCompanies";
 import { GamePlatforms } from "./platform";
 import { Genre } from "./genres";
 import { Languages } from "./languages";
+import { AgeRating } from "./ageRating";
 
 export type VideogameDetail = {
   id: number;
   name: string;
-  slug: string;
-  ageRatings: string[];
-  cover: Cover;
+  //slug: string;
+  ageRatings: AgeRating[];
+  coverUrl: string;
   platforms: GamePlatforms[];
   genres: Genre[];
   keywords: string[];
