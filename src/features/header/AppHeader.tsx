@@ -8,7 +8,7 @@ interface AppHeaderProps {
   onUserPress?: () => void;
 }
 
-export default function AppHeader({ title, onUserPress }: AppHeaderProps) {
+export default function AppHeader({ title = "", onUserPress }: AppHeaderProps) {
   const { user } = useSupabase();
   const email = user?.email ? user.email.split("@")[0] : "Unknown";
 

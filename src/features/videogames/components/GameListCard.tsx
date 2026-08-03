@@ -2,11 +2,12 @@ import React from "react";
 import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
 import { colors } from "@/src/shared/constants/colors";
-import { getPlatformIcon } from "@/src/shared/constants/platformIcons";
-import { Videogame } from "@/src/shared/models/videogames/videogame";
+import { getPlatformIcon, platformIcons } from "@/src/shared/constants/platformIcons";
+import { VideogamePreview } from "../domain/videogame";
+import { getPlatformFamily } from "@/src/shared/constants/platformFamilies";
 
 type Props = {
-  videogame: Videogame;
+  videogame: VideogamePreview;
 };
 
 export default function GameListCards({ videogame }: Props) {
@@ -14,9 +15,12 @@ export default function GameListCards({ videogame }: Props) {
   const screenHeight = Dimensions.get("window").height;
   const columnsNumber = 3;
 
-  const uniqueIcons = Array.from(
-    new Set(videogame.platforms.map((p) => getPlatformIcon(p.name))),
-  );
+
+  const platformFamilies = [
+    ...new Set(
+      videogame.platforms.map(platform => getPlatformFamily(platform.name))
+    ),
+  ];
 
   return (
     <View
@@ -29,7 +33,7 @@ export default function GameListCards({ videogame }: Props) {
       ]}
     >
       <Image
-        source={{ uri: videogame.cover.url }}
+        source={{ uri: videogame.coverUrl }}
         style={styles.coverImage}
         resizeMode="cover"
       />
@@ -39,10 +43,10 @@ export default function GameListCards({ videogame }: Props) {
         </Text>
       </View>
       <View style={styles.iconsContainer}>
-        {uniqueIcons.map((icon, index) => (
+        {platformFamilies.map(family => (
           <Image
-            key={index}
-            source={icon}
+            key={family}
+            source={platformIcons[family]}
             style={styles.platformIcon}
             resizeMode="contain"
           />
