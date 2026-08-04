@@ -105,7 +105,11 @@ export default function HomeScreen() {
             styles.recommendButtonStyle,
             (!userPreferenesQuery.data || recommendation.isPending) && { opacity: 0.5 }
           ]}
-          onPress={() => recommendation.mutate()}
+          onPress={async () => {
+
+            const response = await recommendation.mutateAsync();
+            setRecommendedCandidate(response.candidate);
+          }}
           disabled={recommendation.isPending}
         >
           <Text style={{ color: colors.dark.text, fontWeight: "bold" }}>

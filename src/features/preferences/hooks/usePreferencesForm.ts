@@ -24,14 +24,21 @@ export function usePreferencesForm() {
   const [weeklyGamingHours, setWeeklyGamingHours] = useState<string>("0");
 
   useEffect(() => {
-    if (!preferences) { return; }
+    if (!preferences) return;
 
-    setSelectedPlatforms(platforms.map((p: Platform) => p.id));
-    setSelectedGenres(genres.map((g: Genre) => g.id));
-    setSelectedLanguages(languages.map((l: Language) => l.id))
+    setSelectedPlatforms(
+      preferences.platforms.map(p => p.id)
+    );
+
+    setSelectedGenres(
+      preferences.genres.map(g => g.id)
+    );
+
+    setSelectedLanguages(
+      preferences.languages.map(l => l.id)
+    );
 
     setWeeklyGamingHours(preferences.gamingHours.toString());
-
   }, [preferences]);
 
   const togglePlatform = (id: number) => {
