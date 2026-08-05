@@ -1,8 +1,8 @@
 export const platformIcons: { [key: string]: any } = {
-  PC: require("@/src/assets/images/generic-pc.png"),
-  Console: require("@/src/assets/images/generic-console.png"),
-  Retro: require("@/src/assets/images/generic-retro.png"),
-  Smartphone: require("@/src/assets/images/generic-smartphone.png"),
+  pc: require("@/src/assets/images/generic-pc.png"),
+  console: require("@/src/assets/images/generic-console.png"),
+  retro: require("@/src/assets/images/generic-retro.png"),
+  smartphone: require("@/src/assets/images/generic-smartphone.png"),
 };
 
 

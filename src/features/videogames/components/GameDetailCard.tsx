@@ -7,14 +7,17 @@ import {
   ScrollView,
   Pressable,
   Dimensions,
-  ActivityIndicator,
   Platform,
 } from "react-native";
 import { colors } from "@/src/shared/constants/colors";
-import { simplifyLanguages } from "@/src/shared/models/videogames/languages";
-import { useQuery } from "@tanstack/react-query";
-import { getById } from "../../../lib/api/videogameApi";
-import { TimeToBeat } from "@/src/shared/models/videogames/timeToBeat";
+import { TimeToBeat } from "../domain/timeToBeat";
+import { useVideogameDetails } from "../hooks/useVideogameDetails";
+import { GameDetailsLoader } from "./GameDetailsLoader";
+import { formatLanguages } from "../utils/formatLanguages";
+import { formatPlaytime } from "../utils/formatPlaytime";
+import { formatReleaseYear } from "../utils/formatReleaseYear";
+import { formatPublishers } from "../utils/formatPublishers";
+import { formatNamedList } from "../utils/formatNamedList";
 
 type Props = {
   id: number;
@@ -29,52 +32,32 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 export default function GameDetailsCard({
   id,
   onClose,
-  timeToBeat,
   //favorites,
   //onToggleFavorite,
 }: Props) {
-  const getVideogameDetails = () => getById(id)
 
-  const { isLoading, data } = useQuery({
-    queryKey: ["videogames", id],
-    queryFn: getVideogameDetails,
-  });
+  const { data: details } = useVideogameDetails(id)
 
-  if (isLoading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "rgba(25,25,25,0.5)",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator size="large" color="white" />
-      </View>
-    );
+  if (!details) {
+    return <GameDetailsLoader />
   }
 
-  const getCompanyName = (c: any) => c?.company?.name ?? c?.string ?? "";
-  const simplifiedLanguages = simplifyLanguages(data?.languageSupports || []);
-  //const isFavorite = favorites.some((f) => f.id === data?.id);
 
-  const formatPlaytime = (seconds?: number | null) => {
-    if (!seconds) return "N/A";
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    if (hours === 0) return `${minutes}m`;
-    if (minutes === 0) return `${hours}h`;
-    return `${hours}h ${minutes}m`;
-  };
+  const languages = formatLanguages(details.languageSupports)
+  const gameHoursToBeat = formatPlaytime(details.timeToBeat.normally)
+  const releaseYear = formatReleaseYear(details.firstReleaseDate)
+  const involvedCompanies = formatPublishers(details.involvedCompanies)
+  const platforms = formatNamedList(details.platforms)
+  const genres = formatNamedList(details.genres)
+  //const isFavorite = favorites.some((f) => f.id === data?.id);
 
   return (
     <View style={styles.outerWrap}>
       <View style={[styles.card, { height: SCREEN_HEIGHT * 0.75 }]}>
         <View style={styles.coverContainer}>
-          {data?.cover?.url ? (
+          {details.coverUrl && (
             <ImageBackground
-              source={{ uri: data?.cover.url }}
+              source={{ uri: details.coverUrl }}
               style={styles.cover}
               resizeMode="cover"
             >
@@ -93,7 +76,7 @@ export default function GameDetailsCard({
                 />
               </Pressable> */}
             </ImageBackground>
-          ) : null}
+          )}
         </View>
 
         <ScrollView
@@ -101,46 +84,38 @@ export default function GameDetailsCard({
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={true}
         >
-          <Text style={styles.title}>{data?.name}</Text>
+          <Text style={styles.title}>{details?.name}</Text>
 
           <View style={styles.metaRow}>
             <Text style={styles.metaLabel}>Publisher: </Text>
             <Text style={styles.metaValue}>
-              {data?.involvedCompanies?.length
-                ? data?.involvedCompanies
-                  .map((c) => getCompanyName(c))
-                  .filter(Boolean)
-                  .join(", ")
-                : "N/A"}
+              {involvedCompanies}
             </Text>
           </View>
 
           <View style={styles.metaRow}>
             <Text style={styles.metaLabel}>Year: </Text>
             <Text style={styles.metaValue}>
-              {data?.firstReleaseDate
-                ? new Date(data?.firstReleaseDate * 1000).getFullYear()
-                : "N/A"}
+              {releaseYear}
             </Text>
 
             <Text style={{ ...styles.metaLabel, marginLeft: 10 }}>
               Average playtime:{" "}
             </Text>
-            <Text style={styles.metaValue}>{formatPlaytime(timeToBeat?.normally)}</Text>
+            <Text style={styles.metaValue}>{gameHoursToBeat}</Text>
           </View>
 
           <View style={styles.metaRow}>
             <Text style={styles.metaLabel}>Genres: </Text>
             <Text style={styles.metaValue}>
-              {data?.genres?.map((g) => (g as any).name || g).join(", ") ||
-                "N/A"}
+              {genres}
             </Text>
           </View>
 
           <View style={styles.metaRow}>
             <Text style={[styles.metaLabel]}>Platform: </Text>
             <Text style={styles.metaValue}>
-              {data?.platforms?.map((p) => p.name).join(", ") || "N/A"}
+              {platforms}
             </Text>
           </View>
 
@@ -148,18 +123,14 @@ export default function GameDetailsCard({
 
           <Text style={styles.sectionTitle}>Summary</Text>
           <Text style={styles.summaryText}>
-            {data?.summary || "No summary available."}
+            {details.summary}
           </Text>
 
           <View style={styles.divider} />
 
           <Text style={[styles.sectionTitle]}>Languages</Text>
           <Text style={styles.languageData}>
-            {simplifiedLanguages.length > 0
-              ? simplifiedLanguages
-                .map((lang) => `${lang.name}: ${lang.types.join(", ")}`)
-                .join("\n")
-              : "N/A"}
+            {languages}
           </Text>
         </ScrollView>
       </View>

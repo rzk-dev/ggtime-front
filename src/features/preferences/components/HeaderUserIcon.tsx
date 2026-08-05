@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Image, Modal } from "react-native";
 import { colors } from "@/src/shared/constants/colors";
-import UserPreferences from "./UserPreferences";
 import defaultAvatar from "@/src/assets/images/default-avatar.png";
+import UserPreferences from "./UserPreferences";
 
 interface Props {
   onPress?: () => void;
@@ -11,11 +11,11 @@ interface Props {
 export default function HeaderUserIcon({ onPress }: Props) {
   const [showPreferences, setShowPreferences] = useState(false);
 
+  const closePreferences = () => setShowPreferences(false)
+
   const handlePress = () => {
-    if (onPress) {
-      onPress();
-    }
-    setShowPreferences(true);
+    onPress?.()
+    setShowPreferences(true)
   };
 
   return (
@@ -26,16 +26,16 @@ export default function HeaderUserIcon({ onPress }: Props) {
       >
         <Image source={defaultAvatar} style={styles.avatar} />
       </Pressable>
+
       <Modal
         visible={showPreferences}
         transparent
         animationType="fade"
-        onRequestClose={() => setShowPreferences(false)}
+        onRequestClose={closePreferences}
       >
         <UserPreferences
-          visible={showPreferences}
-          onClose={() => setShowPreferences(false)}
-          onApply={() => setShowPreferences(false)}
+          onClose={closePreferences}
+          onApply={closePreferences}
         />
       </Modal>
     </>

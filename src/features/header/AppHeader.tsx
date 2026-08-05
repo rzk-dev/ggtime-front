@@ -1,14 +1,14 @@
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { colors } from "@/src/shared/constants/colors";
-import HeaderUserIcon from "../user/HeaderUserIcon";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
+import HeaderUserIcon from "../preferences/components/HeaderUserIcon";
 interface AppHeaderProps {
   title?: string;
   onUserPress?: () => void;
 }
 
-export default function AppHeader({ title, onUserPress }: AppHeaderProps) {
+export default function AppHeader({ title = "", onUserPress }: AppHeaderProps) {
   const { user } = useSupabase();
   const email = user?.email ? user.email.split("@")[0] : "Unknown";
 

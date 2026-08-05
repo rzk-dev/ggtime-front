@@ -1,13 +1,12 @@
 import { supabase } from "./supabase";
 
+type QueryParams = Record<string, string | number | boolean | null | undefined>;
+
 class FetchClient {
-  private baseURL: string;
+  constructor(private readonly baseURL: string) { }
 
-  constructor(baseURL: string) {
-    this.baseURL = `${baseURL}`
-  }
 
-  private async getHeaders(extraHeaders: HeadersInit = {}) {
+  private async getHeaders(extraHeaders: HeadersInit = {}): Promise<HeadersInit> {
     const { data: { session } } = await supabase.auth.getSession()
 
     return {
@@ -17,40 +16,67 @@ class FetchClient {
     }
   }
 
-  private async request(url: string, options: RequestInit = {}) {
-    const response = await fetch(`${this.baseURL}${url}`, {
+  private buildUrl(url: string, query?: QueryParams): string {
+    if (!query) {
+      return `${this.baseURL}${url}`;
+    }
+
+    const params = new URLSearchParams();
+
+    Object.entries(query).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.append(key, String(value));
+      }
+    });
+
+    const queryString = params.toString();
+
+    return queryString.length > 0
+      ? `${this.baseURL}${url}?${queryString}`
+      : `${this.baseURL}${url}`;
+  }
+  private async request<T>(
+    url: string,
+    options: RequestInit = {},
+    query?: QueryParams
+  ): Promise<T> {
+    const response = await fetch(this.buildUrl(url, query), {
       ...options,
-      headers: await this.getHeaders(options.headers)
+      headers: await this.getHeaders(options.headers),
     });
 
     if (!response.ok) {
       throw new Error(`HTTP Error: ${response.status}`);
     }
 
-    return response.json();
+    if (response.status === 204) {
+      return undefined as T;
+    }
 
+    return response.json() as Promise<T>;
   }
 
-  async get(url: string) {
-    return await this.request(url)
+  get<T>(url: string, query?: QueryParams): Promise<T> {
+    return this.request<T>(url, {}, query);
   }
 
-  async delete(url: string) {
-    return await this.request(url)
+  delete<T>(url: string): Promise<T> {
+    return this.request<T>(url, {
+      method: "DELETE",
+    });
+  }
+  post<T>(url: string, data: unknown): Promise<T> {
+    return this.request<T>(url, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
-  async post(url: string, data: any) {
-    return await this.request(url, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    })
-  }
-
-  async put(url: string, data: any) {
-    return await this.request(url, {
-      method: 'PUT',
-      body: JSON.stringify(data)
-    })
+  put<T>(url: string, data: unknown): Promise<T> {
+    return this.request<T>(url, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
   }
 }
 

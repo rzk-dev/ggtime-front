@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
-import { fetchPlatforms } from "@/src/lib/api/platformApi";
-import { useQuery } from "@tanstack/react-query";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
-import { fetchGenres } from "@/src/lib/api/genreApi";
-import { UserPreference } from "@/src/shared/models/users/userPreferences";
-import { createUserPreferences, fetchUserPreferences, updateUserPreferences } from "@/src/lib/api/userApi";
 import { queryClient } from "@/src/lib/queryClient";
-import { GamePlatforms } from "@/src/shared/models/videogames/platform";
-import { Genre } from "@/src/shared/models/videogames/genres";
+import { usePreferencesForm } from "../hooks/usePreferencesForm";
 
 type Props = {
-  visible: boolean;
   onClose: () => void;
   onApply: (preferences: {
     selectedPlatforms: number[];
@@ -24,74 +17,24 @@ type Props = {
 
 export default function UserPreferences({ onClose, onApply }: Props) {
   const { signout } = useSupabase();
-  const availablePlatforms = useQuery({ queryKey: ["platforms"], queryFn: () => fetchPlatforms() });
-  const availableGenres = useQuery({ queryKey: ["genres"], queryFn: () => fetchGenres() });
-  const userPreferencesQuery = useQuery({ queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences() });
+  const form = usePreferencesForm()
 
-  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>(
-    userPreferencesQuery.data?.platforms.map((p: GamePlatforms) => p.id) ?? []
-  );
-  const [selectedGenres, setSelectedGenres] = useState<number[]>(
-    userPreferencesQuery.data?.genres.map((g: Genre) => g.id) ?? []
-  );
-  const [weeklyPlayTime, setWeeklyPlayTime] = useState<string>(
-    userPreferencesQuery.data?.gamingHours.toString() ?? ""
-  );
-
-  // Synchronize data if they come after the component is mounted
-  useEffect(() => {
-    if (userPreferencesQuery.data) {
-      setSelectedPlatforms(userPreferencesQuery.data.platforms.map((p: GamePlatforms) => p.id));
-      setSelectedGenres(userPreferencesQuery.data.genres.map((g: Genre) => g.id));
-      setWeeklyPlayTime(userPreferencesQuery.data.gamingHours.toString());
-    }
-  }, [userPreferencesQuery.data]);
-
-  const toggleSelection = (
-    value: number,
-    list: number[],
-    setter: React.Dispatch<React.SetStateAction<number[]>>
-  ) => {
-    if (list.includes(value)) {
-      setter(list.filter((item) => item !== value));
-    } else {
-      setter([...list, value]);
-    }
-  };
 
   const handleLogout = () => {
     queryClient.clear();
     signout();
   };
 
-  const handleApply = () => {
+  const handleApply = async () => {
+    await form.save()
 
-    var selectedGamingHours = 0;
-    if (!isNaN(Number(weeklyPlayTime)) && Number(weeklyPlayTime) > 0) {
-      selectedGamingHours = Number(weeklyPlayTime);
-    } else {
-      selectedGamingHours = userPreferencesQuery.data?.gamingHours;
-    }
 
-    const payload: UserPreference = {
-      id: userPreferencesQuery.data?.id ?? null,
-      gamingHours: selectedGamingHours,
-      genres: selectedGenres.map((id) => availableGenres.data?.find((g: Genre) => g.id === id)!),
-      platforms: selectedPlatforms.map((id) => availablePlatforms.data?.find((p: GamePlatforms) => p.id === id)!),
-      languages: [],
-    };
-
-    const request = userPreferencesQuery.data?.id != null
-      ? updateUserPreferences(payload)
-      : createUserPreferences(payload);
-
-    request.then(() => {
-      queryClient.invalidateQueries({ queryKey: ["userPreferences"] });
-      onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
-      onClose();
+    onApply({
+      selectedPlatforms: form.selectedPlatforms,
+      selectedGenres: form.selectedGenres,
+      weeklyPlayTime: form.weeklyGamingHours,
     });
 
-    onApply({ selectedPlatforms, selectedGenres, weeklyPlayTime });
     onClose();
   };
 
@@ -113,15 +56,14 @@ export default function UserPreferences({ onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
-            {availablePlatforms.data?.map((platform) => (
+            {form.platforms.map((platform) => (
               <View style={styles.checkboxRow} key={platform.id}>
                 <Checkbox
-                  value={selectedPlatforms.includes(platform.id)}
-                  onValueChange={() =>
-                    toggleSelection(platform.id, selectedPlatforms, setSelectedPlatforms)
+                  value={form.selectedPlatforms.includes(platform.id)}
+                  onValueChange={() => form.togglePlatform(platform.id)
                   }
                   color={
-                    selectedPlatforms.includes(platform.id)
+                    form.selectedPlatforms.includes(platform.id)
                       ? colors.dark.addButton
                       : colors.dark.text
                   }
@@ -135,15 +77,15 @@ export default function UserPreferences({ onClose, onApply }: Props) {
 
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
-            {availableGenres.data?.map((genre) => (
+            {form.genres.map((genre) => (
               <View style={styles.checkboxRow} key={genre.id}>
                 <Checkbox
-                  value={selectedGenres.includes(genre.id)}
+                  value={form.selectedGenres.includes(genre.id)}
                   onValueChange={() =>
-                    toggleSelection(genre.id, selectedGenres, setSelectedGenres)
+                    form.toggleGenre(genre.id)
                   }
                   color={
-                    selectedGenres.includes(genre.id)
+                    form.selectedGenres.includes(genre.id)
                       ? colors.dark.addButton
                       : colors.dark.text
                   }
@@ -153,11 +95,11 @@ export default function UserPreferences({ onClose, onApply }: Props) {
             ))}
           </View>
 
-          <Text style={styles.sectionTitle}>Weekly Play Time (hours)</Text>
+          <Text style={styles.sectionTitle}>Weekly Gaming Hours</Text>
           <TextInput
             style={styles.input}
-            value={weeklyPlayTime}
-            onChangeText={setWeeklyPlayTime}
+            value={form.weeklyGamingHours}
+            onChangeText={form.setWeeklyGamingHours}
             keyboardType="numeric"
             placeholder="e.g. 10"
             placeholderTextColor="#888"

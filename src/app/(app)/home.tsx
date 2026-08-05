@@ -1,88 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
   StyleSheet,
   Text,
   View,
   StatusBar,
   Pressable,
-  Modal,
-  TouchableWithoutFeedback,
 } from "react-native";
 import { colors } from "@/src/shared/constants/colors";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
-import { getAll, recommendGame } from "@/src/lib/api/videogameApi";
-import GameListCards from "@/src/features/videogames/GameListCards";
-import GameDetailsCard from "@/src/features/videogames/details/GameDetailsCard";
+import { useQuery } from "@tanstack/react-query";
 import AppHeader from "@/src/features/header/AppHeader";
 import { fetchUserPreferences } from "@/src/lib/api/userApi";
-import { UserPreference } from "@/src/shared/models/users/userPreferences";
-import { TimeToBeat } from "@/src/shared/models/videogames/timeToBeat";
+import { useVideogames } from "@/src/features/videogames/hooks/useVideogames";
+import GameDetailModal from "@/src/features/videogames/components/GameDetailModal";
+import { GamesGrid } from "@/src/features/videogames/components/GamesGrid";
+import { RecommendationModal } from "@/src/features/recommendation/components/RecommendationModal";
+import { Candidate } from "@/src/features/recommendation/domain/candidate";
+import { useRecommendVideogame } from "@/src/features/recommendation/hooks/useRecommendVideogame";
+import { useVideogameDetailsModal } from "@/src/features/videogames/hooks/useVideogameDetailsModal";
 
-const PAGE_SIZE = 50;
 
 export default function HomeScreen() {
 
-  const [detailVisible, setDetailVisible] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<number>();
-  const [activeTab, setActiveTab] = useState<"search" | "mygames">("search");
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const gameDetails = useVideogameDetailsModal()
   const insets = useSafeAreaInsets();
+  const { games,
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useVideogames();
+
+
   const userPreferenesQuery = useQuery({ queryKey: ["userPreferences"], queryFn: () => fetchUserPreferences() });
+  const [recommendedCandidate, setRecommendedCandidate] = useState<Candidate>();
 
-  useEffect(() => {
-    console.log("User preferences query data:", userPreferenesQuery.data);
-  }, [userPreferenesQuery.data]);
+  const recommendation = useRecommendVideogame()
 
-  const [recommendationVisible, setRecommendationVisible] = useState<boolean>(false);
-
-  const [recommendedItem, setRecommendedItem] = useState<number>();
-  const [recommendedTimeToBeat, setRecommendedTimeToBeat] = useState<TimeToBeat>();
-
-  const recommendation = useMutation({
-    mutationFn: (preferences: UserPreference) => recommendGame(preferences),
-    onSuccess: (data) => {
-      setRecommendedItem(data.videogameDetails.Id);
-      setRecommendedTimeToBeat(data.timeToBeat);
-      setRecommendationVisible(true);
-    },
-    onError: (error) => {
-      console.error("Recommendation error:", error);
-    },
-  });
-
-  const fetchVideogames = ({ pageParam = 0 }) =>
-    getAll(PAGE_SIZE, pageParam);
-
-  const videogamesQuery = useInfiniteQuery({
-    queryKey: ["videogames"],
-    initialPageParam: 0,
-    queryFn: fetchVideogames,
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage.length < PAGE_SIZE ? undefined : allPages.length * PAGE_SIZE,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
-
-  const games = videogamesQuery.data?.pages.flat();
-
-  // Gestionar favoritos
-  /*
-  const handleToggleFavorite = (game: any) => {
-    if (favorites.some((f) => f.id === game.id)) {
-      setFavorites(favorites.filter((f) => f.id !== game.id));
-    } else {
-      setFavorites([...favorites, game]);
+  const handleLoadMore = () => {
+    if (!isFetching && hasNextPage) {
+      fetchNextPage();
     }
   };
-  */
 
-  if (videogamesQuery.isLoading) {
+
+  if (isLoading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -90,10 +59,10 @@ export default function HomeScreen() {
     );
   }
 
-  if (videogamesQuery.isError) {
+  if (isError) {
     return (
       <View style={styles.center}>
-        <Text>{videogamesQuery.error?.toString()}</Text>
+        <Text>{error?.toString()}</Text>
       </View>
     );
   }
@@ -106,114 +75,25 @@ export default function HomeScreen() {
       }}
     >
       <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
-      <AppHeader title="" onUserPress={() => console.log("Perfil")} />
+      <AppHeader />
 
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          backgroundColor: colors.dark.card,
-          paddingVertical: 10,
-        }}
-      >
-        <Pressable onPress={() => setActiveTab("search")}>
-          <Text
-            style={{
-              color: activeTab === "search" ? colors.dark.text : "#888",
-              fontWeight: activeTab === "search" ? "bold" : "normal",
-            }}
-          >
-            All Games
-          </Text>
-        </Pressable>
+      <GamesGrid
+        games={games}
+        bottomPadding={90 + insets.bottom}
+        onSelect={gameDetails.open}
+        onEndReached={handleLoadMore}
+        isFetchingNextPage={isFetchingNextPage}
+      />
 
-        {/* <Pressable onPress={() => setActiveTab("mygames")}>
-          <Text
-            style={{
-              color: activeTab === "mygames" ? colors.dark.text : "#888",
-              fontWeight: activeTab === "mygames" ? "bold" : "normal",
-            }}
-          >
-            My Games
-          </Text>
-        </Pressable> */}
-      </View>
+      <GameDetailModal id={gameDetails.selectedId}
+        visible={gameDetails.visible}
+        onClose={gameDetails.close} />
 
-      {activeTab === "search" ? (
-        <FlatList
-          style={{ flex: 1 }}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.container,
-            { paddingBottom: 90 + insets.bottom },
-          ]}
-          data={games}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setSelectedItem(item.id);
-                setDetailVisible(true);
-              }}
-            >
-              <GameListCards videogame={item} />
-            </Pressable>
-          )}
-          numColumns={3}
-          onEndReached={() =>
-            !videogamesQuery.isFetching &&
-            videogamesQuery.hasNextPage &&
-            videogamesQuery.fetchNextPage()
-          }
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            videogamesQuery.isFetchingNextPage ? <ActivityIndicator /> : null
-          }
-        />
-      ) : (
-        <FlatList
-          style={{ flex: 1 }}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.container,
-            { paddingBottom: 90 + insets.bottom },
-          ]}
-          data={favorites}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setSelectedItem(item.id);
-                setDetailVisible(true);
-              }}
-            >
-              <GameListCards videogame={item} />
-            </Pressable>
-          )}
-          numColumns={3}
-        />
-      )}
-
-      <Modal visible={detailVisible} animationType="fade" transparent>
-        <TouchableWithoutFeedback onPress={() => setDetailVisible(false)}>
-          <View style={styles.backdrop} />
-        </TouchableWithoutFeedback>
-        <GameDetailsCard
-          id={selectedItem ?? 0}
-          onClose={() => setDetailVisible(false)}
-        />
-      </Modal>
-
-      <Modal visible={recommendationVisible} animationType="fade" transparent>
-        <TouchableWithoutFeedback onPress={() => setRecommendationVisible(false)}>
-          <View style={styles.backdrop} />
-        </TouchableWithoutFeedback>
-        <GameDetailsCard
-          id={recommendedItem ?? 0}
-          timeToBeat={recommendedTimeToBeat}
-          onClose={() => setRecommendationVisible(false)}
-        />
-      </Modal>
+      <RecommendationModal
+        visible={!!recommendedCandidate}
+        candidate={recommendedCandidate}
+        onClose={() => setRecommendedCandidate(undefined)}
+      />
 
       <View
         style={[
@@ -225,11 +105,12 @@ export default function HomeScreen() {
             styles.recommendButtonStyle,
             (!userPreferenesQuery.data || recommendation.isPending) && { opacity: 0.5 }
           ]}
-          onPress={() => {
-            if (!userPreferenesQuery.data) return;
-            recommendation.mutate(userPreferenesQuery.data);
+          onPress={async () => {
+
+            const response = await recommendation.mutateAsync();
+            setRecommendedCandidate(response.candidate);
           }}
-          disabled={!userPreferenesQuery.data || recommendation.isPending}
+          disabled={recommendation.isPending}
         >
           <Text style={{ color: colors.dark.text, fontWeight: "bold" }}>
             {recommendation.isPending ? "LOADING..." : "RECOMMEND"}

@@ -15,7 +15,6 @@ export async function getById(
   id: number,
 ): Promise<VideogameDetail> {
   const response = await api.get(videogamesAPI.getById(id));
-  console.log("getById response:", JSON.stringify(response));
 
   return response;
 }
@@ -34,6 +33,5 @@ export async function recommendGame(
   preferences: UserPreference
 ): Promise<RecommendGameResponse> {
   const response = await api.post(videogamesAPI.recommendation, preferences);
-  console.log("recommendGame response:", JSON.stringify(response));
   return response;
 }

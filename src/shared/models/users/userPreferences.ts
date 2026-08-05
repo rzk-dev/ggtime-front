@@ -3,9 +3,9 @@ import { Genre } from "../videogames/genres"
 import { GamePlatforms } from "../videogames/platform"
 
 export type UserPreference = {
-    id: number | null,
-    gamingHours: number,
-    genres: Genre[],
-    platforms: GamePlatforms[],
-    languages: Languages[]
+  id: number,
+  gamingHours: number,
+  genres: Genre[],
+  platforms: GamePlatforms[],
+  languages: Languages[]
 }
