@@ -2,16 +2,16 @@
 
 //const tintColorLight = '#0a7ea4';
 const tintColorDark = '#a72525ff';
-
+/*
 export const colors = {
-  /*light: {
+  light: {
     text: '#11181C',
     background: '#fff',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
-  },*/
+  },
   dark: {
     text: '#FFFFFF',
     background: '#303338',
@@ -22,7 +22,7 @@ export const colors = {
     addButton: '#08c561ff', //#d72e2e
   },
 };
-
+*/
 
 // Lima ácida
 const primaryColorDark = "#9ADE1B";
