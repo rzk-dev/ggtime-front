@@ -1,10 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from "react-native";
 import Checkbox from "expo-checkbox";
 import { colors } from "@/src/shared/constants/colors";
 import { useSupabase } from "@/src/lib/SupabaseProvider";
 import { queryClient } from "@/src/lib/queryClient";
 import { usePreferencesForm } from "../hooks/usePreferencesForm";
+import LogoutButton from "@/src/shared/components/LogoutButton";
 
 type Props = {
   onClose: () => void;
@@ -17,17 +18,15 @@ type Props = {
 
 export default function UserPreferences({ onClose, onApply }: Props) {
   const { signout } = useSupabase();
-  const form = usePreferencesForm()
+  const form = usePreferencesForm();
 
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
     queryClient.clear();
-    signout();
+    await signout();
   };
 
   const handleApply = async () => {
-    await form.save()
-
+    await form.save();
 
     onApply({
       selectedPlatforms: form.selectedPlatforms,
@@ -41,58 +40,64 @@ export default function UserPreferences({ onClose, onApply }: Props) {
   return (
     <View style={styles.overlay}>
       <View style={styles.panel}>
-
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <Text style={styles.title}>User Preferences</Text>
-
-          <Pressable onPress={onClose} style={styles.close}>
-            <Text style={styles.closeText}>Close</Text>
-          </Pressable>
-
-        </View>
+        {/* Cabecera */}
+        <Text style={styles.title}>User Preferences</Text>
         <View style={styles.divider} />
 
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-
+        {/* Contenido */}
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.sectionTitle}>Platforms</Text>
           <View style={styles.checkboxContainer}>
-            {form.platforms.map((platform) => (
-              <View style={styles.checkboxRow} key={platform.id}>
-                <Checkbox
-                  value={form.selectedPlatforms.includes(platform.id)}
-                  onValueChange={() => form.togglePlatform(platform.id)
-                  }
-                  color={
-                    form.selectedPlatforms.includes(platform.id)
-                      ? colors.dark.addButton
-                      : colors.dark.textMuted
-                  }
-                />
-                <Text style={styles.checkboxLabel}>{platform.name}</Text>
-              </View>
-            ))}
+            {form.platforms.map((platform) => {
+              const checked = form.selectedPlatforms.includes(platform.id);
+              return (
+                <Pressable
+                  key={platform.id}
+                  style={styles.checkboxRow}
+                  onPress={() => form.togglePlatform(platform.id)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked }}
+                  accessibilityLabel={platform.name}
+                >
+                  <Checkbox
+                    value={checked}
+                    onValueChange={() => form.togglePlatform(platform.id)}
+                    color={checked ? colors.dark.addButton : colors.dark.textMuted}
+                  />
+                  <Text style={styles.checkboxLabel}>{platform.name}</Text>
+                </Pressable>
+              );
+            })}
           </View>
 
           <View style={styles.divider} />
 
           <Text style={styles.sectionTitle}>Genres</Text>
           <View style={styles.checkboxContainer}>
-            {form.genres.map((genre) => (
-              <View style={styles.checkboxRow} key={genre.id}>
-                <Checkbox
-                  value={form.selectedGenres.includes(genre.id)}
-                  onValueChange={() =>
-                    form.toggleGenre(genre.id)
-                  }
-                  color={
-                    form.selectedGenres.includes(genre.id)
-                      ? colors.dark.addButton
-                      : colors.dark.textMuted
-                  }
-                />
-                <Text style={styles.checkboxLabel}>{genre.name}</Text>
-              </View>
-            ))}
+            {form.genres.map((genre) => {
+              const checked = form.selectedGenres.includes(genre.id);
+              return (
+                <Pressable
+                  key={genre.id}
+                  style={styles.checkboxRow}
+                  onPress={() => form.toggleGenre(genre.id)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked }}
+                  accessibilityLabel={genre.name}
+                >
+                  <Checkbox
+                    value={checked}
+                    onValueChange={() => form.toggleGenre(genre.id)}
+                    color={checked ? colors.dark.addButton : colors.dark.textMuted}
+                  />
+                  <Text style={styles.checkboxLabel}>{genre.name}</Text>
+                </Pressable>
+              );
+            })}
           </View>
 
           <Text style={styles.sectionTitle}>Weekly Gaming Hours</Text>
@@ -105,18 +110,22 @@ export default function UserPreferences({ onClose, onApply }: Props) {
             placeholderTextColor={colors.dark.textMuted}
           />
 
-          <View style={styles.buttonRow}>
-            <Pressable onPress={onClose} style={[styles.button, styles.cancelButton]}>
-              <Text style={styles.buttonText}>Cancel</Text>
-            </Pressable>
-            <Pressable onPress={handleApply} style={[styles.button, styles.applyButton]}>
-              <Text style={[styles.buttonText, styles.applyButtonText]}>Apply</Text>
-            </Pressable>
+          {/* Zona de cuenta, separada de las preferencias */}
+          <View style={styles.accountSection}>
+            <View style={styles.divider} />
+            <LogoutButton onLogout={handleLogout} style={styles.logout} />
           </View>
-          <Pressable onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </Pressable>
         </ScrollView>
+
+        {/* Footer fijo con las acciones principales */}
+        <View style={styles.footer}>
+          <Pressable onPress={onClose} style={[styles.button, styles.cancelButton]}>
+            <Text style={styles.buttonText}>Cancel</Text>
+          </Pressable>
+          <Pressable onPress={handleApply} style={[styles.button, styles.applyButton]}>
+            <Text style={[styles.buttonText, styles.applyButtonText]}>Apply</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -141,31 +150,25 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     width: "85%",
+    maxWidth: 480,
     maxHeight: "80%",
     elevation: 10,
   },
-  scrollContent: {
-    paddingBottom: 16,
-  },
-  close: {
-    alignSelf: "flex-start",
-    padding: 8,
-    marginBottom: 8,
-    backgroundColor: colors.dark.cardElevated,
-    borderRadius: 15,
 
-  },
-  closeText: {
-    color: colors.dark.text,
-    fontSize: 14,
-    fontWeight: "500",
-  },
+  // Cabecera
   title: {
     fontSize: 18,
     fontWeight: "700",
     color: colors.dark.text,
-    marginBottom: 12,
-    textAlign: "center",
+    marginBottom: 8,
+  },
+
+  // Contenido
+  scroll: {
+    flexShrink: 1,
+  },
+  scrollContent: {
+    paddingBottom: 8,
   },
   sectionTitle: {
     fontSize: 14,
@@ -173,7 +176,6 @@ const styles = StyleSheet.create({
     color: colors.dark.text,
     marginTop: 16,
     marginBottom: 8,
-    textAlign: "left",
   },
   checkboxContainer: {
     flexDirection: "row",
@@ -184,8 +186,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "45%",
-    marginVertical: 4,
+    marginVertical: 2,
     marginRight: "5%",
+    paddingVertical: 6,
   },
   checkboxLabel: {
     marginLeft: 8,
@@ -198,21 +201,41 @@ const styles = StyleSheet.create({
     borderColor: colors.dark.border,
     color: colors.dark.text,
     borderRadius: 8,
-    padding: 8,
+    padding: 10,
     fontSize: 14,
     marginTop: 6,
     marginBottom: 12,
   },
-  buttonRow: {
+  divider: {
+    height: 1,
+    backgroundColor: colors.dark.border,
+    marginVertical: 5,
+  },
+
+  // Cuenta
+  accountSection: {
+    marginTop: 20,
+  },
+  logout: {
+    marginTop: 16,
+  },
+
+  // Footer
+  footer: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 8,
+    gap: 12,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.dark.border,
   },
   button: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginLeft: 8,
+    flex: 1,
+    minHeight: 44,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
   cancelButton: {
     backgroundColor: colors.dark.cardElevated,
@@ -225,27 +248,9 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.dark.text,
     fontWeight: "700",
+    fontSize: 14,
   },
   applyButtonText: {
     color: colors.dark.onPrimary,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.dark.border,
-    marginVertical: 5,
-  },
-  logoutButton: {
-    marginTop: 12,
-    alignSelf: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.dark.danger,
-  },
-  logoutText: {
-    color: colors.dark.danger,
-    fontWeight: "700",
-    fontSize: 14,
   },
 });
