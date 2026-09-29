@@ -28,7 +28,6 @@ type Props = {
 
 const SUMMARY_COLLAPSED_LINES = 5;
 const SUMMARY_MIN_LENGTH_TO_COLLAPSE = 220;
-const LANGUAGES_MIN_LENGTH_TO_COLLAPSE = 90;
 const EMPTY = "—";
 
 function CloseButton({
@@ -75,7 +74,6 @@ export default function GameDetailsCard({ id, onClose }: Props) {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [summaryExpanded, setSummaryExpanded] = useState(false);
-  const [languagesExpanded, setLanguagesExpanded] = useState(false);
   const [coverOpen, setCoverOpen] = useState(false);
 
   useEffect(() => {
@@ -134,11 +132,9 @@ export default function GameDetailsCard({ id, onClose }: Props) {
 
   const summary: string = details.summary ?? "";
   const summaryCollapsible = summary.length > SUMMARY_MIN_LENGTH_TO_COLLAPSE;
-  const languagesCollapsible = languages.length > LANGUAGES_MIN_LENGTH_TO_COLLAPSE;
 
   return (
     <View style={styles.outerWrap}>
-      {/* Tocar fuera de la tarjeta cierra */}
       <Pressable
         style={StyleSheet.absoluteFill}
         onPress={onClose}
@@ -176,7 +172,6 @@ export default function GameDetailsCard({ id, onClose }: Props) {
                 {details.name}
               </Text>
 
-              {/* Stats */}
               <View style={styles.statsRow}>
                 <View style={styles.stat}>
                   <Text style={styles.statValue}>{releaseYear}</Text>
@@ -231,34 +226,14 @@ export default function GameDetailsCard({ id, onClose }: Props) {
               <View style={styles.divider} />
 
               <Text style={styles.sectionTitle}>Languages</Text>
-              <Text
-                style={styles.bodyText}
-                numberOfLines={
-                  languagesCollapsible && !languagesExpanded ? 2 : undefined
-                }
-              >
-                {languages}
-              </Text>
-              {languagesCollapsible && (
-                <Pressable
-                  onPress={() => setLanguagesExpanded((v) => !v)}
-                  hitSlop={8}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.toggleText}>
-                    {languagesExpanded ? "Show less" : "Show all"}
-                  </Text>
-                </Pressable>
-              )}
+              <Text style={styles.languageData}>{languages}</Text>
             </View>
           </ScrollView>
         </View>
 
-        {/* Siempre visible, tenga o no portada */}
         <CloseButton onPress={onClose} />
       </View>
 
-      {/* Portada completa en su aspecto original */}
       {details.coverUrl ? (
         <Modal
           visible={coverOpen}
@@ -299,8 +274,6 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: "transparent",
   },
-
-  // La sombra va en la tarjeta y el recorte en `clip`, para que iOS no corte la sombra
   card: {
     backgroundColor: colors.dark.card,
     borderWidth: 1,
@@ -323,7 +296,6 @@ const styles = StyleSheet.create({
     borderRadius: 13,
     overflow: "hidden",
   },
-
   close: {
     position: "absolute",
     top: 10,
@@ -341,7 +313,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
-
   cover: {
     width: "100%",
     backgroundColor: colors.dark.backgroundElevated,
@@ -376,7 +347,6 @@ const styles = StyleSheet.create({
     marginTop: 14,
     marginBottom: 12,
   },
-
   lightbox: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.92)",
@@ -385,7 +355,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-
   statsRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -415,7 +384,6 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     backgroundColor: colors.dark.border,
   },
-
   metaRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -432,7 +400,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "400",
   },
-
   chipBlock: {
     marginBottom: 10,
   },
@@ -455,7 +422,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
   },
-
   divider: {
     height: 1,
     backgroundColor: colors.dark.border,
@@ -472,13 +438,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 20,
   },
+  languageData: {
+    color: colors.dark.textSecondary,
+    marginBottom: 8,
+    fontSize: 14,
+    lineHeight: 20,
+    flexWrap: "wrap",
+  },
   toggleText: {
     color: colors.dark.tint,
     fontSize: 13,
     fontWeight: "700",
     marginTop: 6,
   },
-
   stateCard: {
     alignItems: "center",
     padding: 24,
