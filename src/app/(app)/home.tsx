@@ -53,16 +53,16 @@ export default function HomeScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View style={[styles.center, { backgroundColor: colors.dark.background }]}>
+        <ActivityIndicator size="large" color={colors.dark.tint} />
       </View>
     );
   }
 
   if (isError) {
     return (
-      <View style={styles.center}>
-        <Text>{error?.toString()}</Text>
+      <View style={[styles.center, { backgroundColor: colors.dark.background }]}>
+        <Text style={{ color: colors.dark.text }}>{error?.toString()}</Text>
       </View>
     );
   }
@@ -74,7 +74,7 @@ export default function HomeScreen() {
         backgroundColor: colors.dark.background,
       }}
     >
-      <StatusBar barStyle="default" backgroundColor={colors.dark.background} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
       <AppHeader />
 
       <GamesGrid
@@ -112,7 +112,7 @@ export default function HomeScreen() {
           }}
           disabled={recommendation.isPending}
         >
-          <Text style={{ color: colors.dark.text, fontWeight: "bold" }}>
+          <Text style={{ color: colors.dark.onPrimary, fontWeight: "bold" }}>
             {recommendation.isPending ? "LOADING..." : "RECOMMEND"}
           </Text>
         </Pressable>
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.dark.overlay,
   },
 
   bottomBar: {

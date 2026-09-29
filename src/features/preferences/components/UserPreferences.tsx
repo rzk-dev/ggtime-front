@@ -65,7 +65,7 @@ export default function UserPreferences({ onClose, onApply }: Props) {
                   color={
                     form.selectedPlatforms.includes(platform.id)
                       ? colors.dark.addButton
-                      : colors.dark.text
+                      : colors.dark.textMuted
                   }
                 />
                 <Text style={styles.checkboxLabel}>{platform.name}</Text>
@@ -87,7 +87,7 @@ export default function UserPreferences({ onClose, onApply }: Props) {
                   color={
                     form.selectedGenres.includes(genre.id)
                       ? colors.dark.addButton
-                      : colors.dark.text
+                      : colors.dark.textMuted
                   }
                 />
                 <Text style={styles.checkboxLabel}>{genre.name}</Text>
@@ -102,7 +102,7 @@ export default function UserPreferences({ onClose, onApply }: Props) {
             onChangeText={form.setWeeklyGamingHours}
             keyboardType="numeric"
             placeholder="e.g. 10"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.dark.textMuted}
           />
 
           <View style={styles.buttonRow}>
@@ -110,7 +110,7 @@ export default function UserPreferences({ onClose, onApply }: Props) {
               <Text style={styles.buttonText}>Cancel</Text>
             </Pressable>
             <Pressable onPress={handleApply} style={[styles.button, styles.applyButton]}>
-              <Text style={styles.buttonText}>Apply</Text>
+              <Text style={[styles.buttonText, styles.applyButtonText]}>Apply</Text>
             </Pressable>
           </View>
           <Pressable onPress={handleLogout} style={styles.logoutButton}>
@@ -129,13 +129,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.dark.overlay,
     justifyContent: "center",
     alignItems: "center",
     zIndex: 999,
   },
   panel: {
     backgroundColor: colors.dark.card,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
     borderRadius: 16,
     padding: 16,
     width: "85%",
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     padding: 8,
     marginBottom: 8,
-    backgroundColor: "rgba(0,0,0,0.15)",
+    backgroundColor: colors.dark.cardElevated,
     borderRadius: 15,
 
   },
@@ -188,10 +190,13 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     marginLeft: 8,
     fontSize: 13,
-    color: colors.dark.text,
+    color: colors.dark.textSecondary,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.dark.backgroundElevated,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    color: colors.dark.text,
     borderRadius: 8,
     padding: 8,
     fontSize: 14,
@@ -210,18 +215,23 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   cancelButton: {
-    backgroundColor: "#666",
+    backgroundColor: colors.dark.cardElevated,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
   },
   applyButton: {
     backgroundColor: colors.dark.addButton,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.dark.text,
     fontWeight: "700",
+  },
+  applyButtonText: {
+    color: colors.dark.onPrimary,
   },
   divider: {
     height: 1,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: colors.dark.border,
     marginVertical: 5,
   },
   logoutButton: {
@@ -231,10 +241,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e74c3c",
+    borderColor: colors.dark.danger,
   },
   logoutText: {
-    color: "#e74c3c",
+    color: colors.dark.danger,
     fontWeight: "700",
     fontSize: 14,
   },

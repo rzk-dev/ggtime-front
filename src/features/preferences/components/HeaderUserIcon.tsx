@@ -47,6 +47,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderRadius: 20,
     overflow: "hidden",
+    borderWidth: 2,
+    borderColor: colors.dark.tint,
   },
   pressed: {
     opacity: 0.7,
@@ -54,6 +56,6 @@ const styles = StyleSheet.create({
   avatar: {
     width: 35,
     height: 35,
-    backgroundColor: colors.dark.background,
+    backgroundColor: colors.dark.backgroundElevated,
   },
 });

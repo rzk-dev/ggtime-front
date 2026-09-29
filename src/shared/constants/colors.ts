@@ -1,7 +1,5 @@
-// TODO: Add app colors below:
-
 //const tintColorLight = '#0a7ea4';
-const tintColorDark = '#a72525ff';
+//const tintColorDark = '#a72525ff';
 /*
 export const colors = {
   light: {
@@ -37,7 +35,7 @@ const dangerColorLight = "#D9362E";
 const warningColorDark = "#FFD24D";
 const warningColorLight = "#B8860F";
  
-export const colors2 = {
+export const colors = {
   dark: {
     text: "#FFFFFF",
     textSecondary: "#C7CBBE",

@@ -60,13 +60,15 @@ const styles = StyleSheet.create({
   card: {
     margin: 5,
     backgroundColor: colors.dark.card,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
     paddingBottom: 10,
-    borderRadius: 5,
+    borderRadius: 10,
+    overflow: "hidden",
   },
   coverImage: {
     height: 100,
-    borderTopRightRadius: 5,
-    borderTopLeftRadius: 5,
+    backgroundColor: colors.dark.backgroundElevated,
   },
   titleContainer: {},
   title: {
@@ -90,6 +92,6 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.dark.overlay,
   },
 });

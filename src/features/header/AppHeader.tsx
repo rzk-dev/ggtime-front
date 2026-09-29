@@ -32,6 +32,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: colors.dark.card,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.dark.border,
     paddingHorizontal: 12,
     paddingTop: 14,
     paddingBottom: 10,

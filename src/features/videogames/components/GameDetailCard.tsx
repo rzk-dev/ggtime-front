@@ -147,6 +147,8 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.dark.card,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
     borderRadius: 14,
     ...Platform.select({
       ios: {
@@ -172,21 +174,22 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     justifyContent: "flex-start",
     alignItems: "flex-end",
+    backgroundColor: colors.dark.backgroundElevated,
   },
   close: {
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: colors.dark.overlay,
     paddingVertical: 4,
     paddingHorizontal: 8,
     margin: 8,
     borderRadius: 10,
   },
   closeText: {
-    color: "#fff",
+    color: colors.dark.text,
     fontSize: 14,
     fontWeight: "600",
   },
   favoriteButton: {
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: colors.dark.overlay,
     padding: 8,
     margin: 8,
     borderRadius: 20,
@@ -215,20 +218,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   metaLabel: {
-    color: colors.dark.text,
+    color: colors.dark.tint,
     fontSize: 12,
-    opacity: 0.85,
     fontWeight: "700",
   },
   metaValue: {
-    color: colors.dark.text,
+    color: colors.dark.textSecondary,
     fontSize: 12,
-    opacity: 0.9,
     fontWeight: "400",
   },
   divider: {
     height: 1,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: colors.dark.border,
     marginVertical: 12,
   },
   sectionTitle: {
@@ -238,13 +239,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   summaryText: {
-    color: colors.dark.text,
+    color: colors.dark.textSecondary,
     fontSize: 13,
     lineHeight: 20,
-    opacity: 0.95,
   },
   languageData: {
-    color: colors.dark.text,
+    color: colors.dark.textSecondary,
     marginBottom: 8,
     fontSize: 14,
     lineHeight: 20,
